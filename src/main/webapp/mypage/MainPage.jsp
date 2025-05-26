@@ -61,12 +61,7 @@
 	border-radius: 4px;
 }
 
-/* .button-group {
-  display: flex;
-  justify-content: center;
-  gap: 140px;
-  margin-top: 30px;
-} */
+
 
 .button-row {
   display: flex;
@@ -147,6 +142,14 @@
 	gap: 10px; /* 버튼 사이 간격 설정 */
 }
 
+delete-r{
+
+	display: flex;
+	justify-content: right;
+	margin-top: px;
+
+}
+
 .header-container {
 	display: flex;
 	justify-content: space-between;
@@ -197,7 +200,7 @@
 
 <div class="header-container">
  <h2>My 예매내역 <span class="badge bg-secondary">0건</span></h2><br>
- <div class="delete">
+ <div class="delete-r">
  	<input type="button" value="선택 삭제" class="btn btn-danger"/>
  </div>
  </div>
@@ -220,28 +223,28 @@
      <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>미션임파서블</td>
-      <td>IMAX</td>
-      <td>2025.05.20</td>
-      <td>예매완료</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
     <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>야당</td>
-      <td>일반관</td>
-      <td>2025.04.20</td>
-      <td>예매취소</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
     <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>극한직업</td>
-      <td>SCREENX</td>
-      <td>2019.01.23</td>
-      <td>예매완료</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </tbody>
 </table>
@@ -274,25 +277,25 @@
      <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>Mark</td>
-      <td>영화 재미 없어요</td>
-      <td>2025.01.01</td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
     <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>Jacob</td>
-      <td>예매 취소 어떻게 해요?</td>
-      <td>2025.05.01</td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
     <td>
         <input class="form-check-input" type="checkbox">
       </td>
-      <td>Mary</td>
-      <td>주차장 근처에 있나요?</td>
-      <td>2025.05.15</td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </tbody>
 </table>
