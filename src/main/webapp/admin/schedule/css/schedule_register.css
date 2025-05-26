@@ -1,0 +1,92 @@
+/* 전체 레이아웃 */
+.content-container {
+	position: fixed;
+	top: 80px;
+	left: 300px;
+	right: 0;
+	bottom: 0;
+	padding: 40px;
+	background-color: #f9f9f9;
+	overflow-y: auto;
+	font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 모달창 */
+.modal {
+	display: block;
+	position: relative;
+	background-color: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 30px;
+}
+
+.modal-content h2 {
+	margin-bottom: 30px;
+	font-size: 24px;
+	color: #333;
+	text-align: center;
+}
+
+/* 폼 영역 */
+.register-container {
+	width: 100%;
+}
+
+.form-group {
+	margin-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.form-group label {
+	font-weight: bold;
+	margin-bottom: 8px;
+	color: #555;
+}
+
+.form-group select,
+.form-group input {
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 16px;
+	background-color: #fff;
+	transition: border-color 0.3s ease;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+	border-color: #007bff;
+	outline: none;
+}
+
+/* 등록 버튼 */
+.edit-btn {
+	background-color: #007bff;
+	color: white;
+	padding: 12px 24px;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	margin-top: 20px;
+}
+.delete-btn {
+	background-color: #EB1C24;
+	color: white;
+	padding: 12px 24px;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	margin-top: 20px;
+}
+
+.submit-btn:hover {
+	background-color: #0056b3;
+}
