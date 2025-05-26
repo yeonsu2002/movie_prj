@@ -1,0 +1,167 @@
+@charset "UTF-8";
+#container {
+    min-height: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #000;
+    width: 100%;
+    display:flex; 
+ 
+}        
+        .theater-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .theater-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .theater-image-section {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .theater-background-image {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .theater-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(5px);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .theater-info-left {
+            flex: 1;
+            border-right: 2px solid rgba(255, 255, 255, 0.3);
+            padding-right: 30px;
+        }
+        
+        .theater-info-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .theater-description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .theater-contact {
+            font-size: 13px;
+            color: #ccc;
+        }
+        
+        .contact-item {
+            margin-bottom: 5px;
+        }
+        
+        .visit-button {
+            background: linear-gradient(45deg, #e50914, #ff1744);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+        }
+        
+        .visit-button:hover {
+            background: linear-gradient(45deg, #ff1744, #e50914);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+        }
+        
+        .visit-button:active {
+            transform: translateY(0);
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .theater-container {
+                padding: 15px;
+            }
+            
+            .theater-title {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .theater-image-section {
+                height: 300px;
+            }
+            
+            .theater-overlay {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .theater-info-left {
+                border-right: none;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+                padding-right: 0;
+                padding-bottom: 20px;
+                width: 100%;
+            }
+            
+            .theater-info-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .visit-button {
+                width: 100%;
+                padding: 15px 24px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .theater-image-section {
+                height: 250px;
+            }
+            
+            .theater-overlay {
+                padding: 15px;
+            }
+            
+            .theater-description {
+                font-size: 13px;
+            }
+            
+            .theater-contact {
+                font-size: 12px;
+            }
+        }
