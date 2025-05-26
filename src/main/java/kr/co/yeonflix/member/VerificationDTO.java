@@ -17,4 +17,5 @@ public class VerificationDTO {
   private LocalDateTime createdAt;
   private LocalDateTime expireAt;
   private String isVerified;
+  private String email;
 }

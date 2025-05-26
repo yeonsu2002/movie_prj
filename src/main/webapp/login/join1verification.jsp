@@ -402,6 +402,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 display.textContent = "00:00";
                 verificationError.style.display = 'block';
                 verificationError.textContent = "인증 시간이 만료되었습니다. 다시 시도해주세요.";
+                //5분 지났으므로 세션의 인증코드 번호 삭제 
+               	$.ajax({
+               		url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+               		type : "POST"
+               	});
                 generatedCode = '';
             }
         }, 1000);
@@ -421,41 +426,79 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         emailError.style.display = 'none';
-        generatedCode = generateVerificationCode();
         
-        // In a real application, you would send the code via email
-        console.log('Verification code:', generatedCode);
-//----------------- 세션에도 추가. 인증번호 재 전송시에는 기존세션 인증번호 삭제 후에 다시 생성 ---------------------------------------------------------------------
         
+        //인증번호 생성 이메일 보내기 
+        //번호생성 -> 이메일 전송 -> 세션에 이메일과 번호를 저장 (보관:5분) -> 다음 클릭시, 값 확인: 세션값과 대조
+       	$.ajax({
+       		url : "${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
+       		type : "POST",
+       		data : {
+       			email : email,
+       			action : "join"
+       		},
+       		success:function(result){
+       			if(result == "success"){
+       				alert("이메일발송, 세션추가 성공");
+       			} else  if(result == "fail"){
+       				alert("이메일발송, 세션추가 실패");
+       			}
+       		}
+       		
+       	});
         
         // Show verification form
         verificationForm.style.display = 'block';
         emailSentSuccess.style.display = 'block';
         
-        // Start the timer
+        // Start the timer (여기서 5분뒤 세션값 삭제하는 ajax코드 작성됨)
         startTimer(300, verificationTimer); // 5 minutes
         
-        // Disable the send button temporarily
+        // 인증번호 보내기 버튼 일시적 정지 
         sendVerificationBtn.disabled = true;
         setTimeout(() => {
             sendVerificationBtn.disabled = false;
-        }, 30000); // Enable after 30 seconds
+        }, 60000); // 60초 후에 재전송 가능 
     });
     
+    //확인버튼 눌렀을 때 
     verifyCodeBtn.addEventListener('click', function() {
-        const code = verificationCode.value.trim();
+        const code = verificationCode.value.trim(); //사용자 입력값 
         
-        if (code === generatedCode && code !== '') {
-            verificationError.style.display = 'none';
-            verificationForm.style.display = 'none';
-            verificationSuccess.style.display = 'block';
-            clearInterval(timerInterval);
-            
-            // Enable next step button
-            nextStepBtn.disabled = false;
-        } else {
-            verificationError.style.display = 'block';
-        }
+        $.ajax({
+        	url : "${pageContext.request.contextPath}/login/controller/checkVerificationCode.jsp",
+        	type : "POST",
+        	dataType : "JSON",
+        	data : {
+        		code : code
+        	},
+        	success : function(response){
+        		console.log("response.result:", response.result);
+        		if(response.result == "success"){
+        			console.log("result값은 success");
+	            verificationError.style.display = 'none';
+	            verificationForm.style.display = 'none';
+	            verificationSuccess.style.display = 'block';
+	            clearInterval(timerInterval);
+	            
+	            // 다음버튼 활성화 
+	            nextStepBtn.disabled = false;
+        		}
+        		if(response.result === "fail"){
+        			alert("인증번호가 일치하지 않습니다.");
+        			verificationError.style.display = 'block'; //오류표기 
+        		}
+        		
+        	},
+        	error : function(xhr, status, error){
+       	    console.log("AJAX 요청 실패");
+       	    console.log("status: " + status);            // 요청 상태
+       	    console.log("error: " + error);              // 에러 메시지
+       	    console.log("responseText: " + xhr.responseText); // 서버에서 반환된 에러 내용
+        	}
+        	
+        	
+        });
     });
     
     emailInput.addEventListener('input', function() {

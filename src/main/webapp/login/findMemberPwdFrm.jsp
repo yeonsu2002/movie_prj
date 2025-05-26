@@ -246,7 +246,10 @@ $(function(){
 								$.ajax({
 									url:"${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
 									type:"POST",
-									data:{email : email},
+									data:{
+										email : email,
+										action : "findPwd"
+									},
 									success:function(result){
 										if(result.trim() === "make_success"){
 											alert("인증번호 생성, DB 입력 성공");
