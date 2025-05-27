@@ -3,6 +3,7 @@
     info=""%>
 <% 
 response.setContentType("application/json");
+
 String code = request.getParameter("code");
 String sessionCode = (String)session.getAttribute("verificationCode");
 

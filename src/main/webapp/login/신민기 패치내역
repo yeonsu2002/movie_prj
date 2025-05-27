@@ -9,3 +9,4 @@ server.xml 아랫단에,
 
 javaMail 네이버 사용 -> IMAP/SMTP설정 '사용함' 클릭, 앱에서 2차 보안 비밀번호 발급 필요 
 
+oninput="this.value = this.value.replace(/[^0-9]/g, '');"  -> input에 붙이면 숫자만 허용하고, 다른건 자동으로 지움 

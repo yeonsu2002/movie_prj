@@ -119,13 +119,174 @@
 </style>
 <!-- <link rel="stylesheet" href="http://localhost/movie_prj/login/css/findMemberPwdFrm.css"> 왜 안되냐-->
 <script type="text/javascript">
-
+let countdownInterval; // 전역 변수로 선언하여 재시작/중지 가능
 $(function(){
+	//이메일검증
+	function validateEmail(email) {
+const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+return regex.test(email);
+}
+
+	/* 인증번호 받기 버튼 눌렀을 때 */
+	$("#getCodeEmail").on("click", function(){
+		const email = $("input[name='email']").val().trim();
+		//잘못된 이메일 주소일 때 -> 오류표시
+		if(!validateEmail(email)){
+			$(".pw_field_row.wrongEmail").css("display", "block");
+			return;
+		}
+		//옳바른 이메일 주소일 때 -> 작업진행
+		let userId = $("#userId").val();
+		let birth = $("#birth").val();
+		
+		//1. 아이디,생일,이메일로 가입되어있는 멤버인지 확인
+		$.ajax({
+			url:"${pageContext.request.contextPath}/login/controller/getMemVerificationCode.jsp",
+			type:"POST",
+			data:{
+				userId : userId,
+				birth : birth,
+				email : email
+			},
+			success:function(result){
+				if(result.trim() === "haveUserdata"){
+					//입력칸잠금(혹시 수정하면 오류 발생할거같아)
+					$("#userId").prop("readonly", true);
+					$("#birth").prop("readonly", true);
+					$("#email").prop("readonly", true);
+
+				  //2. 멤버로 확인된 후, 인증코드를 이메일 보내는 작업 호출
+					sendVerificationCode(email);
+					
+				} else if (result.trim() === "noUserdata"){
+					alert("등록되지 않은 회원입니다. 개인정보를 다시 한번확인해주세요.");
+				}
+			},
+			error: function(xhr, status, error){
+				console.error("에러 발생!");
+    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
+    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
+    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
+    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
+			}
+			
+		});
+		
+	});
+	
+	$("input[name='email']").on("input", function(){
+		$(".pw_field_row.wrongEmail").css("display", "none");
+	});
+	
+	/* 이메일로 인증코드 보내고, DB업데이트 작업 */  
+	function sendVerificationCode(email){
+		//console.log("sendVerificationCode 함수 작동? 작동중 ");
+		$.ajax({
+			url:"${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
+			type:"POST",
+			data:{
+				email : email,
+				action : "findPwd"
+			},
+			dataType : "text",
+			success:function(result){
+				if(result.trim() === "success"){
+					alert("인증번호 생성, DB 입력 성공");
+					startTimer(300); // 5분(300초) 타이머 시작
+				  $("#confirmNumberBtn").prop("disabled", false).css("background-color", "#f14d4d"); // 만약 이전에 비활성화 되어 있으면 활성화
+					
+				} else if(result.trim() === "fail") {
+					alert("인증번호 생성, DB 입력 실패");
+				}
+			},
+			error:function(xhr, status, error){
+				console.error("에러 발생!");
+    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
+    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
+    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
+    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
+			}
+			
+		});
+	}
+	
+	//인증번호 확인버튼 
+	$("#confirmNumberBtn").on("click", function(){
+		let code = $("#verificationNumb").val();
+		
+		if(code.length === 6 ){
+			$.ajax({
+				url : "${pageContext.request.contextPath}/login/controller/checkVerificationCode.jsp",
+				type : "POST",
+				dataType : "JSON",
+				data : {
+					code : code
+				},
+				success : function(response){
+	     		console.log("response.result:", response.result);
+	     		if(response.result == "success"){
+	     			//확인되었으니, 모든 버튼 비활성화
+	          $("#verify-success-msg").show(); //인증이 확인되었습니다. 표시 
+	          $("#getCodeEmail").css("background-color", "#BDBDBD");//인증번호 받기 버튼 색 변경
+	          $("#getCodeEmail").prop("disabled", true);//인증번호 받기 버튼 비활성화
+						$("#confirmNumberBtn").css("background-color", "#BDBDBD");//인증확인 버튼 색 변경
+	          $("#confirmNumberBtn").prop("disabled", true); //인증확인 버튼 비활성화
+						$("#findPwdBtn").css("background-color", "#f14d4d");//비밀번호 찾기 버튼 색 변경
+	          $("#findPwdBtn").prop("disabled", false); //비밀번호 찾기 버튼 활성화 
+	     		}
+	     		if(response.result === "fail"){
+	     			alert("인증번호가 일치하지 않습니다.");
+	     			verificationError.style.display = 'block'; //오류표기 
+	     		}
+       	},
+				error : function(xhr, status, error){
+					console.log("AJAX 요청 실패");
+     	    console.log("status: " + status);            // 요청 상태
+     	    console.log("error: " + error);              // 에러 메시지
+     	    console.log("responseText: " + xhr.responseText); // 서버에서 반환된 에러 내용
+				}
+				
+			}); //end ajax
+			
+		}//end if
+		
+	})//인증번호 확인버튼 끝
+	
+	
+	/* 비밀번호 찾기 버튼을 누르면, 페이지 이동 */
+	function getNewPassword(){
+		$("#findPwdBtn").on("click", function(){
+			alert("이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 ");
+			//이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 
+		});
+	}//end getNewPassword()
 	
 	
 	
+	/* 타이머 */
+	function startTimer(duration) {
+		console.log("startTimer함수 작동? 안되고있어 ");
+	  let timer = duration;
+	  const timerDisplay = document.getElementById("timer");
+	  
+	  // 이전 타이머 중지
+	  clearInterval(countdownInterval);
 	
-});
+	  countdownInterval = setInterval(function () {
+	    let minutes = Math.floor(timer / 60);
+	    let seconds = timer % 60;
+	
+	    timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+	
+	    if (--timer < 0) {
+	      clearInterval(countdownInterval);
+	      timerDisplay.textContent = "인증시간 만료";
+	      $("#confirmNumberBtn").prop("disabled", true).css("background-color", "#BDBDBD");
+	    }
+	  }, 1000);
+	}//end 타이머
+	
+});//ready
 
 </script>
 </head>
@@ -167,7 +328,7 @@ $(function(){
                 <div class="pw_field_name">이메일주소</div>
                 <div style="display: flex; align-items: center;">
                   <input type="email" class="pw_field_input" id="email" name="email" style="width: 200px;" required>
-                  <button class="pw_verify_btn" type="button">인증번호받기</button>
+                  <button class="pw_verify_btn" type="button" id="getCodeEmail">인증번호받기</button>
                 </div>
               </div>
               
@@ -175,127 +336,29 @@ $(function(){
 	              <div class="error-message" id="email-error" >올바른 이메일 주소를 입력해주세요.</div>
               </div>
 
-              <div class="pw_field_row">
+              <div class="pw_field_row" >
                 <div class="pw_field_name">인증번호<br>(6자리)</div>
                 <div>
-                  <input type="password" id="verificationNumb" class="pw_field_input" name="verifiedCode" maxlength="6" required>
+                  <input style="width: 200px;" type="password" id="verificationNumb" class="pw_field_input" name="verifiedCode" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '');"  required>
+                 	<button class="pw_verify_btn" type="button" id="confirmNumberBtn">확인</button>
+               	  <span id="timer" style="margin-left:10px; font-size: 13px; color: #f14d4d;">5:00 이거왜안돼?</span>
+                 	<div id="verify-success-msg" style="color: #f14d4d; font-size: 13px; margin-top: 5px; display: none;">
+							      인증이 확인되었습니다.
+							    </div>
                 </div>
               </div>
             </div>
             
 						<script type="text/javascript">
-							//이메일검증
-							function validateEmail(email) {
-				        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-				        return regex.test(email);
-					    }
-						
-							$(".pw_verify_btn").on("click", function(){
-								const email = $("input[name='email']").val().trim();
-								//잘못된 이메일 주소일 때 -> 오류표시
-								if(!validateEmail(email)){
-									$(".pw_field_row.wrongEmail").css("display", "block");
-									return;
-								}
-								//옳바른 이메일 주소일 때 -> 작업진행
-								let userId = $("#userId").val();
-								let birth = $("#birth").val();
-								
-								$.ajax({
-									url:"${pageContext.request.contextPath}/login/controller/getMemVerificationCode.jsp",
-									type:"POST",
-									data:{
-										userId : userId,
-										birth : birth,
-										email : email
-									},
-									success:function(result){
-										if(result.trim() === "haveUserdata"){
-											alert("유저확인 : 이제 이메일 보내는 작업을 하세요.");
-											//입력칸잠금(혹시 수정하면 오류 발생할거같아)
-											$("#userId").prop("readonly", true);
-											$("#birth").prop("readonly", true);
-											$("#email").prop("readonly", true);
-											
-											//인증코드를 이메일 보내는 작업 호출
-											sendVerificationCode(email);
-											
-										} else if (result.trim() === "noUserdata"){
-											alert("등록되지 않은 회원입니다. 개인정보를 다시 한번확인해주세요.");
-										}
-									},
-									error: function(xhr, status, error){
-										console.error("에러 발생!");
-						    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
-						    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
-						    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
-						    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
-									}
-									
-								});
-								
-							});
-							
-							$("input[name='email']").on("input", function(){
-								$(".pw_field_row.wrongEmail").css("display", "none");
-							});
-							
-							function sendVerificationCode(email){
-								console.log("보낼 이메일 주소: ", email);
-								
-								$.ajax({
-									url:"${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
-									type:"POST",
-									data:{
-										email : email,
-										action : "findPwd"
-									},
-									success:function(result){
-										if(result.trim() === "make_success"){
-											alert("인증번호 생성, DB 입력 성공");
-										} else if(result.trim() === "make_false") {
-											alert("인증번호 생성, DB 입력 실패");
-										}
-									},
-									error:function(xhr, status, error){
-										console.error("에러 발생!");
-						    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
-						    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
-						    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
-						    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
-									}
-									
-								});
-							}
 							
 							
 						</script>            
-            <!--  
-	           		<div class="form-group" id="verification-form" style="display: none;">
-									<div class="success-message" id="email-sent-success">
-									입력하신 이메일로 인증번호가 발송되었습니다.
-									</div>
-									<label for="verification-code">인증번호 <span class="timer" id="verification-timer">05:00</span></label><br>
-									<div class="input-group">
-										<input type="text" id="verification-code" placeholder="인증번호 6자리 입력" maxlength="6">
-										<button id="verify-code" type="button">확인</button>
-									</div>
-									<div class="error-message" id="verification-error">인증번호가 일치하지
-										않습니다.</div>
-								</div>
-						
-								<div class="form-group" id="verification-success"
-									style="display: none;">
-									<div class="success-message" style="display: block;">이메일 인증이
-										완료되었습니다.</div>
-								</div>
-            -->
 
             <div class="pw_btn_group">
               <button style="background-color: white; border: 1px solid #ddd; padding: 10px 20px;" type="reset">
                 개인정보 다시입력
               </button>
-              <button id="findPwdBtn" class="pw_btn_red" type="submit">비밀번호 찾기</button>
+              <button style="background-color: #BDBDBD" id="findPwdBtn" class="pw_btn_red" type="submit" disabled>비밀번호 찾기</button>
             </div>
           </div>
         </form>
