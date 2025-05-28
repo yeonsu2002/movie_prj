@@ -24,6 +24,23 @@ public class ReservedSeatService {
 	}//addReservedSeat
 	
 	/**
+	 * 예매한 좌석들의 상태를 일괄적으로 0으로 update
+	 * @param reservationIdx
+	 * @return
+	 */
+	public boolean modifyReservedSeat(int reservationIdx) {
+		boolean flag = false;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.updateReservedSeat(reservationIdx);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return flag;
+	}//modifyReservedSeat
+	
+	/**
 	 * 좌석번호로 좌석IDX를 가져오는 코드
 	 * @param seatNumber
 	 * @return
