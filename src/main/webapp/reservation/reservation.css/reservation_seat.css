@@ -68,6 +68,7 @@
 
 .seat.occupied {
 	background-color: #BBBBBB;
+	pointer-events: none;
 }
 .seat-ex {
 	width: 25px;

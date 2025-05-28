@@ -22,4 +22,5 @@ public class ScheduleTheaterDTO {
 	    private Timestamp startTime;
 	    private Timestamp endTime;
 	    private int scheduleStatus;
+	    private int remainSeats;
 }

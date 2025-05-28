@@ -154,7 +154,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "update schedule set movie_idx=?, theater_idx=?, screen_date=?, start_time=?, end_time=?, schedule_status=? where schedule_idx=?";
+			String query = "update schedule set movie_idx=?, theater_idx=?, screen_date=?, start_time=?, end_time=?, schedule_status=?, remain_seats=? where schedule_idx=?";
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, schDTO.getMovieIdx());
 			pstmt.setInt(2, schDTO.getTheaterIdx());
@@ -162,7 +162,8 @@ class ScheduleDAO {
 			pstmt.setTimestamp(4, schDTO.getStartTime());
 			pstmt.setTimestamp(5, schDTO.getEndTime());
 			pstmt.setInt(6, schDTO.getScheduleStatus());
-			pstmt.setInt(7, schDTO.getScheduleIdx());
+			pstmt.setInt(7, schDTO.getRemainSeats());
+			pstmt.setInt(8, schDTO.getScheduleIdx());
 
 			pstmt.executeUpdate();
 		} finally {
@@ -212,7 +213,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, START_TIME, END_TIME, SCHEDULE_STATUS FROM SCHEDULE where THEATER_IDX=? and SCREEN_DATE=?";
+			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, START_TIME, END_TIME, SCHEDULE_STATUS, REMAIN_SEATS FROM SCHEDULE where THEATER_IDX=? and SCREEN_DATE=?";
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, theaterIdx);
@@ -228,6 +229,7 @@ class ScheduleDAO {
 				scDTO.setStartTime(rs.getTimestamp("start_time"));
 				scDTO.setEndTime(rs.getTimestamp("end_time"));
 				scDTO.setScheduleStatus(rs.getInt("schedule_status"));
+				scDTO.setRemainSeats(rs.getInt("remain_seats"));
 
 				list.add(scDTO);
 			}
@@ -255,7 +257,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME FROM SCHEDULE WHERE SCHEDULE_IDX=?";
+			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, REMAIN_SEATS FROM SCHEDULE WHERE SCHEDULE_IDX=?";
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, scheduleIdx);
@@ -269,6 +271,7 @@ class ScheduleDAO {
 				schDTO.setScreenDate(rs.getDate("screen_date"));
 				schDTO.setStartTime(rs.getTimestamp("start_time"));
 				schDTO.setEndTime(rs.getTimestamp("end_time"));
+				schDTO.setRemainSeats(rs.getInt("remain_seats"));
 			}
 		} finally {
 			dbCon.dbClose(rs, pstmt, con);
@@ -292,7 +295,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "select SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS from schedule";
+			String query = "select SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS, REMAIN_SEATS from schedule";
 
 			pstmt = con.prepareStatement(query);
 			rs = pstmt.executeQuery();
@@ -307,6 +310,7 @@ class ScheduleDAO {
 				schDTO.setStartTime(rs.getTimestamp("start_time"));
 				schDTO.setEndTime(rs.getTimestamp("end_time"));
 				schDTO.setScheduleStatus(rs.getInt("schedule_status"));
+				schDTO.setRemainSeats(rs.getInt("remain_seats"));
 
 				list.add(schDTO);
 			}
@@ -334,7 +338,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS FROM SCHEDULE WHERE SCREEN_DATE=?";
+			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS, REMAIN_SEATS FROM SCHEDULE WHERE SCREEN_DATE=?";
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setDate(1, screenDate);
@@ -350,6 +354,7 @@ class ScheduleDAO {
 				schDTO.setStartTime(rs.getTimestamp("start_time"));
 				schDTO.setEndTime(rs.getTimestamp("end_time"));
 				schDTO.setScheduleStatus(rs.getInt("schedule_status"));
+				schDTO.setRemainSeats(rs.getInt("remain_seats"));
 
 				list.add(schDTO);
 			}
@@ -380,7 +385,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS FROM SCHEDULE WHERE MOVIE_IDX=? AND SCREEN_DATE=?";
+			String query = "SELECT SCHEDULE_IDX, MOVIE_IDX, THEATER_IDX, SCREEN_DATE, START_TIME, END_TIME, SCHEDULE_STATUS, REMAIN_SEATS FROM SCHEDULE WHERE MOVIE_IDX=? AND SCREEN_DATE=?";
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, movieIdx);
@@ -397,6 +402,7 @@ class ScheduleDAO {
 				schDTO.setStartTime(rs.getTimestamp("start_time"));
 				schDTO.setEndTime(rs.getTimestamp("end_time"));
 				schDTO.setScheduleStatus(rs.getInt("schedule_status"));
+				schDTO.setRemainSeats(rs.getInt("remain_seats"));
 
 				list.add(schDTO);
 			}
@@ -424,7 +430,7 @@ class ScheduleDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "SELECT t.theater_idx, t.theater_name, t.theater_type, t.movie_price, s.schedule_idx, s.movie_idx, s.screen_date, s.start_time, s.end_time, s.schedule_status FROM theater t JOIN schedule s ON t.theater_idx = s.theater_idx WHERE s.screen_date=? AND s.movie_idx=?";
+			String query = "SELECT t.theater_idx, t.theater_name, t.theater_type, t.movie_price, s.schedule_idx, s.movie_idx, s.screen_date, s.start_time, s.end_time, s.schedule_status, s.remain_seats FROM theater t JOIN schedule s ON t.theater_idx = s.theater_idx WHERE s.screen_date=? AND s.movie_idx=?";
 			
 			pstmt = con.prepareStatement(query);
 			pstmt.setDate(1, screenDate);
@@ -444,6 +450,7 @@ class ScheduleDAO {
 				scthDTO.setTheaterName(rs.getString("theater_name"));
 				scthDTO.setTheaterType(rs.getString("theater_type"));
 				scthDTO.setMoviePrice(rs.getInt("movie_price"));
+				scthDTO.setRemainSeats(rs.getInt("remain_seats"));
 				
 				list.add(scthDTO);
 			}

@@ -53,7 +53,7 @@
  	<!-- 상단 버튼 영역  -->
 <div class="header-container">
     <div class="header-buttons">
-        <a href="#" class="header-button">
+        <a href="http://localhost/movie_prj/admin/dashboard/dashboard.jsp" class="header-button">
             <img src="http://localhost/movie_prj/common/img/home_icon.png" alt="홈 아이콘" class="button-icon">
             메인으로
         </a>

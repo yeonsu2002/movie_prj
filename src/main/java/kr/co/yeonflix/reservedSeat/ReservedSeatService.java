@@ -1,0 +1,76 @@
+package kr.co.yeonflix.reservedSeat;
+
+import java.sql.SQLException;
+import java.util.List;
+
+public class ReservedSeatService {
+
+	/**
+	 * 예매좌석을 등록하는 코드
+	 * @param rsDTO
+	 * @return
+	 */
+	public boolean addReservedSeat(ReservedSeatDTO rsDTO) {
+		boolean flag = false;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.insertRservedSeat(rsDTO);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return flag;
+	}//addReservedSeat
+	
+	/**
+	 * 좌석번호로 좌석IDX를 가져오는 코드
+	 * @param seatNumber
+	 * @return
+	 */
+	public int searchSeatIdx(String seatNumber) {
+		int seatIdx = 0;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			seatIdx = rsDAO.selectSeatIdx(seatNumber);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return seatIdx;
+	}//searchSeatIdx
+	
+	/**
+	 * reservationIdx로 좌석 이름들만 리스트로 빼오기
+	 * @param reservationIdx
+	 * @return
+	 */
+	public List<String> searchSeatNumberWithReservation(int reservationIdx){
+		List<String> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectSeatNumberWithReservation(reservationIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchSeatNumberWithReservation
+	
+	/**
+	 * scheduleIdx로 예매된 좌석 이름들 빼오기
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public List<String> searchSeatNumberWithSchedule(int scheduleIdx){
+		List<String> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectSeatNumberWithSchedule(scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchSeatNumberWithSchedule
+}

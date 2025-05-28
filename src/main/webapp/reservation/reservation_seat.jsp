@@ -1,3 +1,5 @@
+<%@page import="java.util.List"%>
+<%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
 <%@page import="kr.co.yeonflix.theater.TheaterService"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
@@ -23,9 +25,14 @@ int theaterIdx = schDTO.getTheaterIdx();
 TheaterService ts = new TheaterService();
 TheaterDTO tDTO = ts.searchTheaterWithIdx(theaterIdx);
 
+//예매된 좌석 정보
+ReservedSeatService rss = new ReservedSeatService();
+List<String> occupiedSeats = rss.searchSeatNumberWithSchedule(scheduleIdx);
+
 request.setAttribute("schDTO", schDTO);
 request.setAttribute("mDTO", mDTO);
 request.setAttribute("tDTO", tDTO);
+request.setAttribute("occupiedSeats", occupiedSeats);
 %>
 <!DOCTYPE html>
 <html>
@@ -47,8 +54,23 @@ request.setAttribute("tDTO", tDTO);
 	IMP.init("imp03140165"); //결제관련코드
 	var moviePrice = ${tDTO.moviePrice};
 	var totalPrice;
+	var occupiedSeats = [
+	    <c:forEach var="seat" items="${occupiedSeats}" varStatus="status">
+	        "${seat}"<c:if test="${!status.last}">,</c:if>
+	    </c:forEach>
+	];
 
 	$(function() {
+
+		$('.seat').each(function() {
+	        var row = $(this).data('row');
+	        var col = $(this).data('col');
+	        var seatName = row + col;
+	        
+	        if (occupiedSeats.includes(seatName)) {
+	            $(this).addClass('occupied');
+	        }
+	    });
 
 		//좌석을 클릭했을 때
 		$('.seat').click(function() {
@@ -173,7 +195,7 @@ request.setAttribute("tDTO", tDTO);
 </head>
 <body>
 	<header>
-		<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
+		<jsp:include page="../common/jsp/header.jsp"/>
 	</header>
 	<main>
 		<div id="container">
@@ -208,7 +230,7 @@ request.setAttribute("tDTO", tDTO);
 							<div style="margin-bottom: 5px;">
 								<span>연플릭스</span> &nbsp;|&nbsp; <span>${tDTO.theaterName}</span>
 								&nbsp;|&nbsp; <span>남은좌석 <span style="color: red;"><c:out
-											value="${movieInfo.remainSeats}" default="136" /></span>/140
+											value="${schDTO.remainSeats}"/></span>/140
 								</span>
 							</div>
 							<div class="schedule-time">

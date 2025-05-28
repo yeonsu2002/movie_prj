@@ -19,7 +19,7 @@
 //날짜 가공
 List<Map<String, String>> dateList = new ArrayList<>();
 SimpleDateFormat monthSdf = new SimpleDateFormat("M월");
-SimpleDateFormat daySdf = new SimpleDateFormat("d");
+SimpleDateFormat daySdf = new SimpleDateFormat("dd");
 SimpleDateFormat weekSdf = new SimpleDateFormat("E");
 SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -70,7 +70,7 @@ pageContext.setAttribute("scthMap", scthMap);
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>상영스케줄</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/reservation/reservation.css/reservation.css">
@@ -131,7 +131,7 @@ pageContext.setAttribute("scthMap", scthMap);
 </head>
 <body>
 	<header>
-		<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
+		<jsp:include page="../common/jsp/header.jsp"/>
 	</header>
 
 	<main>
@@ -191,7 +191,7 @@ pageContext.setAttribute("scthMap", scthMap);
 									<c:set var="previousKey" value="${currentKey}" />
 
 									<div class="theater-block">
-										<div class="theater-info">${scth.theaterType} |
+										<div class="theater-info">⯈ ${scth.theaterType} |
 											${scth.theaterName} | 총 140석</div>
 										<div class="showtimes">
 											<c:forEach var="scth2" items="${scthMap[tml.movieIdx]}">
@@ -204,7 +204,7 @@ pageContext.setAttribute("scthMap", scthMap);
 																<div class="showtime">
 																	<fmt:formatDate value="${scth2.startTime}"
 																		pattern="HH:mm" />
-																	<br> <span>120석</span>
+																	<br> <span>${scth2.remainSeats}석</span>
 																</div>
 																<input type="hidden" name="scheduleIdx"
 																	value="${scth2.scheduleIdx}" />

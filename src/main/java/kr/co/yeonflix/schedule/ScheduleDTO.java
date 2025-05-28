@@ -18,7 +18,7 @@ import lombok.ToString;
 @ToString
 public class ScheduleDTO {
 
-	private int scheduleIdx, movieIdx, theaterIdx, scheduleStatus;
+	private int scheduleIdx, movieIdx, theaterIdx, scheduleStatus, remainSeats;
 	private Date screenDate;
 	private Timestamp startTime, endTime;
 
