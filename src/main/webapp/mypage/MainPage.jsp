@@ -8,6 +8,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%
+	String reservationParam = request.getParameter("reservationIdx");
+	int reservationIdx = 0;
+
+	if (reservationParam != null) {
+    reservationIdx = Integer.parseInt(reservationParam);
+	}
+	
     Integer userIdxObj = (Integer) session.getAttribute("userIdx");
     int userIdx = 8;
     if (userIdxObj != null) {
@@ -183,11 +190,23 @@ delete-r{
 
 </style>
 <script type="text/javascript">
+$(document).ready(function () {
+    $("#btnShowDetail").click(function (){
+		$('#bookingModal').fadeIn();
+    });
+	$('#closeModalBtn').click(function() {
+		$('#bookingModal').fadeOut();
+	});
+
+	$('.close-btn').click(function() {
+		$('#bookingModal').fadeOut();
+	});
+});
 </script>
 </head>
 <body>
 <header>
-<<jsp:include page="/common/jsp/header.jsp" />
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div id="container">
@@ -220,7 +239,7 @@ delete-r{
  <h2>My 예매내역 <span class="badge bg-secondary">0건</span></h2><br>
  <div class="delete-r">
  	<input type="button" value="예매 삭제" class="btn btn-secondary"/>
- 	<input type="button" value="예매 내역 출력" class="btn btn-danger"/>
+ 	<input type="button" value="예매 내역 출력" class="btn btn-danger" id="btnShowDetail"/>
  </div>
  </div>
  <br>
@@ -246,14 +265,19 @@ delete-r{
   </c:if>
  
   <c:forEach var="ticket" items="${reservationList}">
-    <tr>
-      <td><input class="form-check-input" type="checkbox" ></td>
-      <td>${ticket.movieName}</td>
-      <td>${ticket.theaterName}</td>
-      <td>${ticket.screenDate}</td>
-      <td></td>
-    </tr>
-  </c:forEach>
+  <tr>
+    <td>
+      <input class="form-check-input" type="checkbox"
+             value="${ticket.reservationIdx}"
+             onchange="location.href='?reservationIdx=' + this.value;"
+             <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
+    </td>
+    <td>${ticket.movieName}</td>
+    <td>${ticket.theaterName}</td>
+    <td>${ticket.screenDate}</td>
+    <td></td>
+  </tr>
+</c:forEach>
 </tbody>
 </table>
         </div>
@@ -309,5 +333,9 @@ delete-r{
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
 </footer>
+  <c:import url="/reservation/booking_modal.jsp">
+    <c:param name="reservationIdx" value="${param.reservationIdx}" />
+  </c:import>
+
 </body>
 </html>

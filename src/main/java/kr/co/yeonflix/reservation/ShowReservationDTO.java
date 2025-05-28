@@ -16,7 +16,7 @@ import lombok.ToString;
 @ToString
 public class ShowReservationDTO {
 
-	private int scheduledIx;
+	private int scheduleIdx, reservationIdx;
 	private String movieName, theaterName;
 	private Date screenDate;
 	private Timestamp canceledDate;
