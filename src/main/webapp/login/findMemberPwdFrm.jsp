@@ -279,11 +279,13 @@ $(function(){
 	
 	/* 비밀번호 찾기 버튼을 누르면, 페이지 이동 */
 	$("#findPwdBtn").on("click", function(){
-		alert("이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 ");
-		//이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 
+		sendTempPwd();
 	});
 		
 });//ready
+
+
+//비밀번호 DB 난수로 수정후에, Email보내기 함수  
 
 
 /* join1의 타이머 함수를 참고한 수정된 타이머 함수 */
@@ -325,7 +327,7 @@ function startTimer(duration, display) {
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
   <div id="container">
@@ -391,16 +393,12 @@ function startTimer(duration, display) {
               </div>
               
             </div>
-            
-						<script type="text/javascript">
-							
-							
-						</script>            
 
             <div class="pw_btn_group">
               <button style="background-color: white; border: 1px solid #ddd; padding: 10px 20px;" type="reset">
                 개인정보 다시입력
               </button>
+              <input type="hidden" name="action" value="sendTempPwd" > <!-- form목적  -->
               <button style="background-color: #BDBDBD" id="findPwdBtn" class="pw_btn_red" type="submit" disabled>비밀번호 찾기</button>
             </div>
           </div>

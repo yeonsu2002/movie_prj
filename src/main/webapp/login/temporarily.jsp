@@ -14,8 +14,6 @@
  #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
 body {
     font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-    margin: 0;
-    padding: 0;
     background-color: #f5f5f5;
     color: #333;
 }
@@ -87,7 +85,7 @@ $(function(){
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div id="container">
@@ -107,8 +105,7 @@ $(function(){
       </div>
       
       <div class="email-message">
-        <!--  신*기님의 임시비밀번호가 <span class="email-address">si**************@naver.com</span>으로 발송완료 되었습니다. -->
-        ${name}님의 임시비밀번호가 <span class="email-address">${email}</span>으로 발송완료 되었습니다.
+        ${userId}님의 임시비밀번호가 <span class="email-address">${email}</span>으로 발송완료 되었습니다.
       </div>
       
       <button class="login-button">로그인</button>

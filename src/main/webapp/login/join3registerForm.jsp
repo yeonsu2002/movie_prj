@@ -381,234 +381,615 @@
 
 .phone-inputs {
     display: flex;
-    gap: 8px; /* 입력 칸 사이 간격 조절 */
+    gap: 8px;
     align-items: center;
 }
 
 .phone-inputs input[type="tel"] {
-    padding: 6px;
+    padding: 14px 16px;
     box-sizing: border-box;
+    text-align: center;
+    font-size: 15px;
 }
+
 .phone-inputs span {
-    flex: 0 0 auto; /* 하이픈은 고정 크기 */
+    flex: 0 0 auto;
     padding: 0 4px;
+    color: #6c757d;
+    font-weight: 500;
 }
 
-#phone1 { flex: 3; }
-#phone2, #phone3 { flex: 4; }
+#phone1 { 
+    flex: 3; 
+    min-width: 60px;
+}
 
+#phone2, #phone3 { 
+    flex: 4; 
+    min-width: 80px;
+}
+
+/* 전화번호 필드 포커스 스타일 */
+.phone-inputs input[type="tel"]:focus {
+    outline: none;
+    border-color: #ff6b01;
+    box-shadow: 0 0 0 3px rgba(255, 107, 1, 0.1);
+}
 </style>
 <script type="text/javascript">
+// 전역 변수 - 중복확인 상태 추적
+var isUserIdChecked = false;
+var isNicknameChecked = false;
+
 $(function() {
-	
-  // Password validation
-  $("#password").on("input", function() {
-      validatePassword();
-  });
-  
-  // Password confirmation validation
-  $("#confirmPassword").on("input", function() {
-      validatePasswordConfirmation();
-  });
-  
-  // Email validation
-  $("#email").on("input", function() {
-      validateEmail();
-  });
-  
-  // Form validation
-  $(".join3_form-input").on("input", function() {
-      validateForm();
-  });
-  
-  // Profile image preview
-  $("#profileImageInput").on("change", function() {
-	  	
-      const file = this.files[0];
-      if(file.size > (1024 * 1024 * 10)){
-    	  alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
-				$(this).val(''); //업로드한 파일 제거
-    	  $("#profileImagePreview").attr("src","");
-    	  $("#profileImagePlaceholder").show();
-    	  $("#profileImagePreview").hide();
-    	  return;
-      }
-      if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-              $("#profileImagePreview").attr("src", e.target.result);
-              $("#profileImagePlaceholder").hide();
-              $("#profileImagePreview").show();
-          };
-          reader.readAsDataURL(file);
-      }
-  });
-  
-  //이미지 눌러도 버튼눌린거로
-  $(".join3_profile-upload-icon").on("click", function() {
-      $("#profileImageInput").click();
-  });
-  
-  // 모든 required 필드 검토 
-  function validateForm() {
-      var isValid = true;
-      
-      $(".join3_form-input[required]").each(function() {
-          if ($(this).val().trim() === "") {
-              isValid = false;
-              return false;
-          }
-      });
-      
-      if ($("#password").val() !== $("#confirmPassword").val()) {
-          isValid = false;
-      }
-      
-      // '다음' 버튼 수정 
-      $("#nextBtn").prop("disabled", !isValid);
-  }
-  
-  // Password strength meter
-  function validatePassword() {
-      var password = $("#password").val();
-      var strength = 0;
-      
-      // Clear validation messages
-      $("#passwordValidation").removeClass("show");
-      
-      if (password.length === 0) {
-          $(".join3_password-strength-meter").removeClass("weak medium strong").css("width", "0%");
-          return;
-      }
-      
-      // Check password length
-      if (password.length < 8) {
-          $("#passwordValidation").text("비밀번호는 8자 이상이어야 합니다.").addClass("show");
-          $(".join3_password-strength-meter").removeClass("medium strong").addClass("weak");
-          return;
-      }
-      
-      // Check for letters, numbers, and special characters
-      if (/[A-Za-z]/.test(password)) strength += 1;
-      if (/[0-9]/.test(password)) strength += 1;
-      if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-      
-      if (strength === 1) {
-          $(".join3_password-strength-meter").removeClass("medium strong").addClass("weak");
-      } else if (strength === 2) {
-          $(".join3_password-strength-meter").removeClass("weak strong").addClass("medium");
-      } else {
-          $(".join3_password-strength-meter").removeClass("weak medium").addClass("strong");
-      }
-      
-      validatePasswordConfirmation();
-  }
-  
-  // Password confirmation validation
-  function validatePasswordConfirmation() {
-      var password = $("#password").val();
-      var confirmPassword = $("#confirmPassword").val();
-      
-      $("#confirmPasswordValidation").removeClass("show");
-      
-      if (confirmPassword.length > 0 && password !== confirmPassword) {
-          $("#confirmPasswordValidation").text("비밀번호가 일치하지 않습니다.").addClass("show");
-          return false;
-      }
-      
-      return true;
-  }
-  
-  // Email validation
-  function validateEmail() {
-      var email = $("#email").val();
-      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      
-      $("#emailValidation").removeClass("show");
-      
-      if (email.length > 0 && !emailRegex.test(email)) {
-          $("#emailValidation").text("유효한 이메일 주소를 입력해주세요.").addClass("show");
-          return false;
-      }
-      
-      return true;
-  }
-  
-  $("#nextBtn").on("click", function() {
-  		//폼 제출
-      $("#join3Form").submit();
-  		//Ajax로 처리하기
-      //aJaxSubmit();
-  });
-  
-  $("#backBtn").on("click", function() {
-      history.back();
-  });
-  
-}); //ready 
+    
+    // =================
+    // 이벤트 리스너 등록
+    // =================
+    
+    // 비밀번호 검증
+    $("#password").on("input", function() {
+        validatePassword();
+        validateForm();
+    });
+    
+    // 비밀번호 확인 검증
+    $("#confirmPassword").on("input", function() {
+        validatePasswordConfirmation();
+        validateForm();
+    });
+    
+    // 이메일 검증
+    $("#email").on("input", function() {
+        validateEmail();
+        validateForm();
+    });
+    
+    // 생년월일 검증
+    $("#birthday").on("input", function() {
+        validateBirthday();
+        validateForm();
+    });
+    
+    // 전화번호 입력 처리
+    $("#phone1, #phone2, #phone3").on("input", function() {
+        handlePhoneInput(this);
+        validatePhoneNumber();
+        validateForm();
+    });
+    
+    // 전화번호 키다운 이벤트 (백스페이스 처리)
+    $("#phone1, #phone2, #phone3").on("keydown", function(e) {
+        handlePhoneKeydown(e, this);
+    });
+    
+    // 전화번호 붙여넣기 처리
+    $("#phone1, #phone2, #phone3").on("paste", function(e) {
+        handlePhonePaste(e, this);
+    });
+    
+    // 일반 폼 입력 검증
+    $(".join3_form-input").on("input", function() {
+        // 아이디나 닉네임이 변경되면 중복확인 상태 초기화
+        if ($(this).attr('id') === 'userId') {
+            isUserIdChecked = false;
+            $("#userIdValidation").removeClass("show success");
+        }
+        if ($(this).attr('id') === 'nickName') {
+            isNicknameChecked = false;
+            $("#nicknameValidation").removeClass("show success");
+        }
+        validateForm();
+    });
+    
+    // 프로필 이미지 미리보기
+    $("#profileImageInput").on("change", function() {
+        const file = this.files[0];
+        if(file && file.size > (1024 * 1024 * 10)){
+            alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
+            $(this).val('');
+            $("#profileImagePreview").attr("src","");
+            $("#profileImagePlaceholder").show();
+            $("#profileImagePreview").hide();
+            return;
+        }
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $("#profileImagePreview").attr("src", e.target.result);
+                $("#profileImagePlaceholder").hide();
+                $("#profileImagePreview").show();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // 이미지 업로드 아이콘 클릭
+    $(".join3_profile-upload-icon").on("click", function() {
+        $("#profileImageInput").click();
+    });
+    
+    // 아이디 중복확인 버튼
+    $("#checkIdBtn").on("click", function() {
+        checkUserIdDuplicate();
+    });
+    
+    // 닉네임 중복확인 버튼
+    $("#checkNicknameBtn").on("click", function() {
+        checkNicknameDuplicate();
+    });
+    
+    // 다음 버튼 클릭
+    $("#nextBtn").on("click", function() {
+        if (combinePhoneNumber_temp()) {
+            $("#join3Form").submit();
+        }
+    });
+    
+    // 이전 버튼 클릭
+    $("#backBtn").on("click", function() {
+        history.back();
+    });
+    
+    
+    // =================
+    // 검증 함수들
+    // =================
+    
+    // 전체 폼 유효성 검사
+    function validateForm() {
+        var isValid = true;
+        
+        // 모든 required 필드 확인
+        $(".join3_form-input[required]").each(function() {
+            if ($(this).val().trim() === "") {
+                isValid = false;
+                return false;
+            }
+        });
+        
+        // 비밀번호 일치 확인
+        if ($("#password").val() !== $("#confirmPassword").val()) {
+            isValid = false;
+        }
+        
+        // 중복확인 완료 여부 확인
+        if (!isUserIdChecked) {
+            isValid = false;
+        }
+        
+        if (!isNicknameChecked) {
+            isValid = false;
+        }
+        
+        // 개별 검증 함수들 실행
+        if (!validateEmail() || !validateBirthday() || !validatePhoneNumber()) {
+            isValid = false;
+        }
+        
+        // 다음 버튼 활성화/비활성화
+        $("#nextBtn").prop("disabled", !isValid);
+        
+        return isValid;
+    }
+    
+    // 비밀번호 강도 검사
+    function validatePassword() {
+        var password = $("#password").val();
+        var strength = 0;
+        
+        // 검증 메시지 초기화
+        $("#passwordValidation").removeClass("show");
+        
+        if (password.length === 0) {
+            $(".join3_password-strength-meter").removeClass("weak medium strong").css("width", "0%");
+            return;
+        }
+        
+        // 비밀번호 길이 확인
+        if (password.length < 8) {
+            $("#passwordValidation").text("비밀번호는 8자 이상이어야 합니다.").addClass("show");
+            $(".join3_password-strength-meter").removeClass("medium strong").addClass("weak");
+            return;
+        }
+        
+        // 문자, 숫자, 특수문자 포함 여부 확인
+        if (/[A-Za-z]/.test(password)) strength += 1;
+        if (/[0-9]/.test(password)) strength += 1;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+        
+        // 강도에 따른 시각적 표시
+        if (strength === 1) {
+            $(".join3_password-strength-meter").removeClass("medium strong").addClass("weak");
+        } else if (strength === 2) {
+            $(".join3_password-strength-meter").removeClass("weak strong").addClass("medium");
+        } else {
+            $(".join3_password-strength-meter").removeClass("weak medium").addClass("strong");
+        }
+        
+        validatePasswordConfirmation();
+    }
+    
+    // 비밀번호 확인 검사
+    function validatePasswordConfirmation() {
+        var password = $("#password").val();
+        var confirmPassword = $("#confirmPassword").val();
+        
+        $("#confirmPasswordValidation").removeClass("show");
+        
+        if (confirmPassword.length > 0 && password !== confirmPassword) {
+            $("#confirmPasswordValidation").text("비밀번호가 일치하지 않습니다.").addClass("show");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // 이메일 검증
+    function validateEmail() {
+        var email = $("#email").val();
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        $("#emailValidation").removeClass("show");
+        
+        if (email.length > 0 && !emailRegex.test(email)) {
+            $("#emailValidation").text("유효한 이메일 주소를 입력해주세요.").addClass("show");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // 생년월일 검증
+    function validateBirthday() {
+        var birthday = $("#birthday").val();
+        var birthdayRegex = /^\d{8}$/;
+        
+        $("#birthdayValidation").removeClass("show");
+        
+        if (birthday.length > 0) {
+            if (!birthdayRegex.test(birthday)) {
+                $("#birthdayValidation").text("생년월일은 8자리 숫자로 입력해주세요.").addClass("show");
+                return false;
+            }
+            
+            // 날짜 유효성 검사
+            var year = parseInt(birthday.substring(0, 4));
+            var month = parseInt(birthday.substring(4, 6));
+            var day = parseInt(birthday.substring(6, 8));
+            var currentYear = new Date().getFullYear();
+            
+            if (year < 1900 || year > currentYear || 
+                month < 1 || month > 12 || 
+                day < 1 || day > 31) {
+                $("#birthdayValidation").text("올바른 생년월일을 입력해주세요.").addClass("show");
+                return false;
+            }
+            
+            // 미래 날짜 체크
+            var inputDate = new Date(year, month - 1, day);
+            var today = new Date();
+            if (inputDate > today) {
+                $("#birthdayValidation").text("미래 날짜는 입력할 수 없습니다.").addClass("show");
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    
+    // =================
+    // 전화번호 관련 함수들
+    // =================
+    
+    // 전화번호 입력 처리
+    function handlePhoneInput(element) {
+        const input = $(element);
+        const value = input.val();
+        const id = input.attr('id');
+        
+        // 숫자만 허용
+        const numericValue = value.replace(/[^0-9]/g, '');
+        input.val(numericValue);
+        
+        // 최대 길이 제한 및 자동 포커스 이동
+        if (id === 'phone1' && numericValue.length >= 3) {
+            input.val(numericValue.substring(0, 3));
+            if (numericValue.length === 3) {
+                $("#phone2").focus();
+            }
+        } else if (id === 'phone2' && numericValue.length >= 4) {
+            input.val(numericValue.substring(0, 4));
+            if (numericValue.length === 4) {
+                $("#phone3").focus();
+            }
+        } else if (id === 'phone3' && numericValue.length >= 4) {
+            input.val(numericValue.substring(0, 4));
+        }
+    }
+    
+    // 키다운 이벤트 처리 (백스페이스로 이전 필드로 이동)
+    function handlePhoneKeydown(e, element) {
+        const input = $(element);
+        const id = input.attr('id');
+        
+        // 백스페이스 키이고 현재 필드가 비어있을 때 이전 필드로 이동
+        if (e.keyCode === 8 && input.val() === '') {
+            if (id === 'phone2') {
+                $("#phone1").focus();
+            } else if (id === 'phone3') {
+                $("#phone2").focus();
+            }
+        }
+    }
+    
+    // 붙여넣기 처리
+    function handlePhonePaste(e, element) {
+        e.preventDefault();
+        
+        const pastedData = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+        const numericData = pastedData.replace(/[^0-9]/g, '');
+        
+        if (numericData.length >= 10 && numericData.length <= 11) {
+            // 전체 전화번호가 붙여넣어진 경우
+            if (numericData.length === 11 && numericData.startsWith('010')) {
+                $("#phone1").val('010');
+                $("#phone2").val(numericData.substring(3, 7));
+                $("#phone3").val(numericData.substring(7, 11));
+            } else if (numericData.length === 10) {
+                $("#phone1").val(numericData.substring(0, 3));
+                $("#phone2").val(numericData.substring(3, 6));
+                $("#phone3").val(numericData.substring(6, 10));
+            }
+            validatePhoneNumber();
+            validateForm();
+        }
+    }
+    
+    // =================
+    // 중복확인 함수들
+    // =================
+    
+    // 아이디 중복확인
+    function checkUserIdDuplicate() {
+        var userId = $("#userId").val().trim();
+        
+        if (userId === "") {
+            alert("아이디를 입력해주세요.");
+            return;
+        }
+        
+        // 아이디 형식 검증 (6-20자, 영문, 숫자 허용)
+        var userIdRegex = /^[a-zA-Z0-9]{6,20}$/;
+        if (!userIdRegex.test(userId)) {
+            $("#userIdValidation").text("아이디는 영문, 숫자 조합 6-20자여야 합니다.").addClass("show");
+            return;
+        }
+        
+        // Ajax 중복확인 요청
+        $.ajax({
+            url: "${pageContext.request.contextPath}/login/controller/checkUserId.jsp",
+            type: "POST",
+            data: { userId: userId },
+            dataType: "JSON",
+            success: function(response) {
+                if (response.available) {
+                    $("#userIdValidation").text("사용 가능한 아이디입니다.")
+                        .addClass("show success").removeClass("join3_validation-message");
+                    $("#userId").addClass("join3_input-success").removeClass("join3_input-error");
+                    isUserIdChecked = true;
+                } else {
+                    $("#userIdValidation").text("이미 사용중인 아이디입니다.")
+                        .addClass("show").removeClass("success");
+                    $("#userId").addClass("join3_input-error").removeClass("join3_input-success");
+                    isUserIdChecked = false;
+                }
+                validateForm();
+            },
+            error: function(xhr) {
+                alert("중복확인 중 오류가 발생했습니다. 다시 시도해주세요.");
+                console.log("Error:", xhr.status);
+            }
+        });
+    }
+    
+    // 닉네임 중복확인
+    function checkNicknameDuplicate() {
+        var nickname = $("#nickName").val().trim();
+        
+        if (nickname === "") {
+            alert("닉네임을 입력해주세요.");
+            return;
+        }
+        
+        // 닉네임 형식 검증 (2-20자, 한글, 영문, 숫자 허용)
+        var nicknameRegex = /^[가-힣a-zA-Z0-9]{2,20}$/;
+        if (!nicknameRegex.test(nickname)) {
+            $("#nicknameValidation").text("닉네임은 한글, 영문, 숫자 조합 2-20자여야 합니다.")
+                .addClass("show").removeClass("success");
+            return;
+        }
+        
+        // Ajax 중복확인 요청
+        $.ajax({
+            url: "${pageContext.request.contextPath}/login/controller/checkNickname.jsp",
+            type: "POST",
+            data: { nickname: nickname },
+            dataType: "JSON",
+            success: function(response) {
+                if (response.available) {
+                    $("#nicknameValidation").text("사용 가능한 닉네임입니다.")
+                        .addClass("show success").removeClass("join3_validation-message");
+                    $("#nickName").addClass("join3_input-success").removeClass("join3_input-error");
+                    isNicknameChecked = true;
+                } else {
+                    $("#nicknameValidation").text("이미 사용중인 닉네임입니다.")
+                        .addClass("show").removeClass("success");
+                    $("#nickName").addClass("join3_input-error").removeClass("join3_input-success");
+                    isNicknameChecked = false;
+                }
+                validateForm();
+            },
+            error: function(xhr) {
+                alert("중복확인 중 오류가 발생했습니다. 다시 시도해주세요.");
+                console.log("Error:", xhr.status);
+            }
+        });
+    }
+    
+}); // document ready 끝
 
 
+// =================
+// 전역 함수들
+// =================
+
+// 전화번호 합치기 (개선된 버전)
 function combinePhoneNumber() {
-	  const p1 = document.getElementById("phone1").value.trim();
-	  const p2 = document.getElementById("phone2").value.trim();
-	  const p3 = document.getElementById("phone3").value.trim();
+	// 수정된 코드
+	const p1 = $("#phone1").val() ? $("#phone1").val().trim() : "";
+	const p2 = $("#phone2").val() ? $("#phone2").val().trim() : "";
+	const p3 = $("#phone3").val() ? $("#phone3").val().trim() : "";
+	
+  // 빈 값 체크
+  if (p1 === "" || p2 === "" || p3 === "") {
+      if (p1 === "" && p2 === "" && p3 === "") {
+          // 모두 비어있으면 빈 문자열로 설정
+          $("#phone").val("");
+          return true;
+      } else {
+          // 일부만 입력된 경우 에러
+          alert("전화번호를 모두 입력해 주세요.");
+          return false;
+      }
+  }
 
-	  // 유효성 검사: 빈 칸이 있거나 숫자가 아닌 경우 경고
-	  if (!p1 || !p2 || !p3 || !/^\d+$/.test(p1 + p2 + p3)) {
-	    alert("전화번호를 올바르게 입력해 주세요.");
-	    return false;
-	  }
+  // 유효성 검사
+  if (!validatePhoneNumber()) {
+      alert("전화번호를 올바르게 입력해 주세요.");
+      return false;
+  }
 
-	  const fullPhone = `${p1}-${p2}-${p3}`;
-	  document.getElementById("phone").value = fullPhone;
+  const fullPhone = `${p1}-${p2}-${p3}`;
+  $("#phone").val(fullPhone);
+  console.log("fullPhone : " + fullPhone);
+  return true;
+}
 
-	  return true; // 폼 제출 진행
-	}
-
-
-//
-function aJaxSubmit(){
-/* form text요소는 web parameter, 파일은 multipart타입으로 전송하기 */
-	
-	//핸드폰 번호 검증
-	//combinePhoneNumber(); 이거 안되고 잇네 
-	
-	//form객체 얻기
-	let frmObj = $("#join3Form")[0]; //parameter전송방식 : 파일업로드x
-	
-	let formData = new FormData(frmObj); //param -> binary 전송방식으로 변경, FormData = Binary전송방식을 사용하는 Form객체 
-	
-	alert(formData);
-	
- 	$.ajax({
-		url:"${pageContext.request.contextPath}/login/controller/joinComplete.jsp",
-		type:"POST",
-		contentType:false, /* parameter전송방식 -> binary전송방식으로 변경 */
-		processData:false, /* 요청 URL에 QueryString연결이 되지 않는다 (HTML Form Control값 전송 => HTTP Protocol에 payload전달) */
-		data:formData, /* Parameter 전송방식 form -> binary 전송방식 form 변환된 객체 => back-end에서 MultipartRequest객체를 사용하여 값들을 받을 수 있다. */
-		dataType:"JSON",
-		success:function(jsonObj){
-			if(jsonObj){
-				$("#imgName").val(jsonObj.fileName);
-			} else {
-				console.log("프로필 이미지가 업로드 되지 않았습니다.");
-			}
-		},
-		error:function(xhr){
-			console.log(xhr.status);
-		}
-		
-	}); 
-	
+// 전화번호 유효성 검사
+function validatePhoneNumber() {
+    const phone1 = $("#phone1").val().trim();
+    const phone2 = $("#phone2").val().trim();
+    const phone3 = $("#phone3").val().trim();
+    
+    // 에러 메시지 초기화
+    $("#phoneValidation").removeClass("show");
+    $("#phone1, #phone2, #phone3").removeClass("join3_input-error join3_input-success");
+    
+    // 모든 필드가 비어있으면 검증하지 않음 (required가 아닌 경우)
+    if (!phone1 && !phone2 && !phone3) {
+        return true;
+    }
+    
+    // 첫 번째 자리 검증 (010, 011, 016, 017, 018, 019)
+    const validPrefixes = ['010', '011', '016', '017', '018', '019'];
+    if (!validPrefixes.includes(phone1)) {
+        $("#phoneValidation").text("올바른 통신사 번호를 입력해주세요.").addClass("show");
+        $("#phone1").addClass("join3_input-error");
+        return false;
+    }
+    
+    // 두 번째 자리 검증 (3-4자리)
+    if (phone2.length < 3 || phone2.length > 4) {
+        $("#phoneValidation").text("전화번호 두 번째 자리를 올바르게 입력해주세요.").addClass("show");
+        $("#phone2").addClass("join3_input-error");
+        return false;
+    }
+    
+    // 세 번째 자리 검증 (4자리)
+    if (phone3.length !== 4) {
+        $("#phoneValidation").text("전화번호 세 번째 자리를 올바르게 입력해주세요.").addClass("show");
+        $("#phone3").addClass("join3_input-error");
+        return false;
+    }
+    
+    // 모든 검증 통과
+    $("#phone1, #phone2, #phone3").addClass("join3_input-success");
+    return true;
 }
 
 
 
+
+function combinePhoneNumber_temp() {
+    // 직접 DOM 접근으로 테스트
+    const phone1 = document.getElementById("phone1");
+    const phone2 = document.getElementById("phone2");
+    const phone3 = document.getElementById("phone3");
+    
+    console.log("DOM elements:", phone1, phone2, phone3);
+    
+    if (!phone1 || !phone2 || !phone3) {
+        console.log("전화번호 element를 찾을 수 없음");
+        return false;
+    }
+    
+    const p1 = phone1.value || "";
+    const p2 = phone2.value || "";
+    const p3 = phone3.value || "";
+    
+    console.log("Values:", p1, p2, p3);
+    
+    if (p1 === "" && p2 === "" && p3 === "") {
+        document.getElementById("phone").value = "";
+        return true;
+    }
+    
+    if (p1 === "" || p2 === "" || p3 === "") {
+        alert("전화번호를 모두 입력해 주세요.");
+        return false;
+    }
+    
+    const fullPhone = p1 + "-" + p2 + "-" + p3;
+    document.getElementById("phone").value = fullPhone;
+    console.log("fullPhone:", fullPhone);
+    $("#phone").val(fullPhone);
+    let phoneNumber =  $("#phone").val();
+    console.log( "phoneNumber = ", phoneNumber);
+    return true;
+}
+
+// Ajax 제출 함수 (필요시 사용)
+function aJaxSubmit() {
+    // form 객체 얻기
+    let frmObj = $("#join3Form")[0];
+    let formData = new FormData(frmObj);
+    
+    $.ajax({
+        url: "${pageContext.request.contextPath}/login/controller/joinComplete.jsp",
+        type: "POST",
+        contentType: false,
+        processData: false,
+        data: formData,
+        dataType: "JSON",
+        success: function(jsonObj) {
+            if(jsonObj) {
+                $("#imgName").val(jsonObj.fileName);
+            } else {
+                console.log("프로필 이미지가 업로드 되지 않았습니다.");
+            }
+        },
+        error: function(xhr) {
+            console.log(xhr.status);
+        }
+    });
+}
 </script>
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div class="join3_container">
@@ -692,14 +1073,14 @@ function aJaxSubmit(){
         </div>
 
         <div class="join3_form-group">
-            <label for="userId" class="join3_form-label">아이디</label>
-            <div class="join3_input-group">
-                <input type="text" id="userId" name="userId" class="join3_form-input" placeholder="아이디를 입력해주세요" required>
-                <button type="button" class="join3_button" id="checkIdBtn">중복확인</button>
-            </div>
-            <div id="userIdValidation" class="join3_validation-message"></div>
-            <div class="join3_help-text">영문, 숫자 조합 6-20자</div>
-        </div>
+			    <label for="userId" class="join3_form-label">아이디</label>
+			    <div class="join3_input-group">
+		        <input type="text" id="userId" name="userId" class="join3_form-input" placeholder="아이디를 입력해주세요" required>
+		        <button type="button" class="join3_button" id="checkIdBtn">중복확인</button>
+			    </div>
+			    <div id="userIdValidation" class="join3_validation-message"></div>
+			    <div class="join3_help-text">영문, 숫자 조합 6-20자</div>
+				</div>
 
         <div class="join3_form-group">
             <label for="password" class="join3_form-label">비밀번호</label>
@@ -718,55 +1099,15 @@ function aJaxSubmit(){
         </div>
 
         <div class="join3_form-group">
-            <label for="nickName" class="join3_form-label">닉네임</label>
-            <input type="text" id="nickName" name="nickName" class="join3_form-input" placeholder="닉네임을 입력해주세요" required>
-		        <div class="join3_help-text">한글, 영문, 숫자 조합 2-20자</div>
-        </div>
-       <div id="nicknameValidation" class="join3_validation-message"></div>
-        
-        <script type="text/javascript">
-        //닉네임중복 검사. 수정할 것ㅅ
-        $("#checkNicknameBtn").on("click", function() {
-            var nickname = $("#nickName").val().trim();
-            
-            if (nickname === "") {
-                alert("닉네임을 입력해주세요.");
-                return;
-            }
-            
-            // 닉네임 형식 검증 (2-10자, 한글, 영문, 숫자 허용)
-            var nicknameRegex = /^[가-힣a-zA-Z0-9]{2,10}$/;
-            if (!nicknameRegex.test(nickname)) {
-                $("#nicknameValidation").text("닉네임은 한글, 영문, 숫자 조합 2-10자여야 합니다.").addClass("show").removeClass("success");
-                return;
-            }
-            
-            // Ajax 중복확인 요청
-            $.ajax({
-                url: "${pageContext.request.contextPath}/login/controller/checkNickname.jsp",
-                type: "POST",
-                data: { nickname: nickname },
-                dataType: "JSON",
-                success: function(response) {
-                    if (response.available) {
-                        $("#nicknameValidation").text("사용 가능한 닉네임입니다.").addClass("show success").removeClass("join3_validation-message");
-                        $("#nickname").addClass("join3_input-success").removeClass("join3_input-error");
-                        isNicknameChecked = true;
-                    } else {
-                        $("#nicknameValidation").text("이미 사용중인 닉네임입니다.").addClass("show").removeClass("success");
-                        $("#nickname").addClass("join3_input-error").removeClass("join3_input-success");
-                        isNicknameChecked = false;
-                    }
-                    validateForm();
-                },
-                error: function(xhr) {
-                    alert("중복확인 중 오류가 발생했습니다. 다시 시도해주세요.");
-                    console.log("Error:", xhr.status);
-                }
-            });
-        });
-        
-        </script>
+			    <label for="nickName" class="join3_form-label">닉네임</label>
+			    <div class="join3_input-group">
+		        <input type="text" id="nickName" name="nickName" class="join3_form-input" placeholder="닉네임을 입력해주세요" required>
+		        <button type="button" class="join3_button" id="checkNicknameBtn">중복확인</button>
+			    </div>
+			    <div id="nicknameValidation" class="join3_validation-message"></div>
+			    <div class="join3_help-text">한글, 영문, 숫자 조합 2-20자</div>
+				</div>
+       	<div id="nicknameValidation" class="join3_validation-message"></div>
         
        	<div class="join3_form-group">
 	        <label for="birthday" class="join3_form-label">생년월일</label>
@@ -796,16 +1137,18 @@ function aJaxSubmit(){
         </div>
 
         <div class="join3_form-group">
-            <label for="phone" class="join3_form-label" >전화번호</label>
-            <div class="phone-inputs">
-	            <input type="tel" id="phone1" class="join3_form-input" required maxlength="3">
-	            <span>-</span>
-	            <input type="tel" id="phone2" class="join3_form-input" required maxlength="4">
-	            <span>-</span>
-	            <input type="tel" id="phone3" class="join3_form-input" required maxlength="4">
-	            <input type="hidden" name="phone" value="">
-            </div>
-        </div>
+			    <label for="phone" class="join3_form-label">전화번호</label>
+			    <div class="phone-inputs">
+		        <input type="tel" id="phone1" class="join3_form-input" required maxlength="3" placeholder="010">
+		        <span>-</span>
+		        <input type="tel" id="phone2" class="join3_form-input" required maxlength="4" placeholder="1234">
+		        <span>-</span>
+		        <input type="tel" id="phone3" class="join3_form-input" required maxlength="4" placeholder="5678">
+		        <input type="hidden" id="phone" name="phone" value="">
+			    </div>
+			    <div id="phoneValidation" class="join3_validation-message"></div>
+			    <div class="join3_help-text">휴대폰 번호를 입력해주세요</div>
+				</div>
 
         <!-- 전화번호 수신여부 추가 -->
         <div class="join3_form-group">

@@ -14,16 +14,29 @@
   java.util.Date birthJu = sdf.parse(birthStr); 
   java.sql.Date birthSu = new java.sql.Date(birthJu.getTime());
   
+  //이름, 이메일, 생일 모두 일치하는 회원 조회
   MemberService mService = new MemberService();
   String memberId = mService.isMember(name, birthSu, email);
   
-  if(memberId != null && !memberId.isBlank()){ //가입정보가 존재하지 않음 
+  //이메일중복확인
+  boolean isEmailDupl = mService.checkEmailDuplicate(email);
+  
+  
+  if(memberId != null && !memberId.isBlank()){ //가입정보가 이미 존재함 
     request.setAttribute("name", name);
     request.setAttribute("userId", memberId);
     
     RequestDispatcher dispatcher = request.getRequestDispatcher("/login/alreadyMember.jsp");
     dispatcher.forward(request, response);
-  } else {
+  } else if (isEmailDupl) {
+%>    
+  <script type="text/javascript">
+      alert("이미 가입된 이메일입니다.");
+      location.href = "<%= request.getContextPath() %>/login/isMemberChk.jsp";
+  </script>
+<%     
+  } else { //가입된 정보 없음 
+    
   	//넘기기 = 세션 or request객체
   	//1.세션에 
   	session.setAttribute("email", email);

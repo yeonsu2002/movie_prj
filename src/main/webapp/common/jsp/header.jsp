@@ -17,7 +17,7 @@
         </c:when>
         <c:otherwise>
       	<li><a href="http://localhost/movie_prj/login/loginFrm.jsp"><img src="http://localhost/movie_prj/common/img/loginPassword.png" alt="">로그인</a></li>
-      	<li><a href="http://localhost/movie_prj/login/isMemberChk.jsp"><img src="http://localhost/movie_prj/common/img/loginJoin.png" alt="">회원가입</a></li>
+      	<li><a href="${pageContext.request.contextPath }/login/isMemberChk.jsp"><img src="http://localhost/movie_prj/common/img/loginJoin.png" alt="">회원가입</a></li>
         </c:otherwise>
       </c:choose>
 		<li><a href="http://localhost/movie_prj/mypage/MainPage.jsp"><img src="http://localhost/movie_prj/common/img/loginMember.png" alt="">마이페이지</a></li>
@@ -36,7 +36,6 @@
 	<div class="search_wrap">
 	<form action="" name="searchtxt" id="searchtxt">
 		<fieldset>
-		<legend class = 'xx'> 검색창</legend>
 		<label for="text_search" class="xx">입력창</label> 
 		<input type="text" id="text_search">
 		<button class="fixedbtn_search">검색</button>

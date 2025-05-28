@@ -190,9 +190,14 @@ public class MemberService {
     return memberDAO.selectMemberId(userId);
   }
 
-  // 닉네임 중복 호가인
+  // 닉네임 중복 확인
   public boolean checkNickNameDuplicate(String nickName) throws SQLException {
     return memberDAO.selectNickname(nickName);
+  }
+  
+  //이메일 중복 확인
+  public boolean checkEmailDuplicate(String email) throws SQLException {
+    return memberDAO.selectEmail(email);
   }
   
   /**
@@ -225,10 +230,9 @@ public class MemberService {
   
   public boolean searchId(String id) {
 		boolean flag=false;
-		MemberDAO mDAO=MemberDAO.getInstance();
 		
 		try {
-			flag=mDAO.selectId(id);
+			flag=memberDAO.selectId(id);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}//end catch
@@ -238,6 +242,21 @@ public class MemberService {
 		
 	}//searchId
 	
+  /**
+   * 이메일로 임시비밀번호 만들기
+   */
+  public boolean changePwd (String email,String tempPwd) {
+    boolean flag = false;
+    
+    String encodedtempPwd = encryptPassword(tempPwd);
+    try {
+      flag = memberDAO.updatePwd(email, encodedtempPwd);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    
+    return flag;
+  }
   
 
 	

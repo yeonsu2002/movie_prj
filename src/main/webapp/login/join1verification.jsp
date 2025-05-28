@@ -25,7 +25,6 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
 }
 
 .container {
@@ -253,7 +252,7 @@ $(function(){
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div class="container">
@@ -349,10 +348,6 @@ $(function(){
 
 	<div class="divider"></div>
 	
-	<form id="moveForm" action="${pageContext.request.contextPath}/login/join2AgreeToTerms.jsp">
-		<input type="hidden" name="hidden_email" value="">
-	</form>
-
 	<button class="btn-primary" id="next-step" disabled>다음</button>
 </div>
 
@@ -494,7 +489,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update step indicators
         document.querySelector('.step.active').classList.remove('active');
         document.querySelectorAll('.step')[1].classList.add('active');
-        
         
         location.href="${pageContext.request.contextPath}/login/join2AgreeToTerms.jsp";
     });

@@ -11,6 +11,7 @@ import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.dao.DbConnection;
+import oracle.jdbc.driver.DBConversion;
 
 public class MemberDAO {
 
@@ -31,7 +32,7 @@ public class MemberDAO {
 
     MemberDTO memberVO = new MemberDTO();
 
-    DbConnection dbCon = DbConnection.getInstance();
+    DbConnection dbCon = DbConnection.getInstance(); 
     Connection con = null;
     PreparedStatement getMemberPstmt = null;
     PreparedStatement getRolePstmt = null;
@@ -44,7 +45,7 @@ public class MemberDAO {
     int roleIdx = -1;
 
     try {
-      con = dbCon.getDbConn();
+      con = dbCon.getDbConn(); // 실제 DB연결 받아오는거
 
       String getMemberQuery = " SELECT user_idx, member_id, member_pwd, user_name, nick_name, birth, email, picture FROM member WHERE member_id = ? ";
       getMemberPstmt = con.prepareStatement(getMemberQuery);
@@ -377,9 +378,6 @@ public class MemberDAO {
     return flag; 
   }
   
-  //if(1 == true) -> 2.인증번호 이메일 보내고나면, 인증번호 테이블에 아이디, 생일, 이메일과 일치하는 객체의 인증번호 대조 
-  
-  
   /**
 	 * 입력받은 아이디를 검색하는 
 	 * @param id 검색할 아이디
@@ -547,6 +545,31 @@ public class MemberDAO {
 
 	    return cnt;
 	}
+
+	//발급받은 임시비밀번호로 회원정보 수정 
+  public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
+   DbConnection dbCon = DbConnection.getInstance();
+   Connection con = null;
+   PreparedStatement pstmt = null;
+   
+   int result = -1;
+   try {
+     con = dbCon.getDbConn();// 실제 DB연결 받아오는거
+     
+    String query = " UPDATE member SET member_pwd = ? WHERE email = ?  ";
+    pstmt = con.prepareStatement(query);
+    
+    pstmt.setString(1, encodedTempPwd);
+    pstmt.setString(2, email);
+    
+    result = pstmt.executeUpdate();
+    
+  } finally {
+    dbCon.dbClose(null, pstmt, con);
+  }
+    
+    return result > 0;
+  }
 
 
 
