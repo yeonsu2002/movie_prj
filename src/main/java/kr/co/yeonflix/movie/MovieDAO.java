@@ -170,7 +170,10 @@ private static MovieDAO mDAO;
 		}//finally
 		
 		return mDTO;
-	}
+	}//selectOneMovie
+	
+	
+	
 	
 	
 }

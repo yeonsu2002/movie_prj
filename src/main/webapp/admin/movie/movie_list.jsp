@@ -65,8 +65,7 @@ System.out.println(list.size());
           <!-- 실제 데이터 바인딩 -->
           <c:forEach var="m" items="${movieList}">
             <tr>
-            
-              <td><a href="movieEdit.jsp?movieIdx=${m.movieIdx}">${m.movieName}</a></td>
+              <td><a href="movie_edit.jsp?movieIdx=${m.movieIdx}">${m.movieName}</a></td>
               <td>${m.releaseDate}</td>
               <td>${m.endDate}</td>
               <td>${m.screeningStatusStr}</td>
@@ -83,7 +82,7 @@ System.out.println(list.size());
               <span class="active">${i}</span>
             </c:when>
             <c:otherwise>
-              <a href="movieList.jsp?page=${i}">${i}</a>
+              <a href="movie_list.jsp?page=${i}">${i}</a>
             </c:otherwise>
           </c:choose>
         </c:forEach>

@@ -1,3 +1,7 @@
+<%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
+<%@page import="kr.co.yeonflix.movie.common.CommonService"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -143,7 +147,12 @@
     #tooltip {
       display: none;
     }
+     
+     .warning{
+     color: #DB1C17;
+     }
   </style>
+ 
 </head>
 <body>
   <div class="content-container">
@@ -155,13 +164,21 @@
   } catch (NumberFormatException e) {
 	  e.printStackTrace();
   }
-
-	
-  MovieService ms = new MovieService();
   MovieDTO mDTO = new MovieDTO();
+  List<CommonDTO> gradeList = new ArrayList<CommonDTO>();	
+  List<CommonDTO> genreList = new ArrayList<CommonDTO>();	
+  
+  MovieService ms = new MovieService();
+  CommonService gs = new CommonService();
+  
+  genreList = gs.genreList();  
+  gradeList = gs.gradeList();
   
   mDTO = ms.searchOneMovie(movieIdxInt);
   
+  
+  request.setAttribute("genreList", genreList);
+  request.setAttribute("gradeList", gradeList);
 
   %>
     <div class="content">
@@ -190,22 +207,30 @@
               <input type="text" id="country" name="country" value="<%=mDTO.getCountry() %>" />
             </div>
 
-           <!--   <div class="form-row">
+              <div class="form-row">
               <label for="genre">장르</label>
-              <select id="genre" name="genre">
-                
-                  <option value="${g.id}" ${g.id == movie.genreId ? 'selected' : ''}>${g.name}</option>
-              </select>
-            </div>-->
+              <select id="genre" name="genre" class="warning">
+			  <option value="">-- 장르를 선택하세요 --</option>
+			  <c:forEach var="g" items="${genreList}">
+			    <option value="${g.codeIdx}" <c:if test="${g.codeIdx == mDTO.genre}">selected</c:if>>
+			      ${g.movieCodeType}
+			    </option>
+			  </c:forEach>
+			</select>
 
-           <!--  <div class="form-row">
-              <label for="rating">상영등급</label>
-              <select id="rating" name="rating">
-                <c:forEach var="r" items="${ratingList}">
-                  <option value="${r}" ${r == movie.rating ? 'selected' : ''}>${r}</option>
-                </c:forEach>
+            </div>
+
+           <div class="form-row">
+              <label for="grade">상영등급</label>
+              <select id="grade" name="grade" class="warning">
+                <option value="">-- 등급을 선택하세요 --</option>
+			 	 <c:forEach var="g" items="${gradeList}">
+			    <option value="${g.codeIdx}" <c:if test="${g.codeIdx == mDTO.genre}">selected</c:if>>
+			      ${g.movieCodeType}
+			    </option>
+			  </c:forEach>
               </select>
-            </div> -->
+            </div>
 
             <div class="form-row">
               <label for="duration">상영시간</label>
@@ -248,7 +273,7 @@
               <label>Media</label>
             </div>
             <div>
-              <%-- <img src="<%=mDTO.getPosterPath() %>" alt="Poster" class="poster-image" /> --%>
+              <img src="<%=mDTO.getPosterPath() %>" alt="Poster" class="poster-image" />
               <div style="display: flex; gap: 10px;">
                 <button type="button" class="btn">Remove</button>
                 <input type="file" name="posterFile" class="btn" />
