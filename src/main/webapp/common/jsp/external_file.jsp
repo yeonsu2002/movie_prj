@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
-    info="외부파일"%>
+    %>
     
 <!-- favicon 설정 -->
 <link rel="shortcut icon" href="http://localhost/movie_prj/common/img/favicon.ico"/>

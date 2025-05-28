@@ -9,6 +9,11 @@
 <title>연플릭스</title>
 <jsp:include page="/common/jsp/external_file.jsp" />
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/main_screen.css"/>
+<title>Insert title here</title>
+<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/> 
+<style>
+ #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
+</style>
 <script type="text/javascript">
 window.addEventListener("scroll", function() {
     const buttonWrap = document.querySelector(".fixedBtn_wrap");
