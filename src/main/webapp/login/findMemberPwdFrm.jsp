@@ -119,13 +119,19 @@
 </style>
 <!-- <link rel="stylesheet" href="http://localhost/movie_prj/login/css/findMemberPwdFrm.css"> 왜 안되냐-->
 <script type="text/javascript">
-let countdownInterval; // 전역 변수로 선언하여 재시작/중지 가능
+//전역 변수로 타이머 인터벌 선언
+let timerInterval;
+
 $(function(){
+	
+	//인증번호검증 input 숨김
+	$("#confirmDiv").hide();
+	
 	//이메일검증
 	function validateEmail(email) {
-const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-return regex.test(email);
-}
+		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return regex.test(email);
+	}
 
 	/* 인증번호 받기 버튼 눌렀을 때 */
 	$("#getCodeEmail").on("click", function(){
@@ -138,6 +144,8 @@ return regex.test(email);
 		//옳바른 이메일 주소일 때 -> 작업진행
 		let userId = $("#userId").val();
 		let birth = $("#birth").val();
+		
+		$("#confirmNumberBtn").prop("disabled", false); //인증확인 버튼 재활성화 
 		
 		//1. 아이디,생일,이메일로 가입되어있는 멤버인지 확인
 		$.ajax({
@@ -158,19 +166,34 @@ return regex.test(email);
 				  //2. 멤버로 확인된 후, 인증코드를 이메일 보내는 작업 호출
 					sendVerificationCode(email);
 					
+				  //3. 메일 보냈다는 메시지 출력
+				  $("#email-sent-success").show();
+				  
+				  //4. 인증번호 기입 input 출력
+				  $("#confirmDiv").show();
+				  
+				  //5.타이머 시작
+				  startTimer(300, $("#timer")); // join1의 방식으로 변경
+				  
 				} else if (result.trim() === "noUserdata"){
 					alert("등록되지 않은 회원입니다. 개인정보를 다시 한번확인해주세요.");
 				}
 			},
 			error: function(xhr, status, error){
 				console.error("에러 발생!");
-    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
-    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
-    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
-    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
+    	  console.log("status: ", status);
+    	  console.log("error: ", error);
+    	  console.log("xhr.status: ", xhr.status);
+    	  console.log("xhr.responseText: ", xhr.responseText);
 			}
 			
 		});
+		
+		// 인증번호 보내기 버튼 일시적 정지 (join1과 동일하게 추가)
+        $(this).prop('disabled', true);
+        setTimeout(() => {
+            $(this).prop('disabled', false);
+        }, 60000); // 60초 후에 재전송 가능
 		
 	});
 	
@@ -180,7 +203,6 @@ return regex.test(email);
 	
 	/* 이메일로 인증코드 보내고, DB업데이트 작업 */  
 	function sendVerificationCode(email){
-		//console.log("sendVerificationCode 함수 작동? 작동중 ");
 		$.ajax({
 			url:"${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
 			type:"POST",
@@ -192,8 +214,6 @@ return regex.test(email);
 			success:function(result){
 				if(result.trim() === "success"){
 					alert("인증번호 생성, DB 입력 성공");
-					startTimer(300); // 5분(300초) 타이머 시작
-				  $("#confirmNumberBtn").prop("disabled", false).css("background-color", "#f14d4d"); // 만약 이전에 비활성화 되어 있으면 활성화
 					
 				} else if(result.trim() === "fail") {
 					alert("인증번호 생성, DB 입력 실패");
@@ -201,10 +221,10 @@ return regex.test(email);
 			},
 			error:function(xhr, status, error){
 				console.error("에러 발생!");
-    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
-    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
-    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
-    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
+    	  console.log("status: ", status);
+    	  console.log("error: ", error);
+    	  console.log("xhr.status: ", xhr.status);
+    	  console.log("xhr.responseText: ", xhr.responseText);
 			}
 			
 		});
@@ -226,24 +246,28 @@ return regex.test(email);
 	     		console.log("response.result:", response.result);
 	     		if(response.result == "success"){
 	     			//확인되었으니, 모든 버튼 비활성화
+	     			$("#verification-error").hide(); //인증비매치 에러 메시지 숨김 
 	          $("#verify-success-msg").show(); //인증이 확인되었습니다. 표시 
 	          $("#getCodeEmail").css("background-color", "#BDBDBD");//인증번호 받기 버튼 색 변경
 	          $("#getCodeEmail").prop("disabled", true);//인증번호 받기 버튼 비활성화
 						$("#confirmNumberBtn").css("background-color", "#BDBDBD");//인증확인 버튼 색 변경
 	          $("#confirmNumberBtn").prop("disabled", true); //인증확인 버튼 비활성화
 						$("#findPwdBtn").css("background-color", "#f14d4d");//비밀번호 찾기 버튼 색 변경
-	          $("#findPwdBtn").prop("disabled", false); //비밀번호 찾기 버튼 활성화 
+	          $("#findPwdBtn").prop("disabled", false); //비밀번호 찾기 버튼 활성화
+	          
+	          // 타이머 중지
+	          clearInterval(timerInterval);
+	          
 	     		}
 	     		if(response.result === "fail"){
-	     			alert("인증번호가 일치하지 않습니다.");
-	     			verificationError.style.display = 'block'; //오류표기 
+	     			$("#verification-error").css("display", "block");
 	     		}
        	},
 				error : function(xhr, status, error){
 					console.log("AJAX 요청 실패");
-     	    console.log("status: " + status);            // 요청 상태
-     	    console.log("error: " + error);              // 에러 메시지
-     	    console.log("responseText: " + xhr.responseText); // 서버에서 반환된 에러 내용
+     	    console.log("status: " + status);
+     	    console.log("error: " + error);
+     	    console.log("responseText: " + xhr.responseText);
 				}
 				
 			}); //end ajax
@@ -254,39 +278,48 @@ return regex.test(email);
 	
 	
 	/* 비밀번호 찾기 버튼을 누르면, 페이지 이동 */
-	function getNewPassword(){
-		$("#findPwdBtn").on("click", function(){
-			alert("이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 ");
-			//이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 
-		});
-	}//end getNewPassword()
-	
-	
-	
-	/* 타이머 */
-	function startTimer(duration) {
-		console.log("startTimer함수 작동? 안되고있어 ");
-	  let timer = duration;
-	  const timerDisplay = document.getElementById("timer");
-	  
-	  // 이전 타이머 중지
-	  clearInterval(countdownInterval);
-	
-	  countdownInterval = setInterval(function () {
-	    let minutes = Math.floor(timer / 60);
-	    let seconds = timer % 60;
-	
-	    timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-	
-	    if (--timer < 0) {
-	      clearInterval(countdownInterval);
-	      timerDisplay.textContent = "인증시간 만료";
-	      $("#confirmNumberBtn").prop("disabled", true).css("background-color", "#BDBDBD");
-	    }
-	  }, 1000);
-	}//end 타이머
-	
+	$("#findPwdBtn").on("click", function(){
+		alert("이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 ");
+		//이메일로 임시비밀번호를 보내야 함 , DB도 수정해야 함 
+	});
+		
 });//ready
+
+
+/* join1의 타이머 함수를 참고한 수정된 타이머 함수 */
+function startTimer(duration, display) {
+    let timer = duration;
+    let minutes, seconds;
+    
+    // 기존 타이머가 있다면 정리
+    clearInterval(timerInterval);
+    
+    timerInterval = setInterval(function() {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+        
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        
+        display.text(minutes + ":" + seconds);
+        
+        if (--timer < 0) {
+            clearInterval(timerInterval);
+            display.text("00:00");
+            $("#verification-error").show();
+            $("#verification-error").text("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+            
+            // 5분 지났으므로 세션의 인증코드 번호 삭제 
+            $.ajax({
+                url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+                type : "POST"
+            });
+            
+            // 버튼들 비활성화
+            $("#confirmNumberBtn").prop("disabled", true);
+        }
+    }, 1000);
+}
 
 </script>
 </head>
@@ -325,28 +358,38 @@ return regex.test(email);
               </div>
 
               <div class="pw_field_row">
-                <div class="pw_field_name">이메일주소</div>
-                <div style="display: flex; align-items: center;">
-                  <input type="email" class="pw_field_input" id="email" name="email" style="width: 200px;" required>
-                  <button class="pw_verify_btn" type="button" id="getCodeEmail">인증번호받기</button>
-                </div>
-              </div>
+							  <div class="pw_field_name">이메일주소</div>
+							  
+							  <!-- column : flex-direction: column으로 바꿔서 위→아래로 쌓이게 함 -->
+							  <div style="display: flex; flex-direction: column; align-items: flex-start;">
+							    <div style="display: flex; align-items: center; gap: 10px;">
+							      <input type="email" class="pw_field_input" id="email" name="email" style="width: 200px;" required>
+							      <button class="pw_verify_btn" type="button" id="getCodeEmail">인증번호받기</button>
+							    </div>
+							    <div id="email-sent-success" style="color: #f14d4d; font-size: 13px; margin-top: 5px; display: none;">
+							      입력하신 이메일로 인증번호가 발송되었습니다.
+							    </div>
+							
+							  </div>
+							</div>
               
-              <div class="pw_field_row wrongEmail" style="display: none;">
-	              <div class="error-message" id="email-error" >올바른 이메일 주소를 입력해주세요.</div>
-              </div>
-
-              <div class="pw_field_row" >
+              <div id="confirmDiv" class="pw_field_row">
                 <div class="pw_field_name">인증번호<br>(6자리)</div>
+                
                 <div>
                   <input style="width: 200px;" type="password" id="verificationNumb" class="pw_field_input" name="verifiedCode" maxlength="6" oninput="this.value = this.value.replace(/[^0-9]/g, '');"  required>
                  	<button class="pw_verify_btn" type="button" id="confirmNumberBtn">확인</button>
-               	  <span id="timer" style="margin-left:10px; font-size: 13px; color: #f14d4d;">5:00 이거왜안돼?</span>
-                 	<div id="verify-success-msg" style="color: #f14d4d; font-size: 13px; margin-top: 5px; display: none;">
-							      인증이 확인되었습니다.
+               	  <span id="timer" style="margin-left: 10px; font-size: 13px; color: #f14d4d;">5:00</span>
+               	  <div id="verification-error" style="color: #f14d4d; font-size: 13px; margin-top: 5px; display: none;">
+               	  	인증번호가 일치하지 않습니다.
+               	  </div>
+                 	<div id="verify-success-msg" style="color: #2ecc71; font-size: 13px; margin-top: 5px; display: none;">
+							      이메일 인증이 완료되었습니다.
 							    </div>
                 </div>
+                
               </div>
+              
             </div>
             
 						<script type="text/javascript">

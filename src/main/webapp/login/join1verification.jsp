@@ -318,6 +318,7 @@ $(function(){
 	<div class="info-text">안전한 회원가입을 위한 본인인증 단계입니다.</div>
 
 	<div id="email-auth-form">
+		
 		<div class="form-group">
 			<label for="email">이메일 주소</label><br>
 			<div class="input-group">
@@ -326,22 +327,17 @@ $(function(){
 				<input type="email" id="email" placeholder="example@domain.com" value='<c:out value="${email}"/>' required readonly>
 				<button id="send-verification" type="button">인증번호 전송</button>
 			</div>
-			<div class="error-message" id="email-error">올바른 이메일 주소를
-				입력해주세요.</div>
 		</div>
 
-		<div class="form-group" id="verification-form"
-			style="display: none;">
-			<div class="success-message" id="email-sent-success">입력하신
-				이메일로 인증번호가 발송되었습니다.</div>
+		<div class="form-group" id="verification-form" style="display: none;">
+			<div class="success-message" id="email-sent-success">입력하신 이메일로 인증번호가 발송되었습니다.</div>
 
 			<label for="verification-code">인증번호 <span class="timer" id="verification-timer">05:00</span></label><br>
 			<div class="input-group">
 				<input type="text" id="verification-code" placeholder="인증번호 6자리 입력" maxlength="6">
 				<button id="verify-code" type="button">확인</button>
 			</div>
-			<div class="error-message" id="verification-error">인증번호가 일치하지
-				않습니다.</div>
+			<div class="error-message" id="verification-error">인증번호가 일치하지 않습니다.</div>
 		</div>
 
 		<div class="form-group" id="verification-success"
@@ -367,7 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const verificationForm = document.getElementById('verification-form');
     const verificationCode = document.getElementById('verification-code');
     const verifyCodeBtn = document.getElementById('verify-code');
-    const emailError = document.getElementById('email-error');
     const verificationError = document.getElementById('verification-error');
     const emailSentSuccess = document.getElementById('email-sent-success');
     const verificationSuccess = document.getElementById('verification-success');
@@ -420,14 +415,6 @@ document.addEventListener('DOMContentLoaded', function() {
     sendVerificationBtn.addEventListener('click', function() {
         const email = emailInput.value.trim();
         
-        if (!validateEmail(email)) {
-            emailError.style.display = 'block';
-            return;
-        }
-        
-        emailError.style.display = 'none';
-        
-        
         //인증번호 생성 이메일 보내기 
         //번호생성 -> 이메일 전송 -> 세션에 이메일과 번호를 저장 (보관:5분) -> 다음 클릭시, 값 확인: 세션값과 대조
        	$.ajax({
@@ -475,7 +462,6 @@ document.addEventListener('DOMContentLoaded', function() {
         	success : function(response){
         		console.log("response.result:", response.result);
         		if(response.result == "success"){
-        			console.log("result값은 success");
 	            verificationError.style.display = 'none';
 	            verificationForm.style.display = 'none';
 	            verificationSuccess.style.display = 'block';
@@ -499,10 +485,6 @@ document.addEventListener('DOMContentLoaded', function() {
         	
         	
         });
-    });
-    
-    emailInput.addEventListener('input', function() {
-        emailError.style.display = 'none';
     });
     
     nextStepBtn.addEventListener('click', function() {

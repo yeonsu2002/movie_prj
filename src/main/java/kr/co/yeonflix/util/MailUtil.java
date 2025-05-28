@@ -46,7 +46,7 @@ public class MailUtil {
     });
     
     // 디버그 출력 활성화
-    session.setDebug(true);
+    //session.setDebug(true);
     
     try {
       MimeMessage message = new MimeMessage(session);

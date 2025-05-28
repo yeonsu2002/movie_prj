@@ -378,6 +378,25 @@
 .join3_profile-upload-input {
     display: none;
 }
+
+.phone-inputs {
+    display: flex;
+    gap: 8px; /* 입력 칸 사이 간격 조절 */
+    align-items: center;
+}
+
+.phone-inputs input[type="tel"] {
+    padding: 6px;
+    box-sizing: border-box;
+}
+.phone-inputs span {
+    flex: 0 0 auto; /* 하이픈은 고정 크기 */
+    padding: 0 4px;
+}
+
+#phone1 { flex: 3; }
+#phone2, #phone3 { flex: 4; }
+
 </style>
 <script type="text/javascript">
 $(function() {
@@ -526,10 +545,33 @@ $(function() {
       history.back();
   });
   
-});
+}); //ready 
 
+
+function combinePhoneNumber() {
+	  const p1 = document.getElementById("phone1").value.trim();
+	  const p2 = document.getElementById("phone2").value.trim();
+	  const p3 = document.getElementById("phone3").value.trim();
+
+	  // 유효성 검사: 빈 칸이 있거나 숫자가 아닌 경우 경고
+	  if (!p1 || !p2 || !p3 || !/^\d+$/.test(p1 + p2 + p3)) {
+	    alert("전화번호를 올바르게 입력해 주세요.");
+	    return false;
+	  }
+
+	  const fullPhone = `${p1}-${p2}-${p3}`;
+	  document.getElementById("phone").value = fullPhone;
+
+	  return true; // 폼 제출 진행
+	}
+
+
+//
 function aJaxSubmit(){
 /* form text요소는 web parameter, 파일은 multipart타입으로 전송하기 */
+	
+	//핸드폰 번호 검증
+	//combinePhoneNumber(); 이거 안되고 잇네 
 	
 	//form객체 얻기
 	let frmObj = $("#join3Form")[0]; //parameter전송방식 : 파일업로드x
@@ -685,7 +727,7 @@ function aJaxSubmit(){
         <script type="text/javascript">
         //닉네임중복 검사. 수정할 것ㅅ
         $("#checkNicknameBtn").on("click", function() {
-            var nickname = $("#nickname").val().trim();
+            var nickname = $("#nickName").val().trim();
             
             if (nickname === "") {
                 alert("닉네임을 입력해주세요.");
@@ -754,8 +796,15 @@ function aJaxSubmit(){
         </div>
 
         <div class="join3_form-group">
-            <label for="phone" class="join3_form-label">전화번호</label>
-            <input type="tel" id="phone" name="phone" class="join3_form-input" placeholder="전화번호를 입력해주세요" required>
+            <label for="phone" class="join3_form-label" >전화번호</label>
+            <div class="phone-inputs">
+	            <input type="tel" id="phone1" class="join3_form-input" required maxlength="3">
+	            <span>-</span>
+	            <input type="tel" id="phone2" class="join3_form-input" required maxlength="4">
+	            <span>-</span>
+	            <input type="tel" id="phone3" class="join3_form-input" required maxlength="4">
+	            <input type="hidden" name="phone" value="">
+            </div>
         </div>
 
         <!-- 전화번호 수신여부 추가 -->
