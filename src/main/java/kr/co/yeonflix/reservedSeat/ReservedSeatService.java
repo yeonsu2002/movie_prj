@@ -28,7 +28,7 @@ public class ReservedSeatService {
 	 * @param reservationIdx
 	 * @return
 	 */
-	public boolean modifyReservedSeat(int reservationIdx) {
+	public boolean modifyReservedSeatAll(int reservationIdx) {
 		boolean flag = false;
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
 		try {

@@ -61,7 +61,7 @@ public class ReservedSeatDAO {
 	 * @param reservationIdx
 	 * @throws SQLException
 	 */
-	public void updateReservedSeat(int reservationIdx) throws SQLException {
+	public void updateReservedSeatAll(int reservationIdx) throws SQLException {
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
