@@ -9,11 +9,6 @@
 <title>연플릭스</title>
 <jsp:include page="/common/jsp/external_file.jsp" />
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/main_screen.css"/>
-<title>Insert title here</title>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/> 
-<style>
- #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
-</style>
 <script type="text/javascript">
 window.addEventListener("scroll", function() {
     const buttonWrap = document.querySelector(".fixedBtn_wrap");
@@ -77,7 +72,7 @@ function showTab(tabName) {
     <button class="tab-button active" onclick="showTab('movieChart')">무비차트</button>
     <button class="tab-button" onclick="showTab('UpcomingMovies')">상영예정작</button>
   </div>
-  <a href="movie.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
+  <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
 </div>
         <div>    
 		<div class="content-area">
