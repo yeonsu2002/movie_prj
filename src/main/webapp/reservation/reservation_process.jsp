@@ -60,29 +60,37 @@ try {
 	ReservedSeatDTO rsDTO = null;
 
 	for (int i = 0; i < seats.length; i++) {
-		rsDTO = new ReservedSeatDTO();
-
 		int seatIdx = rss.searchSeatIdx(seats[i]);
-		rsDTO.setSeatIdx(seatIdx);
-		rsDTO.setScheduleIdx(scheduleIdx);
-		rsDTO.setReservedSeatStatus(1);
-		rsDTO.setReservationIdx(reservationIdx);
+		rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
+		
+		//이미 존재하는 칼럼인지 확인(만약 누가 예매했다가 취소했으면 컬럼은 남기 때문에)
+		if (rsDTO == null) {
+			rsDTO = new ReservedSeatDTO();
+			rsDTO.setSeatIdx(seatIdx);
+			rsDTO.setScheduleIdx(scheduleIdx);
+			rsDTO.setReservedSeatStatus(1);
+			rsDTO.setReservationIdx(reservationIdx);
+			rss.addReservedSeat(rsDTO);
+		} else{
+			rsDTO.setReservedSeatStatus(1);
+			rsDTO.setReservationIdx(reservationIdx);
+			rss.modifyReservedSeat(rsDTO);
+		}
 
-		rss.addReservedSeat(rsDTO);
 	}
-	
+
 	//구매내역 등록
 	PurchaseHistoryService phs = new PurchaseHistoryService();
 	PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
 	phDTO.setUserIdx(userIdx);
 	phDTO.setReservationIdx(reservationIdx);
 	phs.addPurchaseHistory(phDTO);
-	
+
 	//잔여 좌석 업데이트
 	int remainSeats = schDTO.getRemainSeats();
 	schDTO.setRemainSeats(remainSeats - seats.length);
 	ss.modifySchedule(schDTO);
-	
+
 	isSuccess = true;
 } catch (Exception e) {
 	e.printStackTrace();
@@ -90,22 +98,23 @@ try {
 
 if (isSuccess) {
 %>
-    <form id="sendForm" action="reservation_complete.jsp" method="post">
-        <input type="hidden" name="scheduleParam" value="<%= scheduleIdx %>">
-        <input type="hidden" name="reservationParam" value="<%= reservationIdx %>">
-        <input type="hidden" name="seatsParam" value="<%= seatsInfo %>">
-    </form>
-    <script>
-        alert('예매 성공');
-        document.getElementById("sendForm").submit();
-    </script>
+<form id="sendForm" action="reservation_complete.jsp" method="post">
+	<input type="hidden" name="scheduleParam" value="<%=scheduleIdx%>">
+	<input type="hidden" name="reservationParam"
+		value="<%=reservationIdx%>"> <input type="hidden"
+		name="seatsParam" value="<%=seatsInfo%>">
+</form>
+<script>
+	alert('예매 성공');
+	document.getElementById("sendForm").submit();
+</script>
 <%
 } else {
 %>
-    <script>
-        alert('예매에 실패했습니다. 다시 시도해 주세요.');
-        history.back();
-    </script>
+<script>
+	alert('예매에 실패했습니다. 다시 시도해 주세요.');
+	history.back();
+</script>
 <%
 }
 %>

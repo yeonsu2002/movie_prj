@@ -218,4 +218,50 @@ public class ReservationDAO {
 		}
 		return list;
 	}//selectAllReservationWithSchedule
+	
+	/**
+	 * 특정 유저의 예매내역을 보여주기 편하게 가공하는 코드
+	 * @param userIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<ShowReservationDTO> selectDetailReservationWithUser(int userIdx) throws SQLException {
+		List<ShowReservationDTO> list = new ArrayList<ShowReservationDTO>();
+		
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		
+		try {
+			con = dbCon.getDbConn();
+			StringBuilder sql = new StringBuilder();
+			sql.append("SELECT m.movie_name, t.theater_name, s.screen_date, r.canceled_date ");
+			sql.append("FROM reservation r ");
+			sql.append("JOIN schedule s ON r.schedule_idx = s.schedule_idx ");
+			sql.append("JOIN movie m ON s.movie_idx = m.movie_idx ");
+			sql.append("JOIN theater t ON s.theater_idx = t.theater_idx ");
+			sql.append("WHERE r.user_idx = ?");
+			
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setInt(1, userIdx);
+			rs = pstmt.executeQuery();
+			
+			ShowReservationDTO srDTO = null;
+			while(rs.next()) {
+				srDTO = new ShowReservationDTO();
+				srDTO.setMovieName(rs.getString("movie_name"));
+				srDTO.setTheaterName(rs.getString("theater_name"));
+				srDTO.setScreenDate(rs.getDate("screen_date"));
+				srDTO.setCanceledDate(rs.getTimestamp("canceled_date"));
+				
+				list.add(srDTO);
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		
+		return list;
+	}//selectDetailReservationWithUser
 }
