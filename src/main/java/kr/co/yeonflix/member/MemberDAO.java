@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.dao.DbConnection;
@@ -422,5 +424,130 @@ public class MemberDAO {
 		return flag;
 			
 	}//selectId
+	
+	
+	public List<MemberDTO> selectAllMember(RangeDTO rDTO) throws SQLException {
+	    List<MemberDTO> list = new ArrayList<>();
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        String sql = 
+	            "SELECT * FROM ( " +
+	            "  SELECT ROWNUM rnum, a.* FROM ( " +
+	            "    SELECT * FROM member ORDER BY created_at DESC " +
+	            "  ) a " +
+	            "  WHERE ROWNUM <= ? " +  // endRow
+	            ") WHERE rnum > ?";       // startRow
+
+	        pstmt = con.prepareStatement(sql);
+
+	        // 페이지 계산
+	        int startRow = rDTO.getStartIndex();                  // 예: (page - 1) * pageSize
+	        int endRow = startRow + rDTO.getPageSize();           // 예: start + pageSize
+
+	        pstmt.setInt(1, endRow);
+	        pstmt.setInt(2, startRow);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            MemberDTO memberDTO = new MemberDTO();
+	            memberDTO.setMemberId(rs.getString("member_id"));
+	            memberDTO.setNickName(rs.getString("nick_name"));
+	            memberDTO.setUserName(rs.getString("user_name"));
+
+	            java.sql.Date birthDate = rs.getDate("birth");
+	            if (birthDate != null) {
+	                memberDTO.setBirth(birthDate.toLocalDate());
+	            }
+
+	            memberDTO.setTel(rs.getString("tel"));
+	            memberDTO.setEmail(rs.getString("email"));
+
+	            java.sql.Timestamp createdAtTs = rs.getTimestamp("created_at");
+	            if (createdAtTs != null) {
+	                memberDTO.setCreatedAt(createdAtTs.toLocalDateTime());
+	            }
+	            
+	            memberDTO.setIsActive(rs.getString("is_active"));
+
+	            list.add(memberDTO);
+	        }
+
+	    } finally {
+	        dbCon.dbClose(rs, pstmt, con);
+	    }
+
+	    return list;
+	}
+
+
+	/**
+	 * 허용된 컬럼명만 반환, 검증용 메서드
+	 * 허용된 컬럼명이 아니면 null 반환
+	 */
+	private String validateFieldName(String fieldName) {
+	    // 허용할 컬럼명 배열 예시
+	    String[] allowedFields = {"member_id", "nick_name", "user_name", "email", "tel"};
+	    for (String allowed : allowedFields) {
+	        if (allowed.equalsIgnoreCase(fieldName)) {
+	            return allowed;
+	        }
+	    }
+	    return null;  // 허용되지 않는 필드명
+	}
+
+	
+
+	
+	
+	/**
+	 * 게시물 전체 개수
+	 * @return cnt 게시물 전체 개수
+	 * @throws SQLException 예외처리
+	 */
+	public int selectTotalCount(RangeDTO rDTO) throws SQLException {
+	    int cnt = 0;
+	    DbConnection dbCon = DbConnection.getInstance();
+
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+	    Connection con = null;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        StringBuilder countQuery = new StringBuilder("SELECT COUNT(member_id) cnt FROM member");
+
+	        String fieldName = validateFieldName(rDTO.getFieldName());
+
+	        if (rDTO.getKeyword() != null && !rDTO.getKeyword().isEmpty() && fieldName != null) {
+	            countQuery.append(" WHERE INSTR(").append(fieldName).append(", ?) != 0");
+	        }
+
+	        pstmt = con.prepareStatement(countQuery.toString());
+
+	        if (rDTO.getKeyword() != null && !rDTO.getKeyword().isEmpty() && fieldName != null) {
+	            pstmt.setString(1, rDTO.getKeyword());
+	        }
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            cnt = rs.getInt("cnt");
+	        }
+	    } finally {
+	        dbCon.dbClose(rs, pstmt, con);
+	    }
+
+	    return cnt;
+	}
+
+
 
 }

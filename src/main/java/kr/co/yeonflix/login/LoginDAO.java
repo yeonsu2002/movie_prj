@@ -30,7 +30,6 @@ public class LoginDAO {
 	}
 	
 	public MemberDTO selectLogin(LoginDTO lDTO) throws SQLException {
-		System.out.println("pwd ; " + lDTO.getPass());
 	    MemberDTO mDTO = null;
 
 	    DbConnection db = DbConnection.getInstance();
@@ -65,7 +64,7 @@ public class LoginDAO {
 		            mDTO.setMemberId(rs.getString("member_id"));
 		            mDTO.setMemberPwd(rs.getString("member_pwd"));
 		            mDTO.setNickName(rs.getString("nick_name"));
-		            mDTO.setUserName(rs.getString("user_name"));
+		            mDTO.setNickName(rs.getString("user_name"));
 		            mDTO.setBirth(rs.getObject("birth", LocalDate.class));
 		            mDTO.setTel(rs.getString("tel"));
 		            mDTO.setIsSmsAgreed(rs.getString("is_sms_agreed"));
@@ -110,9 +109,9 @@ public class LoginDAO {
 
 	            mDTO.setUserIdx(rs.getInt("user_idx"));
 	            mDTO.setMemberId(rs.getString("member_id"));
-	            mDTO.setMemberPwd(rs.getString("member_pwd"));
+	            mDTO.setMemberId(rs.getString("member_pwd"));
 	            mDTO.setNickName(rs.getString("nick_name"));
-	            mDTO.setUserName(rs.getString("user_name"));
+	            mDTO.setNickName(rs.getString("user_name"));
 	            mDTO.setBirth(rs.getObject("birth", LocalDate.class));
 	            mDTO.setTel(rs.getString("tel"));
 	            mDTO.setIsSmsAgreed(rs.getString("is_sms_agreed"));

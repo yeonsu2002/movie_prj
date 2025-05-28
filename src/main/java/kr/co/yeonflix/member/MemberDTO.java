@@ -2,6 +2,8 @@ package kr.co.yeonflix.member;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +29,12 @@ public class MemberDTO {
   private String memberIp; 
  
   private Enum<Role> role;
+  
+  
+  public Date getCreatedAtAsDate() {
+	    if (createdAt == null) return null;
+	    return Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+	}
   
   
   //로그인시 호출할 회원정보(생일: 성인영화 접근, 아이피: 
