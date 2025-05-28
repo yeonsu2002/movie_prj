@@ -24,6 +24,23 @@ public class ReservedSeatService {
 	}//addReservedSeat
 	
 	/**
+	 * 예매 좌석을 업데이트 하는 코드
+	 * @param rsDTO
+	 * @return
+	 */
+	public boolean modifyReservedSeat(ReservedSeatDTO rsDTO) {
+		boolean flag = false;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.updateReservedSeat(rsDTO);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return flag;
+	}//modifyReservedSeat
+	
+	/**
 	 * 예매한 좌석들의 상태를 일괄적으로 0으로 update
 	 * @param reservationIdx
 	 * @return
@@ -90,4 +107,16 @@ public class ReservedSeatService {
 		}
 		return list;
 	}//searchSeatNumberWithSchedule
+	
+	public ReservedSeatDTO searchSeatWithIdxAndSchedule(int seatIdx, int scheduleIdx) {
+		ReservedSeatDTO rsDTO = null;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDTO = rsDAO.selectSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return rsDTO;
+	}
 }

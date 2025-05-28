@@ -72,7 +72,7 @@ function showTab(tabName) {
     <button class="tab-button active" onclick="showTab('movieChart')">무비차트</button>
     <button class="tab-button" onclick="showTab('UpcomingMovies')">상영예정작</button>
   </div>
-  <a href="movie.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
+  <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
 </div>
         <div>    
 		<div class="content-area">

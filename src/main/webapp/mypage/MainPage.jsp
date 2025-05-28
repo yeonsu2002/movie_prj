@@ -1,7 +1,32 @@
+<%@page import="kr.co.yeonflix.reservation.ShowReservationDTO"%>
+<%@page import="kr.co.yeonflix.reservation.ReservationDTO"%>
+<%@page import="java.util.List"%>
+<%@page import="kr.co.yeonflix.reservation.ReservationService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%
+	String reservationParam = request.getParameter("reservationIdx");
+	int reservationIdx = 0;
+
+	if (reservationParam != null) {
+    reservationIdx = Integer.parseInt(reservationParam);
+	}
+	
+    Integer userIdxObj = (Integer) session.getAttribute("userIdx");
+    int userIdx = 8;
+    if (userIdxObj != null) {
+        userIdx = userIdxObj.intValue();
+    } // 로그인 안 했어도 그냥 0 또는 기본값으로 처리됨 (주의!)
+
+    ReservationService rs = new ReservationService();
+ 	List<ShowReservationDTO> reservationList= rs.searchDetailReservationWithUser(userIdx);
+ 	request.setAttribute("reservationList", reservationList); 
+%>
+
+
 
 <!DOCTYPE html>
 <html>
@@ -165,11 +190,23 @@ delete-r{
 
 </style>
 <script type="text/javascript">
+$(document).ready(function () {
+    $("#btnShowDetail").click(function (){
+		$('#bookingModal').fadeIn();
+    });
+	$('#closeModalBtn').click(function() {
+		$('#bookingModal').fadeOut();
+	});
+
+	$('.close-btn').click(function() {
+		$('#bookingModal').fadeOut();
+	});
+});
 </script>
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div id="container">
@@ -201,9 +238,11 @@ delete-r{
 <div class="header-container">
  <h2>My 예매내역 <span class="badge bg-secondary">0건</span></h2><br>
  <div class="delete-r">
- 	<input type="button" value="선택 삭제" class="btn btn-danger"/>
+ 	<input type="button" value="예매 삭제" class="btn btn-secondary"/>
+ 	<input type="button" value="예매 내역 출력" class="btn btn-danger" id="btnShowDetail"/>
  </div>
  </div>
+ <br>
  <div class="content-container">
         <div class="empty-message">
                <table class="table table-striped table-hover">
@@ -219,38 +258,33 @@ delete-r{
     </tr>
   </thead>
   <tbody>
+  <c:if test="${empty reservationList}">
     <tr>
-     <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td colspan="5" style="text-align:center; color:gray;">예매내역이 없습니다.</td>
     </tr>
-    <tr>
+  </c:if>
+ 
+  <c:forEach var="ticket" items="${reservationList}">
+  <tr>
     <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-    <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
+      <input class="form-check-input" type="checkbox"
+             value="${ticket.reservationIdx}"
+             onchange="location.href='?reservationIdx=' + this.value;"
+             <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
+    </td>
+    <td>${ticket.movieName}</td>
+    <td>${ticket.theaterName}</td>
+    <td>${ticket.screenDate}</td>
+    <td></td>
+  </tr>
+</c:forEach>
+</tbody>
 </table>
         </div>
     </div>
  <br><br><br>
+ 
+ <!--  -------------------------------------------------------------------------------------------------------  -->
  
  <div class="header-container">
  <h2>My 문의내역 <span class="badge bg-secondary">0건</span></h2>
@@ -272,32 +306,24 @@ delete-r{
       <th scope="col">등록일</th>
     </tr>
   </thead>
-  <tbody>
+ <tbody>
+ <c:if test="${empty ticketList}">
     <tr>
-     <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td colspan="5" style="text-align:center; color:gray;">문의내역이 없습니다.</td>
     </tr>
+  </c:if>
+ 
+  <c:forEach var="inquiry" items="${inquiryList}">
+  <c:if test="${empty ticketList}">
     <tr>
-    <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><input class="form-check-input" type="checkbox" value="${inquiry.inquiryId}"></td>
+      <td>${inquiry.category}</td>
+      <td>${inquiry.title}</td>
+      <td>${inquiry.createdDate}</td>
     </tr>
-    <tr>
-    <td>
-        <input class="form-check-input" type="checkbox">
-      </td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
+    </c:if>
+  </c:forEach>
+</tbody>
 </table>
     </div>
 </div>
@@ -307,5 +333,9 @@ delete-r{
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
 </footer>
+  <c:import url="/reservation/booking_modal.jsp">
+    <c:param name="reservationIdx" value="${param.reservationIdx}" />
+  </c:import>
+
 </body>
 </html>

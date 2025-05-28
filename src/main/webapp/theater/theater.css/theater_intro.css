@@ -1,228 +1,158 @@
 @charset "UTF-8";
+
 #container {
     min-height: 650px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     width: 100%;
-    
-    background: url('http://localhost/movie_prj/main_screen/theater_image/theater_background.jpg') center/cover no-repeat;
-    background-color: rgba(0, 0, 0, 0.8); /* 어두운 반투명 오버레이 */
-    background-blend-mode: overlay; /* 이미지 + 색상 섞기 */
+    background: url('../../common/img/theater_intro_background.jpg') center/cover no-repeat;
+    background-color: rgba(0, 0, 0, 0.8);
+    background-blend-mode: overlay;
 }
-.special-cinema-container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #000;
-            color: white;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        /* 탭 버튼 영역 */
-      .tab-buttons {
-		    display: flex;
-		    justify-content: space-between; /* 또는 center */
-		    margin-bottom: 40px;
-		    border-bottom: 2px solid #333;
-		}
 
-		.tab-button {
-		    flex: 1; /* ← 이 줄 추가 */
-		    text-align: center; /* 텍스트 중앙정렬 */
-		    background: transparent;
-		    border: none;
-		    color: #999;
-		    font-size: 18px;
-		    font-weight: bold;
-		    padding: 15px 0;  /* 좌우 패딩 제거 */
-		    cursor: pointer;
-		    transition: all 0.3s ease;
-		    border-bottom: 3px solid transparent;
-		}
-        
-        .tab-button:hover {
-            color: #fff;
-        }
-        
-        .tab-button.active {
-            color: #e50914;
-            border-bottom-color: #e50914;
-        }
-        
-        /* 컨텐츠 영역 */
-     /*    .content-area {
-            min-height: 600px;
-        } */
-        .content-area {
-    /* min-height: 600px; → 제거 */
-    padding-bottom: 40px; /* 여유 공간 주기 */
+.special-cinema-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #000;
+    color: white;
+    font-family: 'Arial', sans-serif;
 }
-        
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* 각 특별관 레이아웃 */
-        .cinema-layout {
-            display: flex;
-            gap: 40px;
-            align-items: flex-start;
-        }
-        
-        .cinema-info {
-            flex: 1;
-        }
-        
-        .cinema-visual {
-            flex: 1;
-            position: relative;
-        }
-        
-        .cinema-title {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            letter-spacing: 2px;
-        }
-        
-        .cinema-title.imax {
-            color: #E8B417;
-        }
-        
-        .cinema-title.threeD {
-            color: #00B9C6;
-        }
-        
-        .cinema-title.screenx {
-            color: #15772C;
-        }
-        
-        .cinema-title.premium {
-            color: #ED3124;
-        }
-        
-        .cinema-description {
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 40px;
-            color: #ccc;
-        }
-        
-        /* 특징 아이콘 영역 */
-        .features {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .feature-item {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: #333;
-            border-radius: 50%;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .feature-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .feature-desc {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        /* 메인 이미지 영역 */
-        .main-image {
-            width: 100%;
-            height: 300px;
-            background: #333;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .sub-images {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .sub-image {
-            flex: 1;
-            height: 100px;
-            background: #333;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            font-size: 12px;
-        }
-        
-        /* 반응형 */
-        @media (max-width: 768px) {
-            .cinema-layout {
-                flex-direction: column;
-            }
-            
-            .tab-button {
-                font-size: 14px;
-                padding: 12px 20px;
-            }
-            
-            .cinema-title {
-                font-size: 36px;
-            }
-            
-            .features {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
+
+/* 탭 버튼 */
+.tab-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #333;
+}
+
+.tab-button {
+    flex: 1;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+    color: #fff;
+}
+
+.tab-button.active {
+    color: #e50914;
+    border-bottom-color: #e50914;
+}
+
+/* 콘텐츠 영역 */
+.content-area {
+    padding-bottom: 40px;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 특별관 공통 레이아웃 */
+.cinema-layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.cinema-info, .cinema-visual {
+    flex: 1;
+}
+
+.cinema-title {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.cinema-title.imax { color: #E8B417; }
+.cinema-title.threeD { color: #00B9C6; }
+.cinema-title.screenx { color: #15772C; }
+.cinema-title.premium { color: #ED3124; }
+
+.cinema-description {
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    color: #ccc;
+}
+
+/* 특징 아이콘 */
+.features {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.feature-item {
+    text-align: center;
+    flex: 1;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: #333;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.feature-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.feature-desc {
+    font-size: 12px;
+    color: #999;
+}
+
+/* 이미지 */
 .main-image {
     width: 100%;
-    height: 380px;
+    height: 280px;
     background: #333;
     border-radius: 10px;
     margin-bottom: 20px;
-    overflow: hidden; /* 이미지 넘침 방지 */
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.main-image img {
+.main-image img,
+.cinema-top-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* 크롭되더라도 비율 맞게 꽉 채움 */
-    border-radius: 10px;
+    object-fit: cover;
 }
+
 .cinema-top-image {
     width: 100%;
     height: 600px;
@@ -230,9 +160,24 @@
     border-radius: 10px;
     overflow: hidden;
 }
- 
- .main-image img, .cinema-top-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .cinema-layout {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        font-size: 14px;
+        padding: 12px 20px;
+    }
+
+    .cinema-title {
+        font-size: 36px;
+    }
+
+    .features {
+        flex-direction: column;
+        gap: 20px;
+    }
 }

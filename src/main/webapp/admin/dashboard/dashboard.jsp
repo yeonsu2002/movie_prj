@@ -14,6 +14,7 @@
 <body>
     <div class="content-container">
         <div class="dashboard-grid">
+        
             <!-- 매출 차트 -->
             <div class="dashboard-card">
                 <div class="card-title">매출</div>
@@ -199,6 +200,7 @@
                 drawLine(data3, '#86efac');
             });
         </script>
+        
     </div>
 </body>
 </html>
