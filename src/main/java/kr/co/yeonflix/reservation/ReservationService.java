@@ -23,6 +23,11 @@ public class ReservationService {
 		return flag;
 	}//addReservation
 	
+	/**
+	 * 예매내역 업데이트 하는 코드(예매취소할 때 사용)
+	 * @param resDTO
+	 * @return
+	 */
 	public boolean modifyReservation(ReservationDTO resDTO) {
 		boolean flag = false;
 		
@@ -34,7 +39,7 @@ public class ReservationService {
 			e.printStackTrace();
 		}
 		return flag;
-	}
+	}//modifyReservation
 	
 	/**
 	 * 방금 생성한 예매 idx 얻기

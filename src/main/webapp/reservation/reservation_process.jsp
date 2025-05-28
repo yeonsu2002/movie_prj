@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryDTO"%>
+<%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDTO"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDAO"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
@@ -68,6 +70,13 @@ try {
 
 		rss.addReservedSeat(rsDTO);
 	}
+	
+	//구매내역 등록
+	PurchaseHistoryService phs = new PurchaseHistoryService();
+	PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
+	phDTO.setUserIdx(userIdx);
+	phDTO.setReservationIdx(reservationIdx);
+	phs.addPurchaseHistory(phDTO);
 	
 	//잔여 좌석 업데이트
 	int remainSeats = schDTO.getRemainSeats();
