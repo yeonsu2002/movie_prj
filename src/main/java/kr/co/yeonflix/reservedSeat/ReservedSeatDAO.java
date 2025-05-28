@@ -77,7 +77,7 @@ public class ReservedSeatDAO {
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-	}//updateReservedSeat
+	}//updateReservedSeatAll
 
 	/**
 	 * 좌석번호로 좌석IDX를 가져오는 코드

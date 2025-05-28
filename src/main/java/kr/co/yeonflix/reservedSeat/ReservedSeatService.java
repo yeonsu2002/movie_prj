@@ -32,13 +32,13 @@ public class ReservedSeatService {
 		boolean flag = false;
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
 		try {
-			rsDAO.updateReservedSeat(reservationIdx);
+			rsDAO.updateReservedSeatAll(reservationIdx);
 			flag = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return flag;
-	}//modifyReservedSeat
+	}//modifyReservedSeatAll
 	
 	/**
 	 * 좌석번호로 좌석IDX를 가져오는 코드
