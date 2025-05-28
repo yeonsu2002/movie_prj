@@ -1,9 +1,7 @@
-package kr.co.yeonflix.schedule;
+package kr.co.yeonflix.reservation;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,15 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class ScheduleDTO {
+public class ShowReservationDTO {
 
-	private int scheduleIdx, movieIdx, theaterIdx, scheduleStatus, remainSeats;
+	private int scheduleIdx, reservationIdx;
+	private String movieName, theaterName;
 	private Date screenDate;
-	private Timestamp startTime, endTime;
-
+	private Timestamp canceledDate;
 }

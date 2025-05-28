@@ -28,8 +28,8 @@
 <nav>
 <div class="nav_wrap">
 	<ul class="nav_menu">
-		<li><a href="">영화</a></li>
-		<li><a href="">극장</a></li>
+		<li><a href="http://localhost/movie_prj/movie_chart/main_chart.jsp">영화</a></li>
+		<li><a href="http://localhost/movie_prj/theater/theater_main.jsp">극장</a></li>
 		<li><a href="http://localhost/movie_prj/reservation/reservation.jsp"><strong>예매</strong></a></li>
 	</ul>
 

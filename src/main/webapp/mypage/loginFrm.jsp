@@ -27,10 +27,8 @@
 
 <script type="text/javascript">
 window.onload = function() {
-    document.getElementById("id").addEventListener("keyup", enter);
-    document.getElementById("password").addEventListener("keyup", enter);
     document.loginFrm.addEventListener("submit", function(e) {
-        e.preventDefault();  // 폼 기본 제출 막기 (AJAX 전송만)
+        e.preventDefault(); 
         chkNull();
     });
 }
@@ -94,7 +92,7 @@ function loginProcess(id, pass) {
 
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 
 <main>

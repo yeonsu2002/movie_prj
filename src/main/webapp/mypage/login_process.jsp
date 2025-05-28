@@ -9,6 +9,8 @@
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         String id = request.getParameter("id");
         String pass = request.getParameter("pass");
+        
+        System.out.println("login_process.jsp - received id: " + id + ", pass: " + pass);
 
         if (id != null && pass != null) {
             LoginDTO lDTO = new LoginDTO();
