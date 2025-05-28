@@ -3,7 +3,6 @@ package kr.co.yeonflix.login;
 import java.sql.SQLException;
 import javax.servlet.http.HttpSession;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.member.MemberDTO;
 
 public class LoginService {

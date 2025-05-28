@@ -55,6 +55,32 @@ public class ReservedSeatDAO {
 			dbCon.dbClose(null, pstmt, con);
 		}
 	}// insertRservedSeat
+	
+	/**
+	 * 예매 좌석을 업데이트 하는 코드
+	 * @param rsDTO
+	 * @throws SQLException
+	 */
+	public void updateReservedSeat(ReservedSeatDTO rsDTO) throws SQLException {
+		DbConnection dbCon = DbConnection.getInstance();
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			String query = "UPDATE reserved_seat SET RESERVED_SEAT_STATUS = 1, reservation_idx = ?   WHERE schedule_idx = ? and seat_idx=?";
+
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, rsDTO.getReservationIdx());
+			pstmt.setInt(2, rsDTO.getScheduleIdx());
+			pstmt.setInt(3, rsDTO.getSeatIdx());
+			pstmt.executeUpdate();
+			
+		} finally {
+			dbCon.dbClose(null, pstmt, con);
+		}
+		
+	}//updateReservedSeat
 
 	/**
 	 * 예매한 좌석들의 상태를 일괄적으로 0으로 update
@@ -172,4 +198,42 @@ public class ReservedSeatDAO {
 
 		return list;
 	}// selectSeatNumberWithSchedule
+	
+	/**
+	 * 해당 스케줄에 해당 좌석 가져오는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public ReservedSeatDTO selectSeatWithIdxAndSchedule(int seatIdx, int scheduleIdx) throws SQLException {
+		ReservedSeatDTO rsDTO = null;
+		
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			String query = "select RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS from RESERVED_SEAT where SEAT_IDX=? and schedule_idx=?";
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, seatIdx);
+			pstmt.setInt(2, scheduleIdx);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				rsDTO = new ReservedSeatDTO();
+				rsDTO.setReservedSeatIdx(rs.getInt("reservation_seat_idx"));
+				rsDTO.setSeatIdx(rs.getInt("seat_idx"));
+				rsDTO.setReservationIdx(rs.getInt("reservation_idx"));
+				rsDTO.setScheduleIdx(rs.getInt("schedule_idx"));
+				rsDTO.setReservedSeatStatus(rs.getInt("reserved_seat_status"));
+			}
+			
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return rsDTO;
+	}//selectSeatWithIdxAndSchedule
 }

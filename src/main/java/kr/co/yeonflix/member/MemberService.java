@@ -1,9 +1,14 @@
 package kr.co.yeonflix.member;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import kr.co.yeonflix.dao.DbConnection;
 
 public class MemberService {
 
@@ -216,6 +221,159 @@ public class MemberService {
     }
     return flag;
   }
+  
+  
+  public boolean searchId(String id) {
+		boolean flag=false;
+		MemberDAO mDAO=MemberDAO.getInstance();
+		
+		try {
+			flag=mDAO.selectId(id);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}//end catch
+		
+		
+		return flag;
+		
+	}//searchId
+	
+  
+
+	
+	
+	/**
+	 * 시작번호와 끝 번호 사이의 게시물 조회
+	 * @param MemberDTO 
+	 * @param rDTO
+	 * @return list 조회한 게시물 리스트
+	 */
+	public List<MemberDTO> searchAllMember(RangeDTO rDTO){
+		List<MemberDTO> list = null;
+		
+		MemberDAO pDAO = MemberDAO.getInstance();
+		try {
+			list = pDAO.selectAllMember(rDTO);
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} //end try catch
+		
+		return list;
+	} //searchAllRestaurant
+	
+	
+	
+	
+	
+	/**
+	 * 한 화면에 출력할 게시물의 수
+	 * @return pageScale 출력할 게시물의 수
+	 */
+	public int pageScale() {
+		int pageScale=10;
+		
+		return pageScale;
+	} //pageScale
+	
+	/**
+	 * 총 페이지 수
+	 * @param totalCount 총 게시물의 수
+	 * @param pageScale 한 화면에 출력할 게시물의 수
+	 * @return totalPage 총 페이지 수
+	 */
+	public int totalPage(int totalCount, int pageScale) {
+		int totalPage= 0;
+		
+		totalPage = (int)(Math.ceil((double)totalCount/pageScale));
+		
+		return totalPage;
+	} //totalPage
+	
+	
+	public int totalCount(RangeDTO rDTO) throws SQLException {
+	    MemberDAO mDAO = MemberDAO.getInstance();
+	    return mDAO.selectTotalCount(rDTO);
+	}
+
+	
+	/**
+	 * pagination 을 클릭했을 때 번호를 사용하여 해당 페이지 게시물 시작 번호
+	 * 예) 1=1, 2=11, 3=21, 4=31, 5=41
+	 * @param pageScale 한 화면에 출력할 게시물의 수
+	 * @param rDTO
+	 * @return startNum 해당 페이지 게시물 시작 번호
+	 */
+	public int startNum(int pageScale, RangeDTO rDTO) {
+		int startNum = 1;
+		
+		startNum = rDTO.getCurrentPage()*pageScale-pageScale+1;
+		rDTO.setStartNum(startNum);
+		
+		return startNum;
+	} //startNum
+	
+	/**pagination 을 클릭했을 때 번호를 사용하여 해당 페이지 게시물 끝 번호
+	 * @param pageScale 한 화면에 출력할 게시물의 수
+	 * @param rDTO
+	 * @return endNum 해당 페이지 게시물 끝 번호
+	 */
+	public int endNum(int pageScale, RangeDTO rDTO) {
+		int endNum = 0;
+		
+		endNum = rDTO.getStartNum()+pageScale-1;
+		rDTO.setEndNum(endNum);
+		
+		return endNum;
+	} //endNum
+	
+	
+
+	public MemberDTO selectOneMember(String memberId) throws SQLException {
+	    MemberDTO mDTO = null;
+
+	    DbConnection db = DbConnection.getInstance();
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+	    Connection con = null;
+
+	    try {
+	        con = db.getDbConn();
+
+	        StringBuilder sql = new StringBuilder();
+	        sql.append("SELECT * FROM member ")
+	           .append("WHERE member_id = ?");
+
+	        pstmt = con.prepareStatement(sql.toString());
+	        pstmt.setString(1, memberId);
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            mDTO = new MemberDTO();
+	            mDTO.setUserIdx(rs.getInt("user_idx")); 
+	            mDTO.setMemberId(rs.getString("member_id"));
+	            mDTO.setNickName(rs.getString("nick_name"));
+	            mDTO.setUserName(rs.getString("user_name"));
+	            
+	            Date birthDate = rs.getDate("birth");
+	            if (birthDate != null) {
+	                mDTO.setBirth(birthDate.toLocalDate());
+	            }
+	            
+	            mDTO.setTel(rs.getString("tel"));
+	            mDTO.setEmail(rs.getString("email"));
+	            
+	            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
+	            if (createdTimestamp != null) {
+	                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
+	            }
+	        }
+	    } finally {
+	        db.dbClose(rs, pstmt, con);
+	    }
+
+	    return mDTO;
+	}
   
   
 }

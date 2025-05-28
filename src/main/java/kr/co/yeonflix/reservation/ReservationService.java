@@ -112,5 +112,21 @@ public class ReservationService {
 		
 	}//searchAllScheduleWithSchedule
 	
+	/**
+	 * 특정 유저의 예매내역을 보여주기 편하게 가공하는 코드
+	 * @param userIdx
+	 * @return
+	 */
+	public List<ShowReservationDTO> searchDetailReservationWithUser(int userIdx){
+		List<ShowReservationDTO> list = null;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		
+		try {
+			list = resDAO.selectDetailReservationWithUser(userIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchDetailReservationWithUser
 	
 }
