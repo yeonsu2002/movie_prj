@@ -237,7 +237,7 @@ public class ReservationDAO {
 		try {
 			con = dbCon.getDbConn();
 			StringBuilder sql = new StringBuilder();
-			sql.append("SELECT s.scheduleIdx, m.movie_name, t.theater_name, s.screen_date, r.canceled_date ");
+			sql.append("SELECT s.schedule_idx, m.movie_name, t.theater_name, s.screen_date, r.canceled_date ");
 			sql.append("FROM reservation r ");
 			sql.append("JOIN schedule s ON r.schedule_idx = s.schedule_idx ");
 			sql.append("JOIN movie m ON s.movie_idx = m.movie_idx ");
