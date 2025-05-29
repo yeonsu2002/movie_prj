@@ -1149,7 +1149,7 @@ function aJaxSubmit() {
 			    <div id="phoneValidation" class="join3_validation-message"></div>
 			    <div class="join3_help-text">휴대폰 번호를 입력해주세요</div>
 				</div>
-
+ 
         <!-- 전화번호 수신여부 추가 -->
         <div class="join3_form-group">
             <div class="join3_checkbox-group">
