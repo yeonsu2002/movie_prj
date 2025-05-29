@@ -78,7 +78,7 @@ pageContext.setAttribute("scthMap", scthMap);
 </style>
 <script type="text/javascript">
 	$(function() {
-		days = $(".day_list");
+		days = $(".day_list"); 
 
 		$(".btn_prev").click(function() {
 			var days = $(".day_list");

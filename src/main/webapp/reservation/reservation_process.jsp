@@ -1,120 +1,110 @@
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryDTO"%>
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDTO"%>
-<%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDAO"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.reservation.ReservationService"%>
+<%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
+<%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
 <%@page import="java.util.Random"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Calendar"%>
-<%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
-<%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8" info="Main template page"%>
-<jsp:useBean id="resDTO"
-	class="kr.co.yeonflix.reservation.ReservationDTO" scope="page" />
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" info="Main template page"%>
+
+<jsp:useBean id="resDTO" class="kr.co.yeonflix.reservation.ReservationDTO" scope="page" />
+
 <%
-//파라미터 받아오기
-int totalPrice = Integer.parseInt(request.getParameter("priceParam"));
-String seatsInfo = request.getParameter("seatsParam");
-int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
+    // 파라미터 받아오기
+    int totalPrice = Integer.parseInt(request.getParameter("priceParam"));
+    String seatsInfo = request.getParameter("seatsParam");
+    int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
 
-//예매번호 생성
-SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy");
-SimpleDateFormat sdf2 = new SimpleDateFormat("MMdd");
+    // 예매번호 생성
+    Calendar cal = Calendar.getInstance();
+    String thisYear = new SimpleDateFormat("yyyy").format(cal.getTime());
+    String thisDay = new SimpleDateFormat("MMdd").format(cal.getTime());
 
-Calendar cal = Calendar.getInstance();
-String thisYear = sdf1.format(cal.getTime());
-String thisDay = sdf2.format(cal.getTime());
+    Random random = new Random();
+    String reservationNumber = String.format("%s-%s-%04d-%04d", thisYear, thisDay, random.nextInt(9000) + 1000, random.nextInt(9000) + 1000);
 
-Random random = new Random();
-int randomNum1 = random.nextInt(9000) + 1000;
-int randomNum2 = random.nextInt(9000) + 1000;
+    // 임시 유저Idx (임시로 4~8 범위에서 설정)
+    int userIdx = random.nextInt(5) + 4;
 
-String reservationNumber = thisYear + "-" + thisDay + "-" + randomNum1 + "-" + randomNum2;
+    // 좌석 정보 분리
+    String[] seats = seatsInfo.split(" ");
 
-//임시 유저Idx;
-int userIdx = random.nextInt(5) + 4;
+    ScheduleService ss = new ScheduleService();
+    ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 
-//좌석 정보 배열로 저장
-String[] seats = seatsInfo.split(" ");
-ScheduleService ss = new ScheduleService();
-ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
+    ReservedSeatService rss = new ReservedSeatService();
 
-boolean isSuccess = false;
-int reservationIdx = 0;
+    // 예매 가능 여부 확인
+    for (String seat : seats) {
+        int seatIdx = rss.searchSeatIdx(seat);
+        ReservedSeatDTO rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
 
-try {
-	//예매 등록
-	resDTO.setScheduleIdx(scheduleIdx);
-	resDTO.setTotalPrice(totalPrice);
-	resDTO.setReservationNumber(reservationNumber);
-	resDTO.setUserIdx(userIdx);
+        if (rsDTO != null && rsDTO.getReservedSeatStatus() == 1) {
+%>
+            <form id="backForm" action="reservation_seat.jsp" method="post">
+                <input type="hidden" name="scheduleIdx" value="<%=scheduleIdx %>">
+            </form>
+            <script>
+                alert("이미 예매된 좌석입니다.");
+                document.getElementById("backForm").submit();
+            </script>
+<%
+            return;
+        }
+    }
 
-	ReservationService rs = new ReservationService();
-	rs.addReservation(resDTO);
+    // 예매 등록
+    resDTO.setScheduleIdx(scheduleIdx);
+    resDTO.setTotalPrice(totalPrice);
+    resDTO.setReservationNumber(reservationNumber);
+    resDTO.setUserIdx(userIdx);
 
-	//예매 좌석 등록
-	reservationIdx = rs.getCurrentReservationIdx();
-	ReservedSeatService rss = new ReservedSeatService();
-	ReservedSeatDTO rsDTO = null;
+    ReservationService rs = new ReservationService();
+    rs.addReservation(resDTO);
+    int reservationIdx = rs.getCurrentReservationIdx();
 
-	for (int i = 0; i < seats.length; i++) {
-		int seatIdx = rss.searchSeatIdx(seats[i]);
-		rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
-		
-		//이미 존재하는 칼럼인지 확인(만약 누가 예매했다가 취소했으면 컬럼은 남기 때문에)
-		if (rsDTO == null) {
-			rsDTO = new ReservedSeatDTO();
-			rsDTO.setSeatIdx(seatIdx);
-			rsDTO.setScheduleIdx(scheduleIdx);
-			rsDTO.setReservedSeatStatus(1);
-			rsDTO.setReservationIdx(reservationIdx);
-			rss.addReservedSeat(rsDTO);
-		} else{
-			rsDTO.setReservedSeatStatus(1);
-			rsDTO.setReservationIdx(reservationIdx);
-			rss.modifyReservedSeat(rsDTO);
-		}
+    // 좌석 예매 등록 or 갱신
+    for (String seat : seats) {
+        int seatIdx = rss.searchSeatIdx(seat);
+        ReservedSeatDTO rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
 
-	}
+        if (rsDTO == null) {
+            rsDTO = new ReservedSeatDTO();
+            rsDTO.setSeatIdx(seatIdx);
+            rsDTO.setScheduleIdx(scheduleIdx);
+        }
 
-	//구매내역 등록
-	PurchaseHistoryService phs = new PurchaseHistoryService();
-	PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
-	phDTO.setUserIdx(userIdx);
-	phDTO.setReservationIdx(reservationIdx);
-	phs.addPurchaseHistory(phDTO);
+        rsDTO.setReservedSeatStatus(1);
+        rsDTO.setReservationIdx(reservationIdx);
 
-	//잔여 좌석 업데이트
-	int remainSeats = schDTO.getRemainSeats();
-	schDTO.setRemainSeats(remainSeats - seats.length);
-	ss.modifySchedule(schDTO);
+        if (rsDTO.getReservedSeatIdx() == 0) {
+            rss.addReservedSeat(rsDTO);
+        } else {
+            rss.modifyReservedSeat(rsDTO);
+        }
+    }
 
-	isSuccess = true;
-} catch (Exception e) {
-	e.printStackTrace();
-}
+    // 구매 내역 등록
+    PurchaseHistoryService phs = new PurchaseHistoryService();
+    PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
+    phDTO.setUserIdx(userIdx);
+    phDTO.setReservationIdx(reservationIdx);
+    phs.addPurchaseHistory(phDTO);
 
-if (isSuccess) {
+    // 남은 좌석 수 업데이트
+    schDTO.setRemainSeats(schDTO.getRemainSeats() - seats.length);
+    ss.modifySchedule(schDTO);
+
 %>
 <form id="sendForm" action="reservation_complete.jsp" method="post">
-	<input type="hidden" name="scheduleParam" value="<%=scheduleIdx%>">
-	<input type="hidden" name="reservationParam"
-		value="<%=reservationIdx%>"> <input type="hidden"
-		name="seatsParam" value="<%=seatsInfo%>">
+    <input type="hidden" name="scheduleParam" value="<%=scheduleIdx%>">
+    <input type="hidden" name="reservationParam" value="<%=reservationIdx%>">
+    <input type="hidden" name="seatsParam" value="<%=seatsInfo%>">
 </form>
 <script>
-	alert('예매 성공');
-	document.getElementById("sendForm").submit();
+    alert('예매 성공');
+    document.getElementById("sendForm").submit();
 </script>
-<%
-} else {
-%>
-<script>
-	alert('예매에 실패했습니다. 다시 시도해 주세요.');
-	history.back();
-</script>
-<%
-}
-%>

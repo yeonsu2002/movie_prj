@@ -114,7 +114,7 @@ public class ReservationDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ReservationDTO selectOneReservation(int ReservationIdx) throws SQLException {
+	public ReservationDTO selectOneReservation(int reservationIdx) throws SQLException {
 		ReservationDTO rsDTO = null;
 
 		DbConnection dbCon = DbConnection.getInstance();
@@ -126,7 +126,7 @@ public class ReservationDAO {
 			con = dbCon.getDbConn();
 			String query = "select RESERVATION_IDX, SCHEDULE_IDX, USER_IDX, RESERVATION_DATE, CANCELED_DATE, TOTAL_PRICE, RESERVATION_NUMBER from reservation where RESERVATION_IDX=?";
 			pstmt = con.prepareStatement(query);
-			pstmt.setInt(1, ReservationIdx);
+			pstmt.setInt(1, reservationIdx);
 			rs = pstmt.executeQuery();
 
 			if (rs.next()) {

@@ -52,7 +52,7 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 <script src="/main.js"></script>
 <script type="text/javascript">
 	IMP.init("imp03140165"); //결제관련코드
-	var moviePrice = ${tDTO.moviePrice};
+	var moviePrice = "${tDTO.moviePrice}";
 	var totalPrice;
 	var occupiedSeats = [
 	    <c:forEach var="seat" items="${occupiedSeats}" varStatus="status">
@@ -135,15 +135,6 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 		});
 
 		$('.nav-right').click(function () {
-		   /*  const selectedSeats = [];
-
-		    $('.row').each(function (rowIdx) {
-		        $(this).find('.seat.selected').each(function () {
-		            const seatIdx = $(this).index() - 1;
-		            selectedSeats.push({ row: rowIdx, seat: seatIdx });
-		        });
-		    }); */
-
 		    var selectedCount = $('.seat.selected').length;
 		    var maxCnt = $('.num-btn.selected').text();
 
@@ -157,29 +148,103 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 		        return;
 		    }
 			
-		    alert("결제완료");
-		    
-		    var seatInfo = $("#seatInfo").text();
-		    $('#seatsParam').val(seatInfo);
-		    $('#priceParam').val(totalPrice);
-		    
-		    $('#reservationForm').submit();
-		    // 결제 요청
-		   /*  IMP.request_pay({
-		        pg: "kakaopay",
+		    showModal();
+		     
+		});
+		
+		$("#creditcard").click(function(){
+			IMP.request_pay({
+		        pg: "danal_tpay",
 		        pay_method: "card",
-		        amount: "500000000",
-		        name: "람보르기니",
+		        amount: totalPrice,
+		        name: "연플릭스",
 		        merchant_uid: "merchant_" + new Date().getTime()
 		    }, function (response) {
 		        if (response.success) {
 		            alert("결제 성공!");
-		            // 성공 후 로직 추가 가능
+		            completePayment();
 		        } else {
 		            alert("결제 실패: " + response.error_msg);
-		            location.href = "http://localhost/movie_prj/reservation/reservation_complete.jsp";
+		            hideModal();
 		        }
-		    }); */
+		    }); 
+		});
+		
+		$("#kakaopay").click(function(){
+			IMP.request_pay({
+		        pg: "kakaopay",
+		        pay_method: "card",
+		        amount: totalPrice,
+		        name: "연플릭스",
+		        merchant_uid: "merchant_" + new Date().getTime()
+		    }, function (response) {
+		        if (response.success) {
+		            alert("결제 성공!");
+		            completePayment();
+		        } else {
+		            alert("결제 실패: " + response.error_msg);
+		            hideModal();
+		        }
+		    }); 
+		});
+		$("#smilepay").click(function(){
+			IMP.request_pay({
+		        pg: "smilepay",
+		        pay_method: "card",
+		        amount: totalPrice,
+		        name: "연플릭스",
+		        merchant_uid: "merchant_" + new Date().getTime()
+		    }, function (response) {
+		        if (response.success) {
+		            alert("결제 성공!");
+		            completePayment();
+		        } else {
+		            alert("결제 실패: " + response.error_msg);
+		            hideModal();
+		        }
+		    }); 
+		});
+		$("#tosspay").click(function(){
+			IMP.request_pay({
+		        pg: "tosspay",
+		        pay_method: "card",
+		        amount: totalPrice,
+		        name: "연플릭스",
+		        merchant_uid: "merchant_" + new Date().getTime()
+		    }, function (response) {
+		        if (response.success) {
+		            alert("결제 성공!");
+		            completePayment();
+		        } else {
+		            alert("결제 실패: " + response.error_msg);
+		            hideModal();
+		        }
+		    }); 
+		});
+		$("#payco").click(function(){
+			IMP.request_pay({
+		        pg: "payco",
+		        pay_method: "card",
+		        amount: totalPrice,
+		        name: "연플릭스",
+		        merchant_uid: "merchant_" + new Date().getTime()
+		    }, function (response) {
+		        if (response.success) {
+		            alert("결제 성공!");
+		            completePayment();
+		        } else {
+		            alert("결제 실패: " + response.error_msg);
+		            hideModal();
+		        }
+		    }); 
+		});
+		
+		$("#phone").click(function(){
+			completePayment();
+		});
+		
+		$(".close").click(function(){
+			hideModal();
 		});
 	});
 	
@@ -190,6 +255,26 @@ request.setAttribute("occupiedSeats", occupiedSeats);
         var selectedCount = $('.seat.selected').length;
         totalPrice = selectedCount * moviePrice;
         $('#priceInfo').text('가격: ' + moviePrice.toLocaleString() + " x " + selectedCount + " = " +totalPrice.toLocaleString() + '원');
+    }
+    
+    function showModal() {
+    	  $('#overlay').show();
+    	  $('#paymentModal').fadeIn();
+    	  $('body').css('overflow', 'hidden');  // 스크롤 막기
+    	}
+    
+    function hideModal() {
+    	  $('#paymentModal').fadeOut();
+    	  $('#overlay').hide();
+    	  $('body').css('overflow', 'auto');  // 스크롤 복구
+    	}
+    
+    function completePayment(){
+    	  var seatInfo = $("#seatInfo").text();
+	      $('#seatsParam').val(seatInfo);
+	      $('#priceParam').val(totalPrice);
+	      
+	      $('#reservationForm').submit();
     }
 </script>
 </head>
@@ -314,6 +399,22 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 	<footer>
 		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
 	</footer>
+	
+	<div id="overlay"></div>
+	<div id="paymentModal" class="modal">
+	<div class="modal-header">
+				결제수단 선택 <span class="close">&times;</span>
+			</div>
+			<br><br>
+    <div class="grid">
+      <div class="card" id="creditcard"><img src="http://localhost/movie_prj/common/img/creditcard.png"/></div>
+      <div class="card" id="phone"><img src="http://localhost/movie_prj/common/img/phone.png"/></div>
+      <div class="card" id="kakaopay"><img src="http://localhost/movie_prj/common/img/kakaopay.png"/></div>
+      <div class="card" id="tosspay"><img src="http://localhost/movie_prj/common/img/tosspay.png"/></div>
+      <div class="card" id="smilepay"><img class="payment-img" src="http://localhost/movie_prj/common/img/smilepay.png" /></div>
+      <div class="card" id="payco"><img src="http://localhost/movie_prj/common/img/payco.png"/></div>
+    </div>
+  </div>
 </body>
 
 
