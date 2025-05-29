@@ -10,30 +10,63 @@
 <jsp:include page="/common/jsp/external_file.jsp" />
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/main_screen.css"/>
 <script type="text/javascript">
-window.addEventListener("scroll", function() {
-    const buttonWrap = document.querySelector(".fixedBtn_wrap");
-    const goTopButton = document.querySelector(".btn_gotoTop");
-    const ticketingButton = document.querySelector(".btn_ticketing");
-
-    // 스크롤이 100px 이상 내려가면 상단 버튼과 예매 버튼을 보이도록 설정
-    if (window.scrollY > 100) {
-        buttonWrap.classList.add("visible");
-        buttonWrap.classList.add("topBtn");
-    } else {
-        buttonWrap.classList.remove("visible");
-        buttonWrap.classList.remove("topBtn");
-    }
+//DOM이 로드된 후 실행되도록 수정
+document.addEventListener('DOMContentLoaded', function() {
+    // 스크롤 이벤트
+    window.addEventListener("scroll", function() {
+    	var buttonWrap = document.querySelector(".fixedBtn_wrap");
+    	var goTopButton = document.querySelector(".btn_gotoTop");
+    	var ticketingButton = document.querySelector(".btn_ticketing");
+        // 스크롤이 100px 이상 내려가면 상단 버튼과 예매 버튼을 보이도록 설정
+        if (window.scrollY > 100) {
+            if (buttonWrap) {
+                buttonWrap.classList.add("visible");
+                buttonWrap.classList.add("topBtn");
+            }
+        } else {
+            if (buttonWrap) {
+                buttonWrap.classList.remove("visible");
+                buttonWrap.classList.remove("topBtn");
+            }
+        }
     });
+    
+    // 특별관 메뉴 항목들과 이미지 요소 가져오기
+    var menuItems = document.querySelectorAll('.specialhall_list li');
+    var image = document.getElementById('hallImage');
+    var name = document.getElementById('hallName');
+    var desc = document.getElementById('hallDesc');
+    
+    // 요소가 존재하는지 확인 후 이벤트 리스너 추가
+    if (menuItems.length > 0 && image && name && desc) {
+        // 각 메뉴 항목에 마우스 올렸을 때 이미지 변경
+        menuItems.forEach(function(item) {
+            item.addEventListener('mouseenter', function() {
+                if (this.dataset.image && this.dataset.name && this.dataset.desc) {
+                    image.src = this.dataset.image;
+                    name.textContent = this.dataset.name;
+                    desc.textContent = this.dataset.desc;
+                }
+            });
+        });
+    }
+});
+
 function showTab(tabName) {
-	   const contents = document.querySelectorAll(".tab-content");
-	    const buttons = document.querySelectorAll(".tab-button");
-
-	    contents.forEach(c => c.classList.remove("active"));
-	    buttons.forEach(b => b.classList.remove("active"));
-
-	    document.getElementById(tabName).classList.add("active");
-	    event.currentTarget.classList.add("active");
-}    
+	var contents = document.querySelectorAll(".tab-content");
+	var buttons = document.querySelectorAll(".tab-button");
+    contents.forEach(c => c.classList.remove("active"));
+    buttons.forEach(b => b.classList.remove("active"));
+    
+    var targetTab = document.getElementById(tabName);
+    if (targetTab) {
+        targetTab.classList.add("active");
+    }
+    
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add("active");
+    }
+}
 </script>
 </head>
 <body>
@@ -63,9 +96,11 @@ function showTab(tabName) {
   <div class="trailer-overlay"></div>
 </div>
 </div>
+
+
 <div id="container">
+
  <!-- 영화 차트 -->
- 
         <!-- 탭 버튼 영역 -->
 <div class="tab-buttons">
   <div class="tab-buttons-left">
@@ -177,10 +212,58 @@ function showTab(tabName) {
         </div>
           
       </div>
-      <!-- 공지사항 추가 -->
-    
-    
-	
+      
+     <!-- 특별관 추가 -->
+      <div class="sepecialHall_Wrap">
+        <div class="contents">
+            <div class="specialHall_title_wrap">
+                <h2>특별관</h2>
+                <a href="http://localhost/movie_prj/theater/theater_intro.jsp" class="btn_allView">전체보기 &gt;</a>
+            </div>
+            
+            <div class="specialHall_content">
+                <div class="hall_image_section">
+                    <img id="hallImage" src="common/img/IMAX_main.jpg" 
+                         alt="Special Hall" class="hall_image">
+                    <div class="image_overlay">
+                        <div id="hallName" class="hall_name">IMAX</div>
+                        <div id="hallDesc" class="hall_description">#최고의 화질과 사운드</div>
+                    </div>
+                </div>
+                
+                <ul class="specialhall_list">
+                    <li data-image="common/img/IMAX_main.jpg"
+                        data-name="IMAX" 
+                        data-desc="#최고의 화질과 사운드">
+                        <div class="hall_title">IMAX</div>
+                        <div class="hall_tag">최고의 화질과 사운드</div>
+                    </li>
+                    
+                    <li data-image="common/img/4DX_main.jpg"
+                        data-name="4DX" 
+                        data-desc="#모션시트 #오감체험">
+                        <div class="hall_title">4DX</div>
+                        <div class="hall_tag">모션시트 #오감체험</div>
+                    </li>
+                    
+                    <li data-image="common/img/screenX_mian.jpg"
+                        data-name="SCREENX" 
+                        data-desc="#270도 다면상영">
+                        <div class="hall_title">SCREENX</div>
+                        <div class="hall_tag">270도 다면상영</div>
+                    </li>
+                    
+                    <li data-image="common/img/Premium_main.jpg"
+                        data-name="PREMIUM" 
+                        data-desc="#프리미엄 좌석 #럭셔리">
+                        <div class="hall_title">PREMIUM</div>
+                        <div class="hall_tag">프리미엄 좌석 #럭셔리</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+      
 
 </div>
 </main>
