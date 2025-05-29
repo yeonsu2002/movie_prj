@@ -15,7 +15,7 @@
 <script type="text/javascript">
 	let loginFrmHtml = null;
 	
-	$(function(){
+$(function(){
 		loginFrmHtml = $(".box-login.login_1408").html(); //DOM이 모두 준비된 후에 백업
 		
 		$("#form2_capcha").on("submit", function(event){
@@ -59,7 +59,7 @@
 
 		
 		
-	});//--------------------------------------------------------------------------------ready
+});//--------------------------------------------------------------------------------ready
 	
 	function nonMemberLoginFrm(){
 		//비회원 예매 버튼 클릭시
@@ -241,6 +241,10 @@
 	          alert("아이디 또는 패스워드가 맞지 않습니다. 확인 후 입력해주세요.");
 	          $("#txtUserId, #txtPwd1").val("");
 	          refreshCaptcha();
+	        } else if (response.trim() === "isDeleted"){
+	        	alert("탈퇴한 계정입니다. 복구를 원하시면 고객센터로 문의해 주세요.");
+	        	$("#txtUserId, #txtPwd1").val("");
+	        	refreshCaptcha();
 	        }
 				},
 				error:function(xhr, status, error){
@@ -280,12 +284,12 @@
         </li>
       </ul>
       
+      <!-- (회원)로그인 창 -->
       <div class="box-login login_1408">
         <h3 class="hidden">회원 로그인</h3>
         <div class="loginFormDiv">
 	        <form id="form2_capcha" method="post" action="" novalidate="novalidate">
 	          <fieldset>
-	<!--        <legend style="display: none">회원 로그인</legend> -->
 	            <div class="txt_wrap">               
 	              <h3></h3>
 	              <p>정보보호를 위해 아이디, 비밀번호와 함께 <br>자동 입력 방지 문자를 입력하셔야 합니다.</p> 
@@ -296,7 +300,7 @@
 	              <input type="password" title="패스워드" id="txtPwd1" name="memberPwd" placeholder="비밀번호">
 	            </div>
 	            
-<!-- 캡차 영역 시ㅣ작-->
+<!-- 캡차 영역 시작-->
 	            <div class="captcha">
 	              <div class="captcha_box" id="image_captcha">
 	                <span class="captcha_img">

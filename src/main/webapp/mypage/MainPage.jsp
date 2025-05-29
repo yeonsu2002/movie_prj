@@ -333,9 +333,12 @@ $(document).ready(function () {
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
 </footer>
-  <c:import url="/reservation/booking_modal.jsp">
-    <c:param name="reservationIdx" value="${param.reservationIdx}" />
-  </c:import>
+  
+  <c:if test="${not empty param.reservationIdx}">
+	  <c:import url="/reservation/booking_modal.jsp">
+	    <c:param name="reservationIdx" value="${param.reservationIdx}" />
+	  </c:import>
+  </c:if>
 
 </body>
 </html>

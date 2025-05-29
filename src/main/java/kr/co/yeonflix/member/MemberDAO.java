@@ -27,7 +27,7 @@ public class MemberDAO {
   }
 
   //--------------------------------------------------------------------------------------------------------------------
-  // 로그인 
+	/* 로그인 */ 
   public MemberDTO memberLogin(String memberId, String memberPwd) throws SQLException {
 
     MemberDTO memberVO = new MemberDTO();
@@ -105,7 +105,7 @@ public class MemberDAO {
     return memberVO;
   }
 
-  // 일반 회원가입
+	/* 일반 회원가입 */
   public boolean insertMember(MemberDTO memberDTO) throws SQLException {
 
     boolean isSuccess = false;
@@ -547,29 +547,30 @@ public class MemberDAO {
 	}
 
 	//발급받은 임시비밀번호로 회원정보 수정 
-  public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
-   DbConnection dbCon = DbConnection.getInstance();
-   Connection con = null;
-   PreparedStatement pstmt = null;
-   
-   int result = -1;
-   try {
-     con = dbCon.getDbConn();// 실제 DB연결 받아오는거
-     
-    String query = " UPDATE member SET member_pwd = ? WHERE email = ?  ";
-    pstmt = con.prepareStatement(query);
-    
-    pstmt.setString(1, encodedTempPwd);
-    pstmt.setString(2, email);
-    
-    result = pstmt.executeUpdate();
-    
-  } finally {
-    dbCon.dbClose(null, pstmt, con);
-  }
-    
-    return result > 0;
-  }
+	public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
+	 
+		DbConnection dbCon = DbConnection.getInstance();
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		int result = -1;
+		try {
+			con = dbCon.getDbConn();// 실제 DB연결 받아오는거
+		 
+			String query = " UPDATE member SET member_pwd = ? WHERE email = ?  ";
+			pstmt = con.prepareStatement(query);
+	  
+			pstmt.setString(1, encodedTempPwd);
+			pstmt.setString(2, email);
+			
+			System.out.println("executeUpdate 직전: email=" + email + ", tempPwd=" + encodedTempPwd);
+			result = pstmt.executeUpdate();
+			System.out.println("executeUpdate 결과: " + result);
+			
+		} finally {
+		  dbCon.dbClose(null, pstmt, con);
+		}
+		  return result > 0;
+	}
 
 
 

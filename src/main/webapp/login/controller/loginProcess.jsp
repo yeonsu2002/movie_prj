@@ -18,12 +18,24 @@
 	MemberService memService = new MemberService();
 	MemberDTO loginUser = memService.loginMember(memberId, memberPwd);
 	
+	System.out.println("loginUser = " + loginUser);
+	
+	/* String isactive = loginUser.getIsActive();
+	isactive = isactive == null ? "null값" : isactive;
+	System.out.println("isactive = " + isactive);
+	
+	if(loginUser.getIsActive().equals("N")){
+		out.print("isDeleted");
+		return;
+	} */
+	
 	if(loginUser != null && loginUser.getUserIdx() > 0){
 	  //보안상 초기화 
 	  session.invalidate(); // 기존 세션 제거
 	  session = request.getSession(true); // 새로운 세션 생성
 	  //로그인계정 세션 설정
 		session.setAttribute("loginUser", loginUser);
+	  
 		response.setContentType("text/plain;charset=UTF-8");
 		out.print("success");
 	} else {

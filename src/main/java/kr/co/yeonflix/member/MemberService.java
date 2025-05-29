@@ -247,7 +247,6 @@ public class MemberService {
    */
   public boolean changePwd (String email,String tempPwd) {
     boolean flag = false;
-    
     String encodedtempPwd = encryptPassword(tempPwd);
     try {
       flag = memberDAO.updatePwd(email, encodedtempPwd);
