@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.reservedSeat.TempSeatDTO"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleTheaterDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
@@ -17,7 +18,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <%
-
 //날짜 가공
 List<Map<String, String>> dateList = new ArrayList<>();
 SimpleDateFormat monthSdf = new SimpleDateFormat("M월");

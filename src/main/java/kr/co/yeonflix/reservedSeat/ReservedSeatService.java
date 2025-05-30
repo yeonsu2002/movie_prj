@@ -123,5 +123,79 @@ public class ReservedSeatService {
 		}
 		
 		return rsDTO;
-	}
+	}//searchSeatWithIdxAndSchedule
+	
+	/**
+	 * 임시 좌석 추가하는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public boolean addTempSeat(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.insertTempSeat(seatIdx, scheduleIdx);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}//addTempSeat
+	
+	/**
+	 * 임시좌석 삭제하는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public boolean removeTempSeat(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.deleteTempSeat(seatIdx, scheduleIdx);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}//removeTempSeat
+	
+	/**
+	 * 임시좌석 모두 가져오는 코드
+	 * @return
+	 */
+	public List<TempSeatDTO> searchAllTempSeat(){
+		List<TempSeatDTO> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectAllTempSeat();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}//searchAllTempSeat
+	
+	/**
+	 * 임시좌석 이름들만 빼오기
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public List<String> searchTempSeatNumberWithSchedule(int scheduleIdx){
+		List<String> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectTempSeatNumberWithSchedule(scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchTempSeatNumberWithSchedule
 }

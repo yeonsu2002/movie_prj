@@ -1,3 +1,6 @@
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.Duration"%>
+<%@page import="kr.co.yeonflix.reservedSeat.TempSeatDTO"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
@@ -11,11 +14,24 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
+
+
 //파라미터로 받은 값으로 선택한 상영스케줄 찾기
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleIdx"));
 ScheduleService ss = new ScheduleService();
 ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 
+//선점된 좌석들 5분이 지났으면 없애기
+ReservedSeatService rss = new ReservedSeatService();
+List<TempSeatDTO> tempSeatsList = rss.searchAllTempSeat();
+for(TempSeatDTO tempSeat : tempSeatsList){
+	LocalDateTime holdTime = tempSeat.getClickTime().toLocalDateTime();
+	int seatIdx = tempSeat.getSeatIdx();
+	Duration d = Duration.between(holdTime, LocalDateTime.now());
+	if(d.toMinutes() >= 1){
+		rss.removeTempSeat(seatIdx, scheduleIdx);
+	}
+}
 //상영스케줄의 해당 영화 찾기
 int movieIdx = schDTO.getMovieIdx();
 MovieDTO mDTO = ss.searchOneMovie(movieIdx);
@@ -26,13 +42,16 @@ TheaterService ts = new TheaterService();
 TheaterDTO tDTO = ts.searchTheaterWithIdx(theaterIdx);
 
 //예매된 좌석 정보
-ReservedSeatService rss = new ReservedSeatService();
 List<String> occupiedSeats = rss.searchSeatNumberWithSchedule(scheduleIdx);
+
+//임시선점된 좌석 정보
+List<String> tempSeats = rss.searchTempSeatNumberWithSchedule(scheduleIdx);
 
 request.setAttribute("schDTO", schDTO);
 request.setAttribute("mDTO", mDTO);
 request.setAttribute("tDTO", tDTO);
 request.setAttribute("occupiedSeats", occupiedSeats);
+request.setAttribute("tempSeats", tempSeats);
 %>
 <!DOCTYPE html>
 <html>
@@ -59,6 +78,13 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 	        "${seat}"<c:if test="${!status.last}">,</c:if>
 	    </c:forEach>
 	];
+	
+	var tempSeats = [
+		<c:forEach var="temp" items="${tempSeats}" varStatus="status">
+			"${temp}"<c:if test="${!status.last}">,</c:if>
+		</c:forEach>
+	];
+	
 
 	$(function() {
 
@@ -68,6 +94,10 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 	        var seatName = row + col;
 	        
 	        if (occupiedSeats.includes(seatName)) {
+	            $(this).addClass('occupied');
+	        }
+	        
+	        if(tempSeats.includes(seatName)){
 	            $(this).addClass('occupied');
 	        }
 	    });
