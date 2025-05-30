@@ -28,8 +28,9 @@
     String reservationNumber = String.format("%s-%s-%04d-%04d", thisYear, thisDay, random.nextInt(9000) + 1000, random.nextInt(9000) + 1000);
 
     //세션에 저장된 유저값 가져오기
-    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-    int userIdx = loginUser.getUserIdx();
+ /*    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+    int userIdx = loginUser.getUserIdx(); */
+    int userIdx = 1;
 
     // 좌석 정보 분리
     String[] seats = seatsInfo.split(" ");

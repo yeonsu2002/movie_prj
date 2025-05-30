@@ -151,18 +151,17 @@ public class ReservedSeatService {
 	 * @param scheduleIdx
 	 * @return
 	 */
-	public boolean removeTempSeat(int seatIdx, int scheduleIdx) {
-		boolean flag = false;
+	public int removeTempSeat(int seatIdx, int scheduleIdx) {
+		int cnt = 0;
 		
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
 		try {
-			rsDAO.deleteTempSeat(seatIdx, scheduleIdx);
-			flag = true;
+			cnt = rsDAO.deleteTempSeat(seatIdx, scheduleIdx);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return flag;
+		return cnt;
 	}//removeTempSeat
 	
 	/**
@@ -198,4 +197,16 @@ public class ReservedSeatService {
 		}
 		return list;
 	}//searchTempSeatNumberWithSchedule
+	
+	public Boolean isTempSeatInTable(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			flag = rsDAO.selectCntTempSeat(seatIdx, scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}
 }

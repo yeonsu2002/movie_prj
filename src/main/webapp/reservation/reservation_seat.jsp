@@ -28,8 +28,11 @@ for(TempSeatDTO tempSeat : tempSeatsList){
 	LocalDateTime holdTime = tempSeat.getClickTime().toLocalDateTime();
 	int seatIdx = tempSeat.getSeatIdx();
 	Duration d = Duration.between(holdTime, LocalDateTime.now());
-	if(d.toMinutes() >= 1){
-		rss.removeTempSeat(seatIdx, scheduleIdx);
+	//현재는 테스트용올 10초로 해놨으나 나중에 5분으로 변경
+	if(d.toSeconds() >= 10){
+		int plusSeats = rss.removeTempSeat(seatIdx, scheduleIdx);
+		schDTO.setRemainSeats(schDTO.getRemainSeats() + plusSeats);
+		ss.modifySchedule(schDTO);
 	}
 }
 //상영스케줄의 해당 영화 찾기
@@ -185,7 +188,7 @@ request.setAttribute("tempSeats", tempSeats);
 		    
 		    //임시 좌석 선점 처리
 		    $.ajax({
-				url:"http://localhost/movie_prj/admin/schedule/temp_seat_process.jsp",
+				url:"http://localhost/movie_prj/reservation/temp_seat_process.jsp",
 				method:"POST",
 				data: { scheduleIdx: scheduleIdx,
 					  seatsInfo :seatsInfo },
@@ -200,94 +203,104 @@ request.setAttribute("tempSeats", tempSeats);
 		});
 		
 		$("#creditcard").click(function(){
-			IMP.request_pay({
-		        pg: "danal_tpay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+			chkValidTime(function(){
+				IMP.request_pay({
+			        pg: "danal_tpay",
+			        pay_method: "card",
+			        amount: totalPrice,
+			        name: "연플릭스",
+			        merchant_uid: "merchant_" + new Date().getTime()
+			    }, function (response) {
+			        if (response.success) {
+			            alert("결제 성공!");
+			            completePayment();
+			        } else {
+			            alert("결제 실패: " + response.error_msg);
+			            hideModal();
+			        }
+			    }); 
+			});
 		});
 		
 		$("#kakaopay").click(function(){
-			IMP.request_pay({
-		        pg: "kakaopay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+			chkValidTime(function(){
+				IMP.request_pay({
+			        pg: "kakaopay",
+			        pay_method: "card",
+			        amount: totalPrice,
+			        name: "연플릭스",
+			        merchant_uid: "merchant_" + new Date().getTime()
+			    }, function (response) {
+			        if (response.success) {
+			            alert("결제 성공!");
+			            completePayment();
+			        } else {
+			            alert("결제 실패: " + response.error_msg);
+			            hideModal();
+			        }
+			    }); 
+			});
 		});
 		$("#smilepay").click(function(){
-			IMP.request_pay({
-		        pg: "smilepay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+			chkValidTime(function(){
+				IMP.request_pay({
+			        pg: "smilepay",
+			        pay_method: "card",
+			        amount: totalPrice,
+			        name: "연플릭스",
+			        merchant_uid: "merchant_" + new Date().getTime()
+			    }, function (response) {
+			        if (response.success) {
+			            alert("결제 성공!");
+			            completePayment();
+			        } else {
+			            alert("결제 실패: " + response.error_msg);
+			            hideModal();
+			        }
+			    }); 
+			});
 		});
 		$("#tosspay").click(function(){
-			IMP.request_pay({
-		        pg: "tosspay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+			chkValidTime(function(){
+				IMP.request_pay({
+			        pg: "tosspay",
+			        pay_method: "card",
+			        amount: totalPrice,
+			        name: "연플릭스",
+			        merchant_uid: "merchant_" + new Date().getTime()
+			    }, function (response) {
+			        if (response.success) {
+			            alert("결제 성공!");
+			            completePayment();
+			        } else {
+			            alert("결제 실패: " + response.error_msg);
+			            hideModal();
+			        }
+			    }); 
+			});
 		});
 		$("#payco").click(function(){
-			IMP.request_pay({
-		        pg: "payco",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+			chkValidTime(function(){
+				IMP.request_pay({
+			        pg: "payco",
+			        pay_method: "card",
+			        amount: totalPrice,
+			        name: "연플릭스",
+			        merchant_uid: "merchant_" + new Date().getTime()
+			    }, function (response) {
+			        if (response.success) {
+			            alert("결제 성공!");
+			            completePayment();
+			        } else {
+			            alert("결제 실패: " + response.error_msg);
+			            hideModal();
+			        }
+			    }); 
+			});
 		});
 		
 		$("#phone").click(function(){
-			completePayment();
+			chkValidTime();
 		});
 		
 		$(".close").click(function(){
@@ -322,6 +335,30 @@ request.setAttribute("tempSeats", tempSeats);
 	      $('#priceParam').val(totalPrice);
 	      
 	      $('#reservationForm').submit();
+    }
+    
+    //결제할 때 좌석이 유효한지 체크
+    function chkValidTime(callback){
+    	 var seatsInfo = $("#seatInfo").text();
+		 var scheduleIdx = "${schDTO.scheduleIdx}";
+		    
+		    $.ajax({
+				url:"http://localhost/movie_prj/reservation/valid_time_chk.jsp",
+				method:"POST",
+				data: { scheduleIdx: scheduleIdx,
+					  seatsInfo :seatsInfo },
+				success: function(response){
+					if (response.trim() === "invalid") {
+						alert("선택한 좌석이 만료되었습니다.\n다시 선택해 주세요.");
+						location.href = "http://localhost/movie_prj/reservation/reservation.jsp";
+					} else{
+						callback();
+					}
+				},
+				error: function(){
+					alert("오류가 발생하였습니다. 다시 시도해주세요.");
+				}
+		    });
     }
 </script>
 </head>
