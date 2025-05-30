@@ -58,3 +58,33 @@
 	cursor: pointer;
 }
 
+
+.phone-inputs {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.phone-inputs input[type="tel"] {
+    padding: 14px 16px;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 15px;
+}
+
+.phone-inputs span {
+    flex: 0 0 auto;
+    padding: 0 4px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+#phone1 { 
+    flex: 3; 
+    min-width: 60px;
+}
+
+#phone2, #phone3 { 
+    flex: 4; 
+    min-width: 80px;
+}
