@@ -1,4 +1,4 @@
-package kr.co.yeonflix.purchaseHistory;
+ package kr.co.yeonflix.purchaseHistory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

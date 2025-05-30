@@ -13,5 +13,5 @@ import lombok.ToString;
 @ToString
 public class ReservedSeatDTO {
 
-	private int reservedSeatIdx, seatIdx, reservationIdx, scheduleIdx, reservedSeatStatus;
+	private int reservedSeatIdx, seatIdx, reservationIdx, scheduleIdx, reservedSeatStatus, tempSeatStatus;
 }

@@ -41,13 +41,14 @@ public class ReservedSeatDAO {
 
 		try {
 			con = dbCon.getDbConn();
-			String query = "insert into reserved_seat(RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS) values(reservation_seat_idx_seq.nextval,?,?,?,?)";
+			String query = "insert into reserved_seat(RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS, temp_seat_status) values(reservation_seat_idx_seq.nextval,?,?,?,?,?)";
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, rsDTO.getSeatIdx());
 			pstmt.setInt(2, rsDTO.getReservationIdx());
 			pstmt.setInt(3, rsDTO.getScheduleIdx());
 			pstmt.setInt(4, rsDTO.getReservedSeatStatus());
+			pstmt.setInt(5, rsDTO.getTempSeatStatus());
 
 			pstmt.executeUpdate();
 
@@ -68,12 +69,14 @@ public class ReservedSeatDAO {
 		
 		try {
 			con = dbCon.getDbConn();
-			String query = "UPDATE reserved_seat SET RESERVED_SEAT_STATUS = 1, reservation_idx = ?   WHERE schedule_idx = ? and seat_idx=?";
+			String query = "UPDATE reserved_seat SET RESERVED_SEAT_STATUS = ?, reservation_idx = ?, temp_seat_status=?   WHERE schedule_idx = ? and seat_idx=?";
 
 			pstmt = con.prepareStatement(query);
-			pstmt.setInt(1, rsDTO.getReservationIdx());
-			pstmt.setInt(2, rsDTO.getScheduleIdx());
-			pstmt.setInt(3, rsDTO.getSeatIdx());
+			pstmt.setInt(1, rsDTO.getReservedSeatStatus());
+			pstmt.setInt(2, rsDTO.getReservationIdx());
+			pstmt.setInt(3, rsDTO.getTempSeatStatus());
+			pstmt.setInt(4, rsDTO.getScheduleIdx());
+			pstmt.setInt(5, rsDTO.getSeatIdx());
 			pstmt.executeUpdate();
 			
 		} finally {
@@ -87,7 +90,9 @@ public class ReservedSeatDAO {
 	 * @param reservationIdx
 	 * @throws SQLException
 	 */
-	public void updateReservedSeatAll(int reservationIdx) throws SQLException {
+	public int updateReservedSeatAll(int reservationIdx) throws SQLException {
+		int cntSeats = 0;
+		
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
@@ -98,11 +103,13 @@ public class ReservedSeatDAO {
 
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, reservationIdx);
-			pstmt.executeUpdate();
+			cntSeats = pstmt.executeUpdate();
 			
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
+		
+		return cntSeats;
 	}//updateReservedSeatAll
 
 	/**
@@ -216,7 +223,7 @@ public class ReservedSeatDAO {
 		
 		try {
 			con = dbCon.getDbConn();
-			String query = "select RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS from RESERVED_SEAT where SEAT_IDX=? and schedule_idx=?";
+			String query = "select RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS, temp_seat_status from RESERVED_SEAT where SEAT_IDX=? and schedule_idx=?";
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
@@ -229,6 +236,7 @@ public class ReservedSeatDAO {
 				rsDTO.setReservationIdx(rs.getInt("reservation_idx"));
 				rsDTO.setScheduleIdx(rs.getInt("schedule_idx"));
 				rsDTO.setReservedSeatStatus(rs.getInt("reserved_seat_status"));
+				rsDTO.setTempSeatStatus(rs.getInt("temp_seat_status"));
 			}
 			
 		} finally {

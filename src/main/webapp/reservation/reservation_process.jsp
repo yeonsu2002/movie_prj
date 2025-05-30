@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryDTO"%>
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDTO"%>
@@ -26,8 +27,9 @@
     Random random = new Random();
     String reservationNumber = String.format("%s-%s-%04d-%04d", thisYear, thisDay, random.nextInt(9000) + 1000, random.nextInt(9000) + 1000);
 
-    // 임시 유저Idx (임시로 4~8 범위에서 설정)
-    int userIdx = random.nextInt(5) + 4;
+    //세션에 저장된 유저값 가져오기
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+    int userIdx = loginUser.getUserIdx();
 
     // 좌석 정보 분리
     String[] seats = seatsInfo.split(" ");
@@ -91,6 +93,9 @@
     PurchaseHistoryService phs = new PurchaseHistoryService();
     PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
     phDTO.setUserIdx(userIdx);
+    
+   System.out.println("구매한 userIdx : " + userIdx);
+    
     phDTO.setReservationIdx(reservationIdx);
     phs.addPurchaseHistory(phDTO);
 

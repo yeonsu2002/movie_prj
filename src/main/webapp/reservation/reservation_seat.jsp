@@ -130,10 +130,12 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 			$(this).addClass('selected');
 		});
 
+		//뒤로가기 버튼 클릭시
 		$('.nav-left').click(function() {
 			history.back();
 		});
 
+		//결제하기 버튼 클릭시
 		$('.nav-right').click(function () {
 		    var selectedCount = $('.seat.selected').length;
 		    var maxCnt = $('.num-btn.selected').text();
@@ -148,7 +150,22 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 		        return;
 		    }
 			
-		    showModal();
+		    var seatsInfo = $("#seatInfo").text();
+		    var scheduleIdx = "${schDTO.scheduleIdx}";
+		    
+		    //임시 좌석 선점 처리
+		    $.ajax({
+				url:"http://localhost/movie_prj/admin/schedule/temp_seat_process.jsp",
+				method:"POST",
+				data: { scheduleIdx: scheduleIdx,
+					  seatsInfo :seatsInfo },
+				success: function(response){
+						showModal();
+				},
+				error: function(){
+					alert("오류가 발생하였습니다. 다시 시도해주세요.");
+				}
+		    });
 		     
 		});
 		
@@ -270,8 +287,8 @@ request.setAttribute("occupiedSeats", occupiedSeats);
     	}
     
     function completePayment(){
-    	  var seatInfo = $("#seatInfo").text();
-	      $('#seatsParam').val(seatInfo);
+    	  var seatsInfo = $("#seatInfo").text();
+	      $('#seatsParam').val(seatsInfo);
 	      $('#priceParam').val(totalPrice);
 	      
 	      $('#reservationForm').submit();
