@@ -3,7 +3,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<%-- <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" /> --%>
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,13 +13,14 @@
 <title>매니저 관리</title>
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/adminWork.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminWork.css">
 <style type="text/css">
 
 </style>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script>
-$(function() {
+/* $(function() {}) 내부에는 초기 설정 코드, 초기 이벤트 바인딩, 이벤트 핸들러 등록만 넣는 것이 깔끔 */
+$(function() { 
     
     // 매니저 행 클릭 시 상세정보 표시
     $('.mgr-list-table tbody tr').click(function() {
@@ -72,7 +74,14 @@ $(function() {
             $('#mgrSearchBtn').click();
         }
     });
+    
+    // 매니저 추가 버튼 클릭시
+    $("#addManagerBtn").on("click", function(){
+    	addManager("insertAdminForm.jsp");
+    });
+    
 });
+/* $(function(){}); 바깥에 정의하는 함수 : 전역스코프, 직접 호출, 재사용 가능 함수 정의 */
 
 // 매니저 상세정보 업데이트 함수
 function updateManagerDetail(id, name, email, phone, status, role) {
@@ -97,6 +106,7 @@ function updateManagerDetail(id, name, email, phone, status, role) {
 // 매니저 추가 함수
 function addManager() {
     alert('매니저 추가 기능을 구현해주세요.');
+    
     // 실제로는 모달창이나 새 페이지로 이동
 }
 
@@ -146,9 +156,96 @@ function resetPassword() {
         // 실제로는 서버에 비밀번호 초기화 요청
     }
 }
+
+/* modal 함수 */
+function addManager(url){
+	console.log("addManger 버튼 클릭");
+	fetch(url)
+		.then(response => response.text())
+		.then(html => {
+			const modalOverlay = document.querySelector('.modal-overlay');
+			const modalBody = document.querySelector('.modal-body');
+			modalBody.innerHTML = html;
+			modalOverlay.style.display = 'flex';
+			
+			// 모달이 로드된 후 이벤트 리스너 다시 등록
+      setupModalEvents();
+			
+		});
+}
+function closeModal(){
+	document.querySelector('.modal-overlay').style.display = 'none';
+}
+
+//이벤트리스너
+document.addEventListener("DOMContentLoaded", () =>{
+	
+	document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+	
+	//배경클릭시 닫기
+	document.querySelector('.modal-overlay').addEventListener("click", (e) => {
+    if (e.target.classList.contains('modal-overlay')) closeModal();
+  });
+	
+});
+
+
+/* --------------------------------------모달창 js-------------------------------------- */
+//모달 이벤트 설정 함수
+function setupModalEvents() {
+	console.log("모달 이벤트 설정");
+	
+	// 프로필 이미지 클릭 이벤트 (모달 내부)
+	const profileImg = document.querySelector('.modal-body #mgrProfileImg');
+	const fileInput = document.querySelector('.modal-body #profileImageBtn');
+	
+	if (profileImg && fileInput) {
+		profileImg.addEventListener('click', function() {
+	    fileInput.click();
+		});
+	    
+		// 파일 변경 이벤트
+		fileInput.addEventListener('change', function(e) {
+    	const file = e.target.files[0];
+		    
+	    if (file && file.size > (1024 * 1024 * 10)) {
+		    alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
+		    fileInput.value = '';
+		    profileImg.src = "http://localhost/movie_prj/common/img/default_img.png";
+		    return;
+	    }
+		    
+	    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+        	profileImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+	    }
+  	});
+	} else {
+  	console.log("모달 내 요소를 찾을 수 없습니다.");
+	}
+}
+
+/* 모달 input 예외처리 검증  */
+
+
+ 
+ 
+ 
+
 </script>
 </head>
 <body>
+
+	<!-- 모달 구조 -->
+	<div class="modal-overlay">
+	  <div class="admin-modal-content">
+	    <span id="modalCloseBtn" class="modal-close">&times;</span>
+	    <div class="modal-body"></div>
+	  </div>
+	</div>
 
 	<!-- 매니저 관리 메인 컨테이너 -->
 	<div class="mgr-container">
@@ -159,7 +256,7 @@ function resetPassword() {
 			<!-- 리스트 헤더 -->
 			<div class="mgr-list-header">
 				<h2 class="mgr-list-title">매니저 목록</h2>
-				<button class="mgr-add-btn" onclick="addManager()">+ 매니저 추가</button>
+				<button class="mgr-add-btn" id="addManagerBtn">+ 매니저 추가</button>
 			</div>
 
 			<!-- 검색 필터 영역 -->
