@@ -18,7 +18,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <%
-//날짜 가공
+//날짜 가공 test test
 List<Map<String, String>> dateList = new ArrayList<>();
 SimpleDateFormat monthSdf = new SimpleDateFormat("M월");
 SimpleDateFormat daySdf = new SimpleDateFormat("dd");
