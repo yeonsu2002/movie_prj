@@ -35,8 +35,8 @@
     </div>
     <div class="menu-category">
         <div class="menu-title">영화 관리</div>
-        <div class="menu-item"><span>▶</span>영화 리스트</div>
-        <div class="menu-item"><span>▶</span>영화 등록</div>
+        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_list.jsp">영화 리스트</a></div>
+        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_edit.jsp?mode=insert">영화 등록</a></div>
         <div class="menu-item"><span>▶</span>영화 리뷰 관리</div>
     </div>
     <div class="menu-category">

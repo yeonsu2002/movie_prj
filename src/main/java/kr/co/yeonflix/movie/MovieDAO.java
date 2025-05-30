@@ -45,7 +45,9 @@ private static MovieDAO mDAO;
 			.append("	from movie	");
 		
 			pstmt=con.prepareStatement(selectMovieList.toString());
-			
+				
+				
+
 			rs = pstmt.executeQuery();
 			
 			MovieDTO mDTO = null;
