@@ -1,10 +1,42 @@
+<%@page import="java.util.List"%>
+<%@page import="kr.co.yeonflix.reservation.UserReservationDTO"%>
+<%@page import="kr.co.yeonflix.reservation.ReservationService"%>
+<%@page import="kr.co.yeonflix.movie.MovieDTO"%>
+<%@page import="kr.co.yeonflix.movie.MovieService"%>
+<%@page import="kr.co.yeonflix.theater.TheaterService"%>
+<%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
+<%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
+<%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+
 <%
-	int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
+int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
+	
+//스케줄 정보 가져오기
+ScheduleService ss = new ScheduleService();
+ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
+//상영관 정보 가져오기
+int theaterIdx = schDTO.getTheaterIdx();
+TheaterService ts = new TheaterService();
+TheaterDTO tDTO = ts.searchTheaterWithIdx(theaterIdx);
+
+//영화 정보 가져오기
+int movieIdx = schDTO.getMovieIdx();
+MovieService ms = new MovieService();
+MovieDTO mDTO = ms.searchOneMovie(movieIdx);
+
+//예매리스트 가져오기
+ReservationService rs = new ReservationService();
+List<UserReservationDTO> urDTOList = rs.searchUserReservationListBySchedule(scheduleIdx);
+
+pageContext.setAttribute("schDTO", schDTO);
+pageContext.setAttribute("tDTO", tDTO);
+pageContext.setAttribute("mDTO", mDTO);
+pageContext.setAttribute("urDTOList", urDTOList);
 %>
 
 <!DOCTYPE html>
@@ -15,83 +47,18 @@
 <title>예매 관리</title>
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
+<link rel="stylesheet" href="http://localhost/movie_prj/admin/reservation/css/reservation_manage.css">
 <style type="text/css">
-
-.content-container {
-	position: fixed;
-	top: 80px;
-	left: 300px;
-	right: 0;
-	bottom: 0;
-	padding: 20px;
-	background-color: #f0f0f0;
-}
-.title {
-  margin-bottom: 5px;
-  font-size: 20px;
-}
-
-.time-info {
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.time-info .start-time {
-  color: black;
-}
-
-.time-info .reserved {
-  color: red;
-}
-
-.member-button {
-  padding: 6px 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  background-color: white;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-#booking-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-#booking-table th,
-#booking-table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-#booking-table thead {
-  background-color: #f9f9f9;
-  font-weight: bold;
-}
-
-#booking-table .nickname {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-#booking-table .status.reserved {
-  color: red;
-}
-
-#booking-table .status.canceled {
-  color: gray;
-}
-
 </style>
 </head>
 <body>
 <div class="content-container">
-<h2 class="title">예매 리스트</h2>
+<h2 class="title">예매 리스트</h2><br>
 <p class="time-info">
-  IMAX 썬더 볼츠 시작 시간 <span class="start-time">08:00</span>
-  (<span class="reserved">35</span> / 50)
+  ${tDTO.theaterType} ${tDTO.theaterName}<br>
+  ${mDTO.movieName }<br>
+  상영 시각: <span class="start-time"><fmt:formatDate value="${schDTO.startTime}" pattern="HH:mm"/> ~ <fmt:formatDate value="${schDTO.endTime}" pattern="HH:mm"/></span><br>
+  좌석 현황( <span class="reserved">${schDTO.remainSeats}</span> / 140 )
 </p>
 
 <button class="member-button">회원 ▼</button>
@@ -99,39 +66,43 @@
 <table id="booking-table">
   <thead>
     <tr>
-      <th>이름</th>
-      <th>닉네임</th>
-      <th>이메일</th>
-      <th>상태</th>
+      <th>번호</th>
+      <th>예매 번호</th>
+      <th>예매 상태</th>
+      <th>좌석 번호</th>
       <th>예매 날짜</th>
-      <th>좌석</th>
+      <th>회원 여부</th>
+      <th>아이디</th>
+      <th>전화번호</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>유지민</td>
-      <td><a href="#" class="nickname">카리나</a></td>
-      <td>karina@google.com</td>
-      <td class="status reserved">예매완료</td>
-      <td>2025.05.08 17:10</td>
-      <td>A56</td>
-    </tr>
-    <tr>
-      <td>신민기</td>
-      <td><a href="#" class="nickname">개발자</a></td>
-      <td>developerMingi@naver.com</td>
-      <td class="status canceled">예매취소</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>주현석</td>
-      <td><a href="#" class="nickname">갓현석</a></td>
-      <td>hyunsuk@google.com</td>
-      <td class="status reserved">예매완료</td>
-      <td></td>
-      <td></td>
-    </tr>
+  <c:forEach var="urDTO" items="${urDTOList}" varStatus="i">
+  	<tr>
+  		<td>${i.count}</td>
+  		<td>${urDTO.reservationNumber}</td>
+  	<c:choose>
+  	<c:when test="${urDTO.canceledDate == null}">
+  		<td>예매 완료</td>
+  	</c:when>
+  	<c:otherwise>
+  		<td class="canceled">취소 완료</td>
+  	</c:otherwise>
+  	</c:choose>
+  		<td>${urDTO.seatsInfo}</td>
+  		<td><fmt:formatDate value="${urDTO.reservationDate}" pattern="yyy-MM-dd HH:mm"/></td>
+  	<c:choose>
+  		<c:when test="${urDTO.userType == 'MEMBER'}">
+  			<td>회원</td>
+  		</c:when>
+  		<c:otherwise>
+  			<td>비회원</td>
+  		</c:otherwise>
+  	</c:choose>
+  		<td>${urDTO.memberId}</td>
+  		<td>${urDTO.tel}</td>
+  	</tr>
+  </c:forEach>
   </tbody>
 </table>
 </div>

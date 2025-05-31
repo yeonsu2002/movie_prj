@@ -1,3 +1,5 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryDTO"%>
 <%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
@@ -19,7 +21,7 @@
     String seatsInfo = request.getParameter("seatsParam");
     int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
 
-    // 예매번호 생성
+
     Calendar cal = Calendar.getInstance();
     String thisYear = new SimpleDateFormat("yyyy").format(cal.getTime());
     String thisDay = new SimpleDateFormat("MMdd").format(cal.getTime());
@@ -39,25 +41,6 @@
     ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 
     ReservedSeatService rss = new ReservedSeatService();
-
-    // 예매 가능 여부 확인
-    for (String seat : seats) {
-        int seatIdx = rss.searchSeatIdx(seat);
-        ReservedSeatDTO rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
-
-        if (rsDTO != null && rsDTO.getReservedSeatStatus() == 1) {
-%>
-            <form id="backForm" action="reservation_seat.jsp" method="post">
-                <input type="hidden" name="scheduleIdx" value="<%=scheduleIdx %>">
-            </form>
-            <script>
-                alert("이미 예매된 좌석입니다.");
-                document.getElementById("backForm").submit();
-            </script>
-<%
-            return;
-        }
-    }
 
     // 예매 등록
     resDTO.setScheduleIdx(scheduleIdx);
@@ -88,6 +71,13 @@
         } else {
             rss.modifyReservedSeat(rsDTO);
         }
+        
+        //임시 좌석 삭제 후 잔여좌석 돌려놓기
+        boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
+        if(removed) {  // 실제로 삭제된 경우에만
+            schDTO.setRemainSeats(schDTO.getRemainSeats() + 1);
+            ss.modifySchedule(schDTO);
+        }
     }
 
     // 구매 내역 등록
@@ -95,10 +85,10 @@
     PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
     phDTO.setUserIdx(userIdx);
     
-   System.out.println("구매한 userIdx : " + userIdx);
     
     phDTO.setReservationIdx(reservationIdx);
     phs.addPurchaseHistory(phDTO);
+    
 
     // 남은 좌석 수 업데이트
     schDTO.setRemainSeats(schDTO.getRemainSeats() - seats.length);

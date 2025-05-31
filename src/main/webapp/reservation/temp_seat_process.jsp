@@ -13,15 +13,30 @@
 	
 	ReservedSeatService rss = new ReservedSeatService();
 	
-	//선점한 좌석들 등록
+	String isValid = "valid";
+	
+	//만약 누가 선점한 좌석이라면
 	for(String seat : seats){
 		int seatIdx = rss.searchSeatIdx(seat);
-		rss.addTempSeat(seatIdx, scheduleIdx);
-	}//for
+		
+		if(rss.isTempSeatInTable(seatIdx, scheduleIdx)){
+			isValid = "invalid";
+			out.print(isValid);
+			return;
+		}
+			
+	}
 	
+	//이선좌가 없으면 선점좌석 등록
+	for(String seat: seats){
+		int seatIdx = rss.searchSeatIdx(seat);
+		rss.addTempSeat(seatIdx, scheduleIdx);
+	}
 	//잔여좌석 업데이트
 	ScheduleService ss = new ScheduleService();
 	ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 	schDTO.setRemainSeats(schDTO.getRemainSeats() - seats.length);
 	ss.modifySchedule(schDTO);
+	
+	out.print(isValid);
 %>

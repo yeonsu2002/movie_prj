@@ -266,4 +266,51 @@ public class ReservationDAO {
 		
 		return list;
 	}//selectDetailReservationWithUser
+	
+	/**
+	 * 예매리스트에 보여주기 위한 스케줄별 예매내역
+	 * @param scheduleIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<UserReservationDTO> selectUserReservationListBySchedule(int scheduleIdx) throws SQLException {
+		List<UserReservationDTO> list = new ArrayList<UserReservationDTO>();
+		
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			StringBuilder query = new StringBuilder();
+			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, ");
+			query.append("r.user_idx, user_type, member_id, tel ");
+			query.append("FROM reservation r ");
+			query.append("JOIN common_user c ON c.user_idx = r.user_idx ");
+			query.append("JOIN member m ON c.user_idx = m.user_idx ");
+			query.append("WHERE r.schedule_idx = ?");
+			
+			pstmt = con.prepareStatement(query.toString());
+			pstmt.setInt(1, scheduleIdx);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				UserReservationDTO urDTO = new UserReservationDTO();
+				urDTO.setReservationIdx(rs.getInt("reservation_idx"));
+				urDTO.setReservationNumber(rs.getString("reservation_number"));
+				urDTO.setReservationDate(rs.getTimestamp("reservation_date"));
+				urDTO.setCanceledDate(rs.getTimestamp("canceled_date"));
+				urDTO.setUserIdx(rs.getInt("user_idx"));
+				urDTO.setUserType(rs.getString("user_type"));
+				urDTO.setMemberId(rs.getString("member_id"));
+				urDTO.setTel(rs.getString("tel"));
+				
+				list.add(urDTO);
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return list;
+	}//selectUserReservationListBySchedule
 }

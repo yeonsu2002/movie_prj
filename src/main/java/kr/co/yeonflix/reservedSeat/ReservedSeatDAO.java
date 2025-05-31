@@ -272,8 +272,7 @@ public class ReservedSeatDAO {
 	 * @param scheduleIdx
 	 * @throws SQLException
 	 */
-	public int deleteTempSeat(int seatIdx, int scheduleIdx) throws SQLException {
-		int cnt = 0;
+	public void deleteTempSeat(int seatIdx, int scheduleIdx) throws SQLException {
 		
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
@@ -287,11 +286,10 @@ public class ReservedSeatDAO {
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
 			
-			cnt = pstmt.executeUpdate();
+			pstmt.executeUpdate();
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-		return cnt;
 	}//deleteTempSeat
 	
 	/**
@@ -299,7 +297,7 @@ public class ReservedSeatDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<TempSeatDTO> selectAllTempSeat() throws SQLException {
+	public List<TempSeatDTO> selectAllTempSeatBySchedule(int scheduleIdx) throws SQLException {
 		List<TempSeatDTO> list = new ArrayList<TempSeatDTO>();
 		
 		DbConnection dbCon = DbConnection.getInstance();
@@ -309,8 +307,9 @@ public class ReservedSeatDAO {
 		
 		try {
 			con = dbCon.getDbConn();
-			String query = "select seat_idx, schedule_idx, click_time from temp_seat";
+			String query = "select seat_idx, schedule_idx, click_time from temp_seat where schedule_idx=?";
 			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, scheduleIdx);
 			rs = pstmt.executeQuery();
 			
 			TempSeatDTO tsDTO = null;
