@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.admin.AdminService"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="kr.co.yeonflix.admin.AllowedIPDTO"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.member.Role"%>
@@ -14,6 +16,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
+
+//어드민 객체 생성 
+AdminDTO adminDTO = new AdminDTO();
+
 MultipartRequest multi = null;
 int fileMaxSize = 10 * 1024 * 1024;
 
@@ -37,8 +43,6 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 		return; //에러발생 -> 처리중단
 	}
 
-//어드민 객체 생성 
-AdminDTO adminDTO = new AdminDTO();
 
 String adminId = multi.getParameter("adminId");
 String adminLevel = "MANAGER"; //고정값 
@@ -48,15 +52,35 @@ String adminEmail = multi.getParameter("adminEmail");
 String tel = multi.getParameter("phone");
 String manageArea = multi.getParameter("manageArea");
 LocalDateTime lastLoginDate = LocalDateTime.now();
-String picture = multi.getParameter("");
-String isActive = multi.getParameter("");
+String isActive = "Y";
+String managerIp = request.getRemoteAddr();
 
-Enum<Role> role;
+adminDTO.setAdminId(adminId);
+adminDTO.setAdminLevel(adminLevel);
+adminDTO.setAdminPwd(adminPwd);
+adminDTO.setAdminName(adminName);
+adminDTO.setAdminEmail(adminEmail);
+adminDTO.setTel(tel);
+adminDTO.setManageArea(manageArea);
+adminDTO.setLastLoginDate(lastLoginDate);
+adminDTO.setIsActive(isActive);
 
-List<AllowedIPDTO> IPList;
+adminDTO.setRole(Role.ROLE_MANAGER);
 
-	
-	
+AllowedIPDTO managerIpVO = new AllowedIPDTO();
+managerIpVO.setAdminId(adminId);
+managerIpVO.setIpAddress(managerIp);
+managerIpVO.setCreatedAt(LocalDateTime.now());
+
+List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
+list.add(managerIpVO);
+adminDTO.setIPList(list);
+
+//테스트 출력용 
+AllowedIPDTO ipDTO = new AllowedIPDTO();
+ipDTO = adminDTO.getIPList().get(0);
+String ipAddr = ipDTO.getIpAddress().toString();
+
 }
 
 //이미지 처리 
@@ -64,11 +88,47 @@ File profileFile = multi.getFile("profileImage");
 String originalFileName = multi.getOriginalFileName("profileImage");
 String savedFileName = multi.getFilesystemName("profileImage");
 
-System.out.println("원본 파일명: " + originalFileName);
-System.out.println("저장된 파일명: " + savedFileName);
-System.out.println("프로필 파일 객체: " + profileFile);
 
+if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
+	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
+	
+	String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
+	
+	if(ext.equals("PNG") || ext.equals("JPG") || ext.equals("GIF") || ext.equals("JPEG")){
+		// MultipartRequest가 이미 파일을 저장했으므로 savedFileName 사용
+		if(savedFileName != null) {
+			// URL 인코딩은 필요시에만 적용 (보통 DB 저장시에는 원본명 사용)
+			adminDTO.setPicture(savedFileName);
+			System.out.println("DB에 저장할 파일명: " + savedFileName);
+		} else {
+		  adminDTO.setPicture("default_img.png");
+			System.out.println("파일 저장 실패, 기본 이미지 사용");
+		}
+	} else {
+	  adminDTO.setPicture("default_img.png");
+		System.out.println("지원하지 않는 파일 형식, 기본 이미지 사용");
+	}
+} else { 
+  adminDTO.setPicture("default_img.png");
+	System.out.println("업로드된 파일이 없음, 기본 이미지 사용");
+}
 
+// 최종 파일 확인
+if(!adminDTO.getPicture().equals("default_img.png")) {
+	File finalFile = new File(savePath + "/" + adminDTO.getPicture());
+}
 
+//서비스 호출
+AdminService adminService = new AdminService();
+boolean result = adminService.joinAdmin(adminDTO);
+
+if(result){
+  out.println(
+      "<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); location.href='" + request.getContextPath() + "/admin/adminWork/adminWork.jsp' </script>"
+      );
+  //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
+} else {
+	out.println("<script>alert('매니저 가입에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
+}
 
 %>

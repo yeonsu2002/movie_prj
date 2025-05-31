@@ -5,7 +5,7 @@ public enum Role {
 	ROLE_GUEST(true, false),
 	ROLE_MEMBER(true, true),
 	ROLE_MANAGER(true, true),
-	ROLE_ADMIN(true, true);
+	ROLE_SUPERADMIN(true, true);
 	
 	private boolean readable; //읽기 권한
 	private boolean writable; //쓰기 권한 

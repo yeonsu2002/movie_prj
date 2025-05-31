@@ -1,5 +1,41 @@
 package kr.co.yeonflix.admin;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
+
 public class AdminService {
 
+  private AdminDAO adDAO;
+  
+  public AdminService() {
+    this.adDAO = AdminDAO.getInstance();
+  }
+  
+  //매니저 가입 
+  public boolean joinAdmin(AdminDTO adminDTO) {
+    boolean result = false;
+    
+    try {
+      String orinPwd = adminDTO.getAdminPwd();
+      String encodedPwd = BCrypt.withDefaults().hashToString(12, orinPwd.toCharArray());
+      adminDTO.setAdminPwd(encodedPwd);
+      result = adDAO.insertAdmin(adminDTO);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    return result;
+  }
+  
+  //관리자 목록 페이지에 매니저 불러오기
+  public List<AdminDTO> getManagerList() throws Exception {
+    return adDAO.selectManagerList(); // 내부에서 try-catch 안 함
+  }
+  
+  
+  
+  
+  
 }

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8" info=""%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <%-- <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" /> --%>
@@ -21,7 +22,15 @@
 <script>
 /* $(function() {}) 내부에는 초기 설정 코드, 초기 이벤트 바인딩, 이벤트 핸들러 등록만 넣는 것이 깔끔 */
 $(function() { 
-    
+	
+	<c:if test="${not empty errorMsg}">
+		alert("${errorMsg}");
+	</c:if>
+	<c:if test="${not empty managerList}">
+    alert("매니저 리스트가 로딩되었습니다. 총 ${fn:length(managerList)}명");
+	</c:if>
+	
+	
     // 매니저 행 클릭 시 상세정보 표시
     $('.mgr-list-table tbody tr').click(function() {
         // 기존 선택 해제
@@ -157,7 +166,7 @@ function resetPassword() {
     }
 }
 
-/* modal 함수 */
+/* modal 함수: fetch는 좀더 공부해봐야겠어  */
 function addManager(url){
 	console.log("addManger 버튼 클릭");
 	fetch(url)
@@ -231,8 +240,14 @@ function setupModalEvents() {
 /* 모달 input 예외처리 검증  */
 
 
- 
- 
+/* 모달이 동적으로 생성되기 때문에 이벤트 위임을 써야해 */
+// form 등록 
+$(document).on("click", "#submitBtn", function(){
+	alert("adminForm 제출");
+	$("#adminForm").submit();
+	
+});
+
  
 
 </script>
@@ -282,61 +297,22 @@ function setupModalEvents() {
 						<th>연락처</th>
 						<th>역할</th>
 						<th>상태</th>
-						<th>등록일</th>
+						<th>최신접속일</th>
 					</tr>
 				</thead>
 				<tbody>
-					<!-- 샘플 데이터 - 실제로는 서버에서 가져온 데이터를 JSTL로 출력 -->
-					<tr data-manager-id="1">
-						<td>1</td>
-						<td class="mgr-name">김매니저</td>
-						<td class="mgr-email">kim@movie.com</td>
-						<td class="mgr-phone">010-1234-5678</td>
-						<td class="mgr-role">시설관리팀장</td>
-						<td class="mgr-status"><span
-							class="mgr-status-badge mgr-status-active">활성</span></td>
-						<td>2024-01-15</td>
-					</tr>
-					<tr data-manager-id="2">
-						<td>2</td>
-						<td class="mgr-name">이관리</td>
-						<td class="mgr-email">lee@movie.com</td>
-						<td class="mgr-phone">010-2345-6789</td>
-						<td class="mgr-role">상영관리팀</td>
-						<td class="mgr-status"><span
-							class="mgr-status-badge mgr-status-active">활성</span></td>
-						<td>2024-02-20</td>
-					</tr>
-					<tr data-manager-id="3">
-						<td>3</td>
-						<td class="mgr-name">박운영</td>
-						<td class="mgr-email">park@movie.com</td>
-						<td class="mgr-phone">010-3456-7890</td>
-						<td class="mgr-role">고객서비스팀</td>
-						<td class="mgr-status"><span
-							class="mgr-status-badge mgr-status-inactive">비활성</span></td>
-						<td>2024-03-10</td>
-					</tr>
-					<tr data-manager-id="4">
-						<td>4</td>
-						<td class="mgr-name">최시설</td>
-						<td class="mgr-email">choi@movie.com</td>
-						<td class="mgr-phone">010-4567-8901</td>
-						<td class="mgr-role">시설관리팀</td>
-						<td class="mgr-status"><span
-							class="mgr-status-badge mgr-status-active">활성</span></td>
-						<td>2024-04-05</td>
-					</tr>
-					<tr data-manager-id="5">
-						<td>5</td>
-						<td class="mgr-name">정보안</td>
-						<td class="mgr-email">jung@movie.com</td>
-						<td class="mgr-phone">010-5678-9012</td>
-						<td class="mgr-role">보안관리팀</td>
-						<td class="mgr-status"><span
-							class="mgr-status-badge mgr-status-active">활성</span></td>
-						<td>2024-05-01</td>
-					</tr>
+					<c:forEach var="manager" items="${managerList }" varStatus="status">
+						<tr data-manager-id="${manager.userIdx}">
+							<td>${status.index +1 }</td>
+							<td class="mgr-name"><c:out value="${manager.adminName }" /> </td>
+							<td class="mgr-email"><c:out value="${manager.adminEmail }" /> </td>
+							<td class="mgr-phone">미구현 </td>
+							<td class="mgr-role"><c:out value="${manager.manageArea }" /> </td>
+							<td class="mgr-status"><span class="mgr-status-badge mgr-status-active"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
+							<td>${manager.formattedLoginDate }</td>
+							<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
+						</tr>
+					</c:forEach>
 
 					<!-- 실제 JSP에서는 다음과 같이 구현 -->
 					<%-- 

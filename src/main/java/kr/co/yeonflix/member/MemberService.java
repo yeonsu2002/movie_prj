@@ -170,7 +170,7 @@ public class MemberService {
    * @param password 원본 비밀번호
    * @return 암호화된 비밀번호
    */
-  private String encryptPassword(String password) {
+  public String encryptPassword(String password) {
     String encryptedPwd = "";
     // 스프링 시큐리티에서 쓰이는 암호화 라이브러리, 단방향 해시 알고리즘 (at.favre.lib:bcrypt 버전)
     encryptedPwd = BCrypt.withDefaults().hashToString(12, password.toCharArray());
