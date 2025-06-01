@@ -9,7 +9,7 @@
 	<h1 class="logo"><a href="http://localhost/movie_prj/index.jsp"><img src="http://localhost/movie_prj/common/img/logo.png" alt=""></a></h1>
  	<div class="member">
 		<ul class=login_menu>
-			<!-- c:url 이랑 imgs src랑 다르다. 가져오는 주소가 다름에 주의!!! -->
+			<!-- c:url 이랑 imgs src랑 다르다. 가져오는 주소가 다름에 주의!!! --> 
 			<c:choose>
   	    <c:when test="${not empty sessionScope.loginUser}">
   	    <li><img alt="한글사진x" src="http:/profile/${loginUser.picture}" style="width: 70px; height: 70px; border-radius: 5em;"> </li>
