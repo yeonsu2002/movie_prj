@@ -12,7 +12,7 @@
 
 /* 왼쪽 매니저 리스트 영역 */
 .mgr-list-section {
-    flex: 1;
+    flex: 1.2;
     background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
@@ -103,7 +103,7 @@
 
 /* 오른쪽 상세정보 영역 */
 .mgr-detail-section {
-    flex: 1;
+    flex: 0.8;
     background: #ffffff;
     padding: 20px;
     border-radius: 8px;

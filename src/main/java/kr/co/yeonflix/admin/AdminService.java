@@ -1,5 +1,6 @@
 package kr.co.yeonflix.admin;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,11 @@ public class AdminService {
   //관리자 목록 페이지에 매니저 불러오기
   public List<AdminDTO> getManagerList() throws Exception {
     return adDAO.selectManagerList(); // 내부에서 try-catch 안 함
+  }
+  
+  //정보수정시 해당 매니저의 정보를 호출
+  public AdminDTO getAdminInfo(String adminId) throws SQLException {
+    return adDAO.selectAdminInfo(adminId);
   }
   
   

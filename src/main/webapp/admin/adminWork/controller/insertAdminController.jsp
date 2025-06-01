@@ -43,43 +43,45 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 		return; //에러발생 -> 처리중단
 	}
 
-
-String adminId = multi.getParameter("adminId");
-String adminLevel = "MANAGER"; //고정값 
-String adminPwd = multi.getParameter("adminPwd");
-String adminName = multi.getParameter("adminName");
-String adminEmail = multi.getParameter("adminEmail");
-String tel = multi.getParameter("phone");
-String manageArea = multi.getParameter("manageArea");
-LocalDateTime lastLoginDate = LocalDateTime.now();
-String isActive = "Y";
-String managerIp = request.getRemoteAddr();
-
-adminDTO.setAdminId(adminId);
-adminDTO.setAdminLevel(adminLevel);
-adminDTO.setAdminPwd(adminPwd);
-adminDTO.setAdminName(adminName);
-adminDTO.setAdminEmail(adminEmail);
-adminDTO.setTel(tel);
-adminDTO.setManageArea(manageArea);
-adminDTO.setLastLoginDate(lastLoginDate);
-adminDTO.setIsActive(isActive);
-
-adminDTO.setRole(Role.ROLE_MANAGER);
-
-AllowedIPDTO managerIpVO = new AllowedIPDTO();
-managerIpVO.setAdminId(adminId);
-managerIpVO.setIpAddress(managerIp);
-managerIpVO.setCreatedAt(LocalDateTime.now());
-
-List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
-list.add(managerIpVO);
-adminDTO.setIPList(list);
-
-//테스트 출력용 
-AllowedIPDTO ipDTO = new AllowedIPDTO();
-ipDTO = adminDTO.getIPList().get(0);
-String ipAddr = ipDTO.getIpAddress().toString();
+	
+	String adminId = multi.getParameter("adminId");
+	String adminLevel = "MANAGER"; //고정값 
+	String adminPwd = multi.getParameter("adminPwd");
+	String adminName = multi.getParameter("adminName");
+	String adminEmail = multi.getParameter("adminEmail");
+	String tel = multi.getParameter("phone");
+	String manageArea = multi.getParameter("manageArea");
+	String adminTel = multi.getParameter("phone");
+	LocalDateTime lastLoginDate = LocalDateTime.now();
+	String isActive = "Y";
+	String managerIp = request.getRemoteAddr();
+	
+	adminDTO.setAdminId(adminId);
+	adminDTO.setAdminLevel(adminLevel);
+	adminDTO.setAdminPwd(adminPwd);
+	adminDTO.setAdminName(adminName);
+	adminDTO.setAdminEmail(adminEmail);
+	adminDTO.setAdminTel(adminTel);
+	adminDTO.setManageArea(manageArea);
+	adminDTO.setLastLoginDate(lastLoginDate);
+	adminDTO.setIsActive(isActive);
+	adminDTO.setAdminTel(adminTel);
+	
+	adminDTO.setRole(Role.ROLE_MANAGER);
+	
+	AllowedIPDTO managerIpVO = new AllowedIPDTO();
+	managerIpVO.setAdminId(adminId);
+	managerIpVO.setIpAddress(managerIp);
+	managerIpVO.setCreatedAt(LocalDateTime.now());
+	
+	List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
+	list.add(managerIpVO);
+	adminDTO.setIPList(list);
+	
+	//테스트 출력용 
+	AllowedIPDTO ipDTO = new AllowedIPDTO();
+	ipDTO = adminDTO.getIPList().get(0);
+	String ipAddr = ipDTO.getIpAddress().toString();
 
 }
 
@@ -124,7 +126,7 @@ boolean result = adminService.joinAdmin(adminDTO);
 
 if(result){
   out.println(
-      "<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); location.href='" + request.getContextPath() + "/admin/adminWork/adminWork.jsp' </script>"
+      "<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); location.replace='" + request.getContextPath() + "/admin/adminWork/adminWork.jsp' </script>"
       );
   //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
 } else {

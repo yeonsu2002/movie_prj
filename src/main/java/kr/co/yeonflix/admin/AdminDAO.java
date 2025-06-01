@@ -56,8 +56,8 @@ public class AdminDAO {
     String getUserIdxQuery = " SELECT USER_IDX_SEQ.CURRVAL FROM dual  ";
     String getRoleIdxQuery = " SELECT role_idx FROM role WHERE role_name = 'ROLE_MANAGER'  ";
     String insertUserRoleTable = " INSERT INTO user_role_table (user_idx, role_idx) VALUES (?, ?)  ";
-    String insertManager = " INSERT INTO admin ( user_idx, admin_id, admin_level, admin_pwd, admin_name, admin_email, manage_area, last_login_date, picture, is_active) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+    String insertManager = " INSERT INTO admin ( user_idx, admin_id, admin_level, admin_pwd, admin_name, admin_email, manage_area, last_login_date, picture, is_active, admin_tel) "
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
     String insertAllowedIP = " INSERT INTO allowed_ip (allowed_ip_idx, admin_id, ip_address, created_at)  "
         + "VALUES (ALLOWED_IP_SEQ.NEXTVAL, ?, ?, ?)";
     
@@ -106,6 +106,7 @@ public class AdminDAO {
         ps.setTimestamp(8, Timestamp.valueOf(adminDTO.getLastLoginDate()));
         ps.setString(9, adminDTO.getPicture());
         ps.setString(10, adminDTO.getIsActive());
+        ps.setString(11, adminDTO.getAdminTel());
         ps.executeUpdate();
       }
 
@@ -149,15 +150,20 @@ public class AdminDAO {
     
     DbConnection dbCon = DbConnection.getInstance();
     Connection con = null;
-    PreparedStatement pstmt = null;
+    PreparedStatement adminPstmt = null;
+    PreparedStatement ipPstmt = null;
     ResultSet rs = null;
+    ResultSet rs2 = null;
+    
+    String adminId = null;
     
     String selectManagerAll = " SELECT * FROM admin ";
+    String selectIpList = " SELECT * FROM allowed_ip WHERE admin_id = ?  ";
     
     try {
       con = dbCon.getDbConn();
-      pstmt = con.prepareStatement(selectManagerAll);
-      rs = pstmt.executeQuery();
+      adminPstmt = con.prepareStatement(selectManagerAll);
+      rs = adminPstmt.executeQuery();
       
       while(rs.next()) {
         AdminDTO adminDTO = new AdminDTO();
@@ -168,18 +174,43 @@ public class AdminDAO {
         adminDTO.setAdminName(rs.getString("admin_name"));
         adminDTO.setAdminEmail(rs.getString("admin_email"));
         adminDTO.setManageArea(rs.getString("manage_area"));
+        adminDTO.setIsActive(rs.getString("is_active"));
+        adminDTO.setAdminTel(rs.getString("admin_tel"));
+        adminDTO.setPicture(rs.getString("picture"));
         
         LocalDateTime loginDateTime = rs.getTimestamp("last_login_date").toLocalDateTime();
         adminDTO.setLastLoginDate(loginDateTime);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = loginDateTime.format(dtf);
         adminDTO.setFormattedLoginDate(formattedDate);
+
         
-        adminDTO.setPicture(rs.getString("picture"));
+        //IP주소 리스트 가져와서 담기
+        List<AllowedIPDTO> ipList = new ArrayList<AllowedIPDTO>();
+        adminId = rs.getString("admin_id");
+        try {
+          ipPstmt = con.prepareStatement(selectIpList);
+          ipPstmt.setString(1, adminId);
+          rs2 = ipPstmt.executeQuery();
+          
+          while (rs2.next()) {
+            AllowedIPDTO ipDTO = new AllowedIPDTO();
+            ipDTO.setAllowedIpIdx(rs2.getInt("allowed_ip_idx"));
+            ipDTO.setAdminId(adminId);
+            ipDTO.setIpAddress(rs2.getString("ip_address"));
+            ipDTO.setCreatedAt(rs2.getTimestamp("created_at").toLocalDateTime());
+            
+            ipList.add(ipDTO);
+          }
+          
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         
-        managerList.add(adminDTO);
+        adminDTO.setIPList(ipList); //IP 주소 리스트 담기 끝 
+     
+        managerList.add(adminDTO); //반환
       }
-      
       
     } catch (Exception e) {
       e.printStackTrace();
@@ -187,7 +218,9 @@ public class AdminDAO {
       try {
         //객체를 close()하기 전에 null상태를 학인 -> NullPointerException
         if(rs != null) {rs.close();}
-        if(pstmt != null) {pstmt.close();}
+        if(rs2 != null) {rs2.close();}
+        if(adminPstmt != null) {adminPstmt.close();}
+        if(ipPstmt != null) {ipPstmt.close();}
         if(con != null) {con.close();}
       } catch (Exception e) {
         e.printStackTrace();
@@ -197,6 +230,69 @@ public class AdminDAO {
     return managerList;
   }
   
+  
+  //매니저 아이디로 매니저 정보 호출
+  public AdminDTO selectAdminInfo(String adminId) throws SQLException {
+    DbConnection dbCon = DbConnection.getInstance();
+    Connection con = null;
+    
+    String selectAdminQuery = " SELECT * FROM admin WHERE admin_id = ?  ";
+    String selectIpListQuery = "  SELECT * FROM allowed_ip WHERE admin_id = ?  ";
+    
+    AdminDTO adminDTO = new AdminDTO();
+    List<AllowedIPDTO> ipList = new ArrayList<AllowedIPDTO>();
+    
+    try {
+      con = dbCon.getDbConn();
+      
+      try (PreparedStatement pstmt = con.prepareStatement(selectAdminQuery)){
+        pstmt.setString(1, adminId);
+        ResultSet rs = pstmt.executeQuery();
+        
+        if(rs.next()) {
+          adminDTO.setAdminId(rs.getString("admin_id"));
+          adminDTO.setUserIdx(rs.getInt("user_idx"));
+          adminDTO.setAdminLevel(rs.getString("admin_level"));
+          adminDTO.setAdminPwd(rs.getString("admin_pwd"));
+          adminDTO.setAdminName(rs.getString("admin_name"));
+          adminDTO.setAdminEmail(rs.getString("admin_email"));
+          adminDTO.setManageArea(rs.getString("manage_area"));
+          adminDTO.setLastLoginDate(rs.getTimestamp("last_login_date").toLocalDateTime());
+          adminDTO.setPicture(rs.getString("picture"));
+          adminDTO.setIsActive(rs.getString("is_active"));
+          adminDTO.setAdminTel(rs.getString("admin_tel"));
+        }//if
+      } //try
+      
+      try(PreparedStatement pstmt = con.prepareStatement(selectIpListQuery)){
+        pstmt.setString(1, adminId);
+        ResultSet rs = pstmt.executeQuery();
+        
+        if(rs.next()) {
+          AllowedIPDTO ipDTO = new AllowedIPDTO();
+          ipDTO.setAdminId(rs.getString("admin_id")); 
+          ipDTO.setAllowedIpIdx(rs.getInt("allowed_ip_idx"));
+          ipDTO.setIpAddress(rs.getString("ip_address"));
+          ipDTO.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+          ipList.add(ipDTO);
+        }
+      }//try
+      
+      adminDTO.setIPList(ipList);
+      
+    } finally {
+      if (con != null) {
+        try { 
+          con.close(); 
+        } catch (SQLException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    
+    return adminDTO;
+  }
   
   
   

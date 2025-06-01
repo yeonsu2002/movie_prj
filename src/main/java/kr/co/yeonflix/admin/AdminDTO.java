@@ -1,6 +1,7 @@
 package kr.co.yeonflix.admin;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import kr.co.yeonflix.member.Role;
@@ -23,15 +24,21 @@ public class AdminDTO {
 	private LocalDateTime lastLoginDate;
 	private String picture;
 	private String isActive;
-	private String tel;
+	private String adminTel;
 	
 	private Enum<Role> role;
 	
 	List<AllowedIPDTO> IPList;
 	
-	private String formattedLoginDate;
+	private String formattedLoginDate; //이 변수가 쓰이던가? 
 	
+	//JSP에서 뽑을 때, 규격설정 
+	public String getFormattedLoginDate() {
+	  if(lastLoginDate == null) return"";
+	  return lastLoginDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+	}
 }
+
 
 /*	LocalDateTime : 넣고 꺼내기 방법 
  * 

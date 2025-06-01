@@ -14,7 +14,7 @@
 <title>매니저 관리</title>
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/adminWork.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminWork.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminModal.css">
 <style type="text/css">
 
 </style>
@@ -26,28 +26,28 @@ $(function() {
 	<c:if test="${not empty errorMsg}">
 		alert("${errorMsg}");
 	</c:if>
-	<c:if test="${not empty managerList}">
-    alert("매니저 리스트가 로딩되었습니다. 총 ${fn:length(managerList)}명");
-	</c:if>
 	
 	
     // 매니저 행 클릭 시 상세정보 표시
     $('.mgr-list-table tbody tr').click(function() {
-        // 기존 선택 해제
-        $('.mgr-list-table tbody tr').removeClass('mgr-selected');
-        // 현재 행 선택
-        $(this).addClass('mgr-selected');
-        
-        // 매니저 정보 가져오기 (data 속성에서)
-        var managerId = $(this).data('manager-id');
-        var managerName = $(this).find('.mgr-name').text();
-        var managerEmail = $(this).find('.mgr-email').text();
-        var managerPhone = $(this).find('.mgr-phone').text();
-        var managerStatus = $(this).find('.mgr-status').text();
-        var managerRole = $(this).find('.mgr-role').text();
-        
-        // 상세정보 영역 업데이트
-        updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole);
+	    // 기존 선택 해제
+	    $('.mgr-list-table tbody tr').removeClass('mgr-selected');
+	    // 현재 행 선택
+	    $(this).addClass('mgr-selected');
+	    
+	    // 매니저 정보 가져오기 (data 속성에서)
+	    let managerId = $(this).data('manager-id');
+	    let managerName = $(this).find('.mgr-name').text().trim();
+	    let managerEmail = $(this).find('.mgr-email').text().trim();
+	    let managerPhone = $(this).find('.mgr-phone').text().trim();
+	    let managerStatus = $(this).find('.mgr-status').text().trim();
+	    let managerRole = $(this).find('.mgr-role').text().trim();
+	    let maangerPicture = $(this).find('.mgr-picture img').attr('src');
+	    let managerIpList = $(this).find('.mgr-ipList').text().trim();
+	    let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
+	    
+	    // 상세정보 영역 업데이트
+	    updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, maangerPicture, managerIpList, managerLastLogin);
     });
     
     // 검색 기능
@@ -86,16 +86,16 @@ $(function() {
     
     // 매니저 추가 버튼 클릭시
     $("#addManagerBtn").on("click", function(){
-    	addManager("insertAdminForm.jsp");
+    	addManager("${pageContext.request.contextPath}/admin/adminWork/insertAdminForm.jsp");
     });
     
 });
-/* $(function(){}); 바깥에 정의하는 함수 : 전역스코프, 직접 호출, 재사용 가능 함수 정의 */
+/*------------------------------- $(function(){}); 바깥에 정의하는 함수 : 전역스코프, 직접 호출, 재사용 가능 함수 정의------------------------------------------- */
 
 // 매니저 상세정보 업데이트 함수
-function updateManagerDetail(id, name, email, phone, status, role) {
-    $('.mgr-profile-name').text(name);
-    $('.mgr-profile-position').text(role);
+function updateManagerDetail(id, name, email, phone, status, role, picture, IpList, lastLoginDate) {
+    $('.mgr-profile-name').text(name + " 매니저");
+    $('.mgr-profile-position').text("관리: " + role);
     
     // 상세정보 테이블 업데이트
     $('#mgrDetailId').text(id);
@@ -103,7 +103,12 @@ function updateManagerDetail(id, name, email, phone, status, role) {
     $('#mgrDetailEmail').text(email);
     $('#mgrDetailPhone').text(phone);
     $('#mgrDetailStatus').text(status);
-    $('#mgrDetailRole').text(role);
+    $('#mgrDetailArea').text(role);
+    $('#mgrProfileImg').attr('src', picture);
+    $('#mgrDetailIp').text(IpList);
+    $('#mgrDetailLastLogin').text(lastLoginDate);
+    
+    
     
     // 빈 상태 숨기고 상세정보 표시
     $('.mgr-empty-state').hide();
@@ -112,24 +117,40 @@ function updateManagerDetail(id, name, email, phone, status, role) {
     //$('.mgr-detail-content').show();
 }
 
-// 매니저 추가 함수
-function addManager() {
-    alert('매니저 추가 기능을 구현해주세요.');
-    
-    // 실제로는 모달창이나 새 페이지로 이동
-}
-
 // 매니저 수정 함수  
 function editManager() {
-    var selectedRow = $('.mgr-selected');
+    let selectedRow = $('.mgr-selected');
     if (selectedRow.length === 0) {
         alert('수정할 매니저를 선택해주세요.');
         return;
     }
     
-    var managerId = selectedRow.data('manager-id');
-    alert('매니저 ID ' + managerId + ' 수정 기능을 구현해주세요.');
-    // 실제로는 수정 폼으로 이동하거나 모달 표시
+    let managerId = selectedRow.data('manager-id');
+    alert('매니저 ID : ' + managerId + ' 수정 실행');
+    // AJAX로 매니저 정보 조회
+    $.ajax({
+	    url: '${pageContext.request.contextPath}/admin/adminWork/controller/updateAdminController.jsp',
+	    method: 'GET',
+	    data: { managerId: managerId },
+	    dataType: 'json', // 서버에서 JSON을 받을 거라고 명시
+	    success: function(data) {
+				console.log( data); // JSON 객체 확인
+				if (data.error) {
+	      	alert(data.error);
+		    }
+        // 모달 불러와 (udpateManager안에 모달창 데이터 채우기 함수가 있어.)
+        let getModalUrl = '${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp';
+        updateManager(getModalUrl, data);
+	    },
+	    error: function(xhr, status, error) {
+	      console.error("에러 발생!");
+	      console.log("status: ", status);
+	      console.log("error: ", error);
+	      console.log("xhr.status: ", xhr.status);
+	      console.log("xhr.responseText: ", xhr.responseText);
+	      alert("통신 오류가 발생했습니다.");
+	    }
+    });
 }
 
 // 매니저 삭제 함수
@@ -167,8 +188,8 @@ function resetPassword() {
 }
 
 /* modal 함수: fetch는 좀더 공부해봐야겠어  */
-function addManager(url){
-	console.log("addManger 버튼 클릭");
+// 매니저 추가 모달창 
+function addManager(url){ //fetch(url)로 서버에서 HTML 조각(fragment) 을 받아와서
 	fetch(url)
 		.then(response => response.text())
 		.then(html => {
@@ -182,6 +203,29 @@ function addManager(url){
 			
 		});
 }
+// 매니저 수정 모달창 
+function updateManager(url, adminData) {
+  $.ajax({
+    url: url,
+    method: 'GET',
+    dataType: 'html', // 서버에서 HTML 조각을 받으니까
+    success: function(html) {
+      const modalOverlay = document.querySelector('.modal-overlay');
+      const modalBody = document.querySelector('.modal-body');
+      modalBody.innerHTML = html; // 모달 내용 동적으로 변경
+      modalOverlay.style.display = 'flex';
+
+      // 모달이 로드된 후 이벤트 리스너 다시 등록
+      setupModalEvents();
+      
+      fillModalWithData(adminData);  // 모달이 완성된 후 데이터 채우기
+    },
+    error: function(xhr, status, error) {
+      console.error('모달 로드 실패:', error);
+    }
+  });
+}
+
 function closeModal(){
 	document.querySelector('.modal-overlay').style.display = 'none';
 }
@@ -202,7 +246,6 @@ document.addEventListener("DOMContentLoaded", () =>{
 /* --------------------------------------모달창 js-------------------------------------- */
 //모달 이벤트 설정 함수
 function setupModalEvents() {
-	console.log("모달 이벤트 설정");
 	
 	// 프로필 이미지 클릭 이벤트 (모달 내부)
 	const profileImg = document.querySelector('.modal-body #mgrProfileImg');
@@ -239,15 +282,56 @@ function setupModalEvents() {
 
 /* 모달 input 예외처리 검증  */
 
-
 /* 모달이 동적으로 생성되기 때문에 이벤트 위임을 써야해 */
-// form 등록 
-$(document).on("click", "#submitBtn", function(){
-	alert("adminForm 제출");
-	$("#adminForm").submit();
-	
+//연락처 입력 시 자동으로 hidden input에 합치기
+$(document).on('input', '#phone1, #phone2, #phone3', function() {
+  let phone1 = $('#phone1').val();
+  let phone2 = $('#phone2').val();
+  let phone3 = $('#phone3').val();
+  
+  if (phone1 && phone2 && phone3) {
+    $('#phone').val(phone1 + '-' + phone2 + '-' + phone3);
+  }
 });
 
+
+//매니저 정보 수정 모달 폼에 데이터 채우기 
+function fillModalWithData(adminData) {
+	console.log("fillModalWithData() 실행 : " + adminData.adminId);
+  // 기본 정보 채우기
+  $('#adminId').val(adminData.adminId);
+  $('#adminPwd').val(adminData.adminPwd);
+  $('#adminName').val(adminData.adminName);
+  $('#adminEmail').val(adminData.adminEmail);
+  
+  // 연락처 분리해서 채우기
+  if (adminData.phone) {
+    let phoneParts = adminData.phone.split('-');
+    if (phoneParts.length === 3) {
+      $('#phone1').val(phoneParts[0]);
+      $('#phone2').val(phoneParts[1]);
+      $('#phone3').val(phoneParts[2]);
+    }
+  }
+  
+  // 관리영역 선택
+  $('#manageArea').val(adminData.manageArea);
+  
+  // 프로필 이미지가 있다면
+  if (adminData.profileImage) {
+    $('#mgrProfileImg').attr('src', adminData.profileImage);
+  }
+  
+  // 등록일 (수정 시에는 보통 변경하지 않음)
+  if (adminData.insertDate) {
+    $('input[name="insertDate"]').val(adminData.insertDate);
+  }
+  
+	//모달창 열기	
+  //updateManager("${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp");
+	//Ajax로 서버에서 모달 HTML 조각을 받아와서 모달 내용을 새로 넣어버립니다. 그래서 기존에 넣었던 데이터가 자꾸 사라지는거 .. 반대로 해야함
+	
+}// end fillModalWithData()
  
 
 </script>
@@ -295,43 +379,46 @@ $(document).on("click", "#submitBtn", function(){
 						<th>이름</th>
 						<th>이메일</th>
 						<th>연락처</th>
-						<th>역할</th>
+						<th>관리영역</th>
 						<th>상태</th>
-						<th>최신접속일</th>
+						<th>최종로그인</th>
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach var="manager" items="${managerList }" varStatus="status">
-						<tr data-manager-id="${manager.userIdx}">
-							<td>${status.index +1 }</td>
-							<td class="mgr-name"><c:out value="${manager.adminName }" /> </td>
-							<td class="mgr-email"><c:out value="${manager.adminEmail }" /> </td>
-							<td class="mgr-phone">미구현 </td>
-							<td class="mgr-role"><c:out value="${manager.manageArea }" /> </td>
-							<td class="mgr-status"><span class="mgr-status-badge mgr-status-active"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
-							<td>${manager.formattedLoginDate }</td>
-							<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
+				<c:choose>
+					<c:when test="${empty managerList }">
+						<tr>
+							<td colspan="7" onclick="event.stopPropagation();">조회가능한 매니저가 존재하지 않습니다. </td>
 						</tr>
-					</c:forEach>
-
-					<!-- 실제 JSP에서는 다음과 같이 구현 -->
-					<%-- 
-                <c:forEach var="manager" items="${managerList}" varStatus="status">
-                    <tr data-manager-id="${manager.managerId}">
-                        <td>${manager.managerId}</td>
-                        <td class="mgr-name">${manager.managerName}</td>
-                        <td class="mgr-email">${manager.email}</td>
-                        <td class="mgr-phone">${manager.phone}</td>
-                        <td class="mgr-role">${manager.role}</td>
-                        <td class="mgr-status">
-                            <span class="mgr-status-badge ${manager.status == 'Y' ? 'mgr-status-active' : 'mgr-status-inactive'}">
-                                ${manager.status == 'Y' ? '활성' : '비활성'}
-                            </span>
-                        </td>
-                        <td><fmt:formatDate value="${manager.regDate}" pattern="yyyy-MM-dd"/></td>
-                    </tr>
-                </c:forEach>
-                --%>
+					</c:when>
+					<c:otherwise>
+						<c:forEach var="manager" items="${managerList }" varStatus="status">
+							<tr data-manager-id="${manager.adminId}">
+								<td>${status.index +1 }</td>
+								<td class="mgr-picture" style="display: none"><img src="/profile/${manager.picture }"> </td>
+								<td class="mgr-name"><c:out value="${manager.adminName }" /> </td>
+								<td class="mgr-email"><c:out value="${manager.adminEmail }" /> </td>
+								<td class="mgr-phone"><c:out value="${manager.adminTel }" /> </td>
+								<c:choose>
+									<c:when test="${manager.manageArea == 'ManageMember' }"><td class="mgr-role">회원</td></c:when>
+									<c:when test="${manager.manageArea == 'ManageMovie' }"><td class="mgr-role">영화</td></c:when>
+									<c:when test="${manager.manageArea == 'ManageSchedule' }"><td class="mgr-role">상영스케줄</td></c:when>
+									<c:when test="${manager.manageArea == 'ManageInquiry' }"><td class="mgr-role">공지/문의</td></c:when>
+									<c:otherwise>현재 관리영역이 부여되지 않았습니다.</c:otherwise>
+								</c:choose>
+								<td class="mgr-status"><span class="mgr-status-badge mgr-status-active"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
+								<td class="mgr-last-login">${manager.formattedLoginDate }</td>
+								<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
+								<td class="mgr-ipList" style="display: none">
+									<c:forEach var="ip" items="${manager.IPList}">
+										<div>${ip.ipAddress} [생성일: ${ip.formattedCreatedAt}]</div>
+									</c:forEach>
+								</td>
+								<td style="display: none" class="mgr-userIdx">${manager.userIdx }</td>
+							</tr>
+						</c:forEach>
+					</c:otherwise>
+				</c:choose>
 				</tbody>
 			</table>
 
@@ -363,7 +450,7 @@ $(document).on("click", "#submitBtn", function(){
 
 				<!-- 프로필 섹션 -->
 				<div class="mgr-profile-section">
-					<img src="http://localhost/movie_prj/common/images/default_profile.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+					<img src="/profiles/${manager.picture }" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
 					<div class="mgr-profile-name">매니저명</div>
 					<div class="mgr-profile-position">직책</div>
 				</div>
@@ -387,20 +474,12 @@ $(document).on("click", "#submitBtn", function(){
 						<td id="mgrDetailPhone">-</td>
 					</tr>
 					<tr>
-						<th>역할/직책</th>
-						<td id="mgrDetailRole">-</td>
-					</tr>
-					<tr>
 						<th>계정 상태</th>
 						<td id="mgrDetailStatus">-</td>
 					</tr>
 					<tr>
-						<th>등록일</th>
-						<td id="mgrDetailRegDate">-</td>
-					</tr>
-					<tr>
 						<th>최종 로그인</th>
-						<td id="mgrDetailLastLogin">2024-05-28 14:30:25</td>
+						<td id="mgrDetailLastLogin"></td>
 					</tr>
 					<tr>
 						<th>권한 레벨</th>
@@ -409,6 +488,10 @@ $(document).on("click", "#submitBtn", function(){
 					<tr>
 						<th>관리 영역</th>
 						<td id="mgrDetailArea">1관, 2관, 3관</td>
+					</tr>
+					<tr>
+						<th>접속 허용된 IP</th>
+						<td id="mgrDetailIp"></td>
 					</tr>
 				</table>
 
