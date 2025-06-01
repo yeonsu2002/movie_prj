@@ -140,7 +140,7 @@ function editManager() {
 		    }
         // 모달 불러와 (udpateManager안에 모달창 데이터 채우기 함수가 있어.)
         let getModalUrl = '${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp';
-        updateManager(getModalUrl, data);
+        updateManager(getModalUrl, data);//모달 불러오고 -> 내용업데이트 순서로 해야 
 	    },
 	    error: function(xhr, status, error) {
 	      console.error("에러 발생!");
