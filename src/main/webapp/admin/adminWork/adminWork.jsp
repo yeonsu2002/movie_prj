@@ -329,7 +329,7 @@ function fillModalWithData(adminData) {
   
 	//모달창 열기	
   //updateManager("${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp");
-	//Ajax로 서버에서 모달 HTML 조각을 받아와서 모달 내용을 새로 넣어버립니다. 그래서 기존에 넣었던 데이터가 자꾸 사라지는거 .. 반대로 해야함
+	//Ajax로 서버에서 모달 HTML 조각을 받아와서 모달 내용을 새로 넣어버립니다. 그래서 기존에 넣었던 데이터가 자꾸 사라지는거 .. 반대로 해야함 아오개빡치너'ㄹ'ㄴㅇ'ㄹ아ㅣㄹ
 	
 }// end fillModalWithData()
  
