@@ -102,6 +102,14 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 			location.href = "schedule_reload.jsp";
 		});
 		
+		$(".coudNotEdit").click(function(){
+			alert("상영중이거나 상영종료된 스케줄은 수정 및 삭제할 수 없습니다.")
+		});
+		
+		$(".btn-detail").click(function(){
+			$("#reservationParam").submit();
+		})
+		
 	});
 </script>
 </head>
@@ -148,12 +156,23 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 				</c:if>
 				<c:forEach var="ssList" items="${showScheduleList}" varStatus="i">
 					<tr>
-						<td id="edit-schedule"><a
+						<c:choose>
+						<c:when test="${ssList.scheduleStatus == '상영예정' }">
+						<td><a
 							href="schedule_edit.jsp?scheduleIdx=${ssList.scheduleIdx}">${ssList.movieName}</a></td>
+						</c:when>
+						<c:otherwise>
+						<td><span class="coudNotEdit">${ssList.movieName}</span></td>
+						</c:otherwise>
+						</c:choose>
 						<td>${ssList.startClock}</td>
 						<td>${ssList.endClock}</td>
 						<td>${ssList.scheduleStatus}</td>
-						<td><button class="btn-detail">자세히</button></td>
+						<td>
+						<form id="reservationParam" action="http://localhost/movie_prj/admin/reservation/reservation_manage.jsp" method="post">
+						<button class="btn-detail" name="scheduleParam" value="${ssList.scheduleIdx}">자세히</button>
+						</form>
+						</td>
 					</tr>
 				</c:forEach>
 			</tbody>

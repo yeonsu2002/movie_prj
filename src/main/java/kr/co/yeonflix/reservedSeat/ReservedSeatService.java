@@ -45,16 +45,15 @@ public class ReservedSeatService {
 	 * @param reservationIdx
 	 * @return
 	 */
-	public boolean modifyReservedSeatAll(int reservationIdx) {
-		boolean flag = false;
+	public int modifyReservedSeatAll(int reservationIdx) {
+		int cntSeats = 0;
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
 		try {
-			rsDAO.updateReservedSeatAll(reservationIdx);
-			flag = true;
+			cntSeats = rsDAO.updateReservedSeatAll(reservationIdx);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return flag;
+		return cntSeats;
 	}//modifyReservedSeatAll
 	
 	/**
@@ -108,6 +107,12 @@ public class ReservedSeatService {
 		return list;
 	}//searchSeatNumberWithSchedule
 	
+	/**
+	 * 해당 스케줄의 해당 좌석 가져오는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
 	public ReservedSeatDTO searchSeatWithIdxAndSchedule(int seatIdx, int scheduleIdx) {
 		ReservedSeatDTO rsDTO = null;
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
@@ -118,5 +123,97 @@ public class ReservedSeatService {
 		}
 		
 		return rsDTO;
+	}//searchSeatWithIdxAndSchedule
+	
+	/**
+	 * 임시 좌석 추가하는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public boolean addTempSeat(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.insertTempSeat(seatIdx, scheduleIdx);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}//addTempSeat
+	
+	/**
+	 * 임시좌석 삭제하는 코드
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public boolean removeTempSeat(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			rsDAO.deleteTempSeat(seatIdx, scheduleIdx);
+			flag = true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}//removeTempSeat
+	
+	/**
+	 * 임시좌석 모두 가져오는 코드
+	 * @return
+	 */
+	public List<TempSeatDTO> searchAllTempSeatBySchedule(int scheduleIdx){
+		List<TempSeatDTO> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectAllTempSeatBySchedule(scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}//searchAllTempSeat
+	
+	/**
+	 * 임시좌석 이름들만 빼오기
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public List<String> searchTempSeatNumberWithSchedule(int scheduleIdx){
+		List<String> list = null;
+		
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectTempSeatNumberWithSchedule(scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchTempSeatNumberWithSchedule
+	
+	/**
+	 * tempSeat에 해당 칼럼이 존재하는지
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public Boolean isTempSeatInTable(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			flag = rsDAO.selectCntTempSeat(seatIdx, scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
 	}
 }

@@ -3,6 +3,8 @@ package kr.co.yeonflix.reservation;
 import java.sql.SQLException;
 import java.util.List;
 
+import kr.co.yeonflix.reservedSeat.ReservedSeatService;
+
 public class ReservationService {
 
 	/**
@@ -128,5 +130,32 @@ public class ReservationService {
 		}
 		return list;
 	}//searchDetailReservationWithUser
+	
+	/**
+	 * 예매리스트에 보여주기 위한 스케줄별 예매내역
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx){
+		List<UserReservationDTO> list = null;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		ReservedSeatService rss = new ReservedSeatService();
+		try {
+			list = resDAO.selectUserReservationListBySchedule(scheduleIdx);
+			for(UserReservationDTO urDTO : list) {
+				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
+				String seatsInfo = String.join(", ", seatList);
+				urDTO.setSeatsInfo(seatsInfo);
+				String tel = urDTO.getTel();
+				urDTO.setTel(tel.substring(tel.length() - 4));
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+		
+	}//searchUserReservationListBySchedule
 	
 }
