@@ -61,11 +61,67 @@ $(function(){
 		
 });//--------------------------------------------------------------------------------ready
 	
+	//비회원 예매 버튼 클릭시
 	function nonMemberLoginFrm(){
-		//비회원 예매 버튼 클릭시
 		$(".box-login.login_1408").empty();
-		
+		/* 개인정보 수집 및 이용동의서 추가  */
 		let nonMemberLoginFrm = `
+			
+		    <div class="personal-info-section">
+	        <h2 class="section-title">STEP 1 개인정보 수집 및 이용동의</h2>
+	        <p class="section-description">
+	            비회원 예매 고객께서는 먼저 개인정보 수집 및 이용 동의 정책에 동의해 주셔야 합니다.
+	        </p>
+
+	        <table class="info-table">
+	            <thead class="table-header">
+	                <tr>
+	                    <th>항목</th>
+	                    <th>이용목적</th>
+	                    <th>보유기간</th>
+	                    <th>동의여부</th>
+	                </tr>
+	            </thead>
+	            <tbody>
+	                <tr class="table-row">
+	                    <td class="category-cell">
+	                        법정생년월일, 휴대폰번호, 비밀번호
+	                    </td>
+	                    <td class="purpose-cell">
+	                        · 비회원 예매서비스 제공<br>
+	                        · 이용자식별, 요금정산, 추심, 신고서비스 개발, 접속빈도 파악 등
+	                    </td>
+	                    <td class="period-cell">
+	                        수집일로부터 5년
+	                    </td>
+	                    <td class="agreement-cell">
+	                        <div class="radio-group">
+	                            <div class="radio-item">
+	                                <input type="radio" id="agree" name="agreement" value="agree">
+	                                <label for="agree">동의함</label>
+	                            </div>
+	                            <div class="radio-item">
+	                                <input type="radio" id="disagree" name="agreement" value="disagree" checked>
+	                                <label for="disagree">동의안함</label>
+	                            </div>
+	                        </div>
+	                    </td>
+	                </tr>
+	            </tbody>
+	        </table>
+
+	        <p class="notice-text">
+	            ※ CGV 비회원 예매서비스 제공을 위해 필요한 최소한의 개인정보이므로 입력(수집)에 동의하지 않을 경우 서비스를 이용하실 수 없습니다.
+	        </p>
+
+	        <button class="privacy-policy-btn">개인정보처리(취급)방침전문보기</button>
+
+	        <div class="separator-line"></div>
+				</div>
+			
+		
+		<div class="nonMember-insert-section">
+		
 			<form id="nonMemRevFrm" method="post" action="${pageContext.request.contextPath}/login/controller/nonMemReservation.jsp">
 			  <fieldset>
 			    <legend>개인정보 입력(이메일,법정생년월일,비밀번호)</legend>
@@ -76,7 +132,7 @@ $(function(){
 			    
 			    <div class="form_row">
 			      <label for="birth">법정생년월일(8자리)</label>
-			      <input type="text" id="birth" name="birth" maxlength="8" />
+			      <input type="text" id="birth" name="birth" maxlength="8" placeholder="20001225" />
 			    </div>
 			    
 			    <div class="form_row">
@@ -85,7 +141,7 @@ $(function(){
 			        <input type="text" id="emailId" name="emailId" placeholder="아이디" />
 			        <span>@</span>
 			        <select id="emailDomain" name="emailDomain">
-			          <option value="">이메일 선택</option>
+			          <option value="none" selected disabled>이메일 선택</option>
 			          <option value="gmail.com">gmail.com</option>
 			          <option value="naver.com">naver.com</option>
 			          <option value="daum.net">daum.net</option>
@@ -117,6 +173,7 @@ $(function(){
 			    </div>
 			  </fieldset>
 			</form>
+		</div>
 			`;
 		
 		$(".box-login.login_1408").html(nonMemberLoginFrm);
