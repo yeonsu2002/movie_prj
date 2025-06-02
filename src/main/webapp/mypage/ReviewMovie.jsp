@@ -113,7 +113,7 @@
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="../common/jsp/header.jsp"/>
 </header>
 <main>
 <div id="container">
@@ -134,73 +134,7 @@
 <a href="http://localhost/movie_prj/mypage/ReviewMovie.jsp" class="btn btn-danger" style="width:230px; height:50px">내가 쓴 평점</a>
   </div>
   
-  <div class="content-area">
-    <div class="section-header">
-      <h3 class="section-title">내가 쓴 평점 <span class="count-badge">${fn:length(reservationList)}건</span></h3>
-    </div>
  </div>
- <br>
- <div class="content-container">
-        <div class="empty-message">
-               <table class="table table-striped table-hover">
-  <thead>
-    <tr>
-      <th scope="col" width="5%"></th>
-      <th scope="col">제목</th>
-      <th scope="col">상영관</th>
-      <th scope="col">관람일시</th>
-      <th scope="col">결과</th>
-      <th scope="col">일시</th>
-    </tr>
-  </thead>
-  <tbody>
-  <c:if test="${empty reservationList}">
-    <tr>
-      <td colspan="5" style="text-align:center; color:gray;">예매내역이 없습니다.</td>
-    </tr>
-  </c:if>
-
-  <c:forEach var="ticket" items="${reservationList}">
-   <tr>
-  <td>
-    <input class="form-check-input" type="checkbox" name="reservationIdx"
-           value="${ticket.reservationIdx}"
-           onchange="location.href='?reservationIdx=' + this.value;"
-           <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
-  </td>
-  <td>${ticket.movieName}</td>
-  <td>${ticket.theaterName}</td>
-  <td>${ticket.screenDate}</td>
-  <td>
-    <c:choose>
-        <c:when test="${ticket.canceledDate == null}">
-            결제 완료 
-        </c:when>
-        <c:otherwise>
-           예매취소
-        </c:otherwise>
-    </c:choose>
-</td>
-  <td>
-    <c:choose>
-        <c:when test="${ticket.canceledDate == null}">
-      	  <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
-        </c:when>
-        <c:otherwise>
-           <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
-        </c:otherwise>
-    </c:choose>
-</td>
-</tr>
-  </c:forEach>
-</tbody>
-</table>
-        </div>
-    </div>
- <br><br><br>
-  </div>
-</div>
-
 </main>
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>

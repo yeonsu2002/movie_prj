@@ -192,7 +192,7 @@ select {
 <script type="text/javascript">
 $(function(){
     let isNicknameChecked = false;
-    let originalNickname = "${member.nickName}";
+    let originalNickname = $("#nickname").val().trim();
     
     // 비밀번호 입력 이벤트
     $("#memberPwd").on("input", function(){
@@ -486,9 +486,9 @@ $(function(){
         return;
     }
 
-    int userIdx = loginDTO.getUserIdx();  // ✅ 바꿔야 할 부분
+    int userIdx = loginDTO.getUserIdx();  
     MyPageService mps = new MyPageService();
-    kr.co.yeonflix.member.MemberDTO member = mps.searchMember(userIdx);  // 이 메서드도 필요
+    kr.co.yeonflix.member.MemberDTO member = mps.searchMember(userIdx);  
     pageContext.setAttribute("member", member);
 %>
 

@@ -643,41 +643,58 @@ public class MemberDAO {
 	
 		
 	public boolean updateMember(MemberDTO memberVO) throws SQLException {
-		DbConnection dbCon = DbConnection.getInstance();
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		boolean result=false;
-		
-		try {
-			con = dbCon.getDbConn();
-			
-			String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ?  WHERE user_idx = ?";
-			
-			pstmt = con.prepareStatement(query);
-			pstmt.setString(1, memberVO.getMemberPwd());
-			pstmt.setString(2, memberVO.getNickName());
-			pstmt.setString(3, memberVO.getTel());
-			pstmt.setString(4, memberVO.getIsSmsAgreed());
-			pstmt.setString(5, memberVO.getEmail());
-			pstmt.setString(6, memberVO.getIsEmailAgreed());
-			pstmt.setString(7, memberVO.getPicture());
-			pstmt.setInt(8, memberVO.getUserIdx());
-			
-			int cnt = pstmt.executeUpdate();
-			if (cnt > 0) {
-				result = true;
-			}
-			
-			
-		}finally {
-			dbCon.dbClose(null, pstmt, con);
-		}
-		
-		
-		return result;
-		
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    boolean result = false;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        // 1. 기존 회원 정보 가져오기
+	        MemberDTO existing = getMemberByUserIdx(memberVO.getUserIdx());
+	        
+	        
+	        // 2. 비밀번호가 null 또는 빈 값이면 기존 비밀번호 유지
+	        String password = memberVO.getMemberPwd();
+	        if (password == null || password.trim().isEmpty()) {
+	            password = existing.getMemberPwd();
+	        }
+
+	        // 2. 닉네임이 변경되었을 경우 중복 검사
+	        if (!memberVO.getNickName().equals(existing.getNickName())) {
+	            if (isNicknameDuplicate(memberVO.getNickName(), con)) {
+	                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+	            }
+	        }
+
+	        String email = memberVO.getEmail();
+	        if (email == null || email.trim().isEmpty()) {
+	            email = existing.getEmail();
+	        }
+
+	        // 4. UPDATE 수행
+	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ? WHERE user_idx = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, password);
+	        pstmt.setString(2, memberVO.getNickName());
+	        pstmt.setString(3, memberVO.getTel());
+	        pstmt.setString(4, memberVO.getIsSmsAgreed());
+	        pstmt.setString(5, email);
+	        pstmt.setString(6, memberVO.getIsEmailAgreed());
+	        pstmt.setString(7, memberVO.getPicture());
+	        pstmt.setInt(8, memberVO.getUserIdx());
+
+	        int cnt = pstmt.executeUpdate();
+	        result = cnt > 0;
+
+	    } finally {
+	        dbCon.dbClose(null, pstmt, con);
+	    }
+
+	    return result;
 	}
-	
+
 	
 	public boolean updateIsActive(int userIdx, String isActive) throws SQLException{
 		DbConnection dbCon = DbConnection.getInstance();
@@ -715,6 +732,49 @@ public class MemberDAO {
 		return result;
 		
 	}
-		
+	
+	private MemberDTO getMemberByUserIdx(int userIdx) throws SQLException {
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        String sql = "SELECT member_pwd, nick_name, tel, is_sms_agreed, email, is_email_agreed, picture FROM member WHERE user_idx = ?";
+	        pstmt = con.prepareStatement(sql);
+	        pstmt.setInt(1, userIdx);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            MemberDTO dto = new MemberDTO();
+	            dto.setMemberPwd(rs.getString("member_pwd"));
+	            dto.setNickName(rs.getString("nick_name"));
+	            dto.setTel(rs.getString("tel"));
+	            dto.setIsSmsAgreed(rs.getString("is_sms_agreed"));
+	            dto.setEmail(rs.getString("email"));
+	            dto.setIsEmailAgreed(rs.getString("is_email_agreed"));
+	            dto.setPicture(rs.getString("picture"));
+	            return dto;
+	        }
+	        return null;
+
+	    } finally {
+	        dbCon.dbClose(rs, pstmt, con);
+	    }
+	}
+
+	// 닉네임 중복 확인
+	private boolean isNicknameDuplicate(String nickName, Connection con) throws SQLException {
+	    String sql = "SELECT COUNT(*) FROM member WHERE nick_name = ?";
+	    try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+	        pstmt.setString(1, nickName);
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            return rs.next() && rs.getInt(1) > 0;
+	        }
+	    }
+	}
+
 
 }
