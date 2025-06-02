@@ -1,14 +1,10 @@
 package kr.co.yeonflix.member;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import kr.co.yeonflix.dao.DbConnection;
 
 public class MemberService {
 
@@ -345,53 +341,65 @@ public class MemberService {
 	} //endNum
 	
 	
+	
 
-	public MemberDTO selectOneMember(String memberId) throws SQLException {
-	    MemberDTO mDTO = null;
-
-	    DbConnection db = DbConnection.getInstance();
-	    ResultSet rs = null;
-	    PreparedStatement pstmt = null;
-	    Connection con = null;
-
+	
+	public MemberDTO searchOneMember(int userIdx) {
+		MemberDTO member = null;
+		try {
+			member = memberDAO.selectOneMember(userIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return member;
+	}
+	
+	/**
+	 * 회원수정
+	 * @param memberVO
+	 * @return
+	 */
+	public boolean modifyMember(MemberDTO memberVO) {
+	    boolean result = false;
+	    
 	    try {
-	        con = db.getDbConn();
-
-	        StringBuilder sql = new StringBuilder();
-	        sql.append("SELECT * FROM member ")
-	           .append("WHERE member_id = ?");
-
-	        pstmt = con.prepareStatement(sql.toString());
-	        pstmt.setString(1, memberId);
-
-	        rs = pstmt.executeQuery();
-
-	        if (rs.next()) {
-	            mDTO = new MemberDTO();
-	            mDTO.setUserIdx(rs.getInt("user_idx")); 
-	            mDTO.setMemberId(rs.getString("member_id"));
-	            mDTO.setNickName(rs.getString("nick_name"));
-	            mDTO.setUserName(rs.getString("user_name"));
-	            
-	            Date birthDate = rs.getDate("birth");
-	            if (birthDate != null) {
-	                mDTO.setBirth(birthDate.toLocalDate());
-	            }
-	            
-	            mDTO.setTel(rs.getString("tel"));
-	            mDTO.setEmail(rs.getString("email"));
-	            
-	            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
-	            if (createdTimestamp != null) {
-	                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
-	            }
+	        // 비밀번호가 null이 아니고 빈 문자열이 아닐 때만 암호화 진행
+	        if (memberVO.getMemberPwd() != null && !memberVO.getMemberPwd().trim().isEmpty()) {
+	            String encryptedPwd = encryptPassword(memberVO.getMemberPwd());
+	            memberVO.setMemberPwd(encryptedPwd);
+	        } else {
+	            // 비밀번호가 비어있으면 수정하지 않을 수도 있음
+	            // 또는 DB에 평문 비밀번호가 들어가지 않도록 조치 필요
+	            // 예: 수정 시 비밀번호 미입력 = 기존 비밀번호 유지
+	            // 이 경우 별도 로직 필요 (DAO에서 처리하거나)
 	        }
-	    } finally {
-	        db.dbClose(rs, pstmt, con);
+
+	        result = memberDAO.updateMember(memberVO);
+	    } catch (SQLException e) {
+	        e.printStackTrace();
 	    }
 
-	    return mDTO;
+	    return result;
 	}
+
+	public boolean modifyIsActive(int userIdx, String isActive) {
+		boolean result = false;
+		
+		
+		  try {
+	            if (!"Y".equals(isActive) && !"N".equals(isActive)) {
+	                throw new IllegalArgumentException("isActive 값은 'Y' 또는 'N' 이어야 합니다.");
+	            }
+	            
+	            result= memberDAO.updateIsActive(userIdx, isActive);
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	            
+	            
+	        }
+		  return result;
+	    }//modifyIsActive
+	}
+	
   
   
-}
