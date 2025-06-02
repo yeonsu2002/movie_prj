@@ -273,6 +273,7 @@ public class ReservedSeatDAO {
 	 * @throws SQLException
 	 */
 	public void deleteTempSeat(int seatIdx, int scheduleIdx) throws SQLException {
+		
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
@@ -296,7 +297,7 @@ public class ReservedSeatDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<TempSeatDTO> selectAllTempSeat() throws SQLException {
+	public List<TempSeatDTO> selectAllTempSeatBySchedule(int scheduleIdx) throws SQLException {
 		List<TempSeatDTO> list = new ArrayList<TempSeatDTO>();
 		
 		DbConnection dbCon = DbConnection.getInstance();
@@ -306,8 +307,9 @@ public class ReservedSeatDAO {
 		
 		try {
 			con = dbCon.getDbConn();
-			String query = "select seat_idx, schedule_idx, click_time from temp_seat";
+			String query = "select seat_idx, schedule_idx, click_time from temp_seat where schedule_idx=?";
 			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, scheduleIdx);
 			rs = pstmt.executeQuery();
 			
 			TempSeatDTO tsDTO = null;
@@ -355,5 +357,37 @@ public class ReservedSeatDAO {
 
 		return list;
 	}// selectSeatNumberWithSchedule
+	
+	/**
+	 * tempSeat에 해당 칼럼이 존재하는지
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public Boolean selectCntTempSeat(int seatIdx, int scheduleIdx) throws SQLException {
+
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			String query = "select count(*) from temp_seat where seat_idx=? and schedule_idx=?";
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, seatIdx);
+			pstmt.setInt(2, scheduleIdx);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		
+		return false;
+	}//selectOneTempSeat
 	
 }

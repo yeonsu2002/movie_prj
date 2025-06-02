@@ -294,7 +294,7 @@ pageContext.setAttribute("scthMap", scthMap);
 						</tr>
 						<tr>
 							<td class="grade-label"><img
-								src="http://localhost/movie_prj/common/img/icon_none.svg" /></span>미정</td>
+								src="http://localhost/movie_prj/common/img/icon_none.svg" />미정</td>
 							<td>등급 미정 영화입니다.</td>
 						</tr>
 					</tbody>

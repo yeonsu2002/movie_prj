@@ -6,30 +6,223 @@
 	bottom: 0;
 	padding: 20px;
 	background-color: #f0f0f0;
+	overflow-y: auto;
 }
 
-body {
-	font-family: sans-serif;
-	padding: 40px;
+.page-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
 }
 
-h2 {
-	margin-bottom: 20px;
-	text-align: center;
+/* 메인 테이블 카드 */
+.table-card {
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f4f8 100%);
+    border-radius: 15px;
+    padding: 35px;
+    margin: 0 auto;
+    max-width: 900px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    color: #333;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.6);
 }
 
-table {
-	width: 60%;
-	border-collapse: collapse;
-	margin: 0 auto;
+.table-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%236b7280" opacity="0.03"/><circle cx="60" cy="40" r="1" fill="%236b7280" opacity="0.03"/><circle cx="80" cy="70" r="1" fill="%236b7280" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
 }
 
-th, td {
-	padding: 12px;
-	text-align: center;
-	border-bottom: 1px solid #ddd;
+.table-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+    color: #374151;
 }
 
-th {
-	background-color: #f5f5f5;
+.theater-table-container {
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+}
+
+.theater-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.theater-table thead {
+	 background: linear-gradient(135deg, #c7d2fe 0%, #ddd6fe 100%);
+}
+
+.theater-table th {
+    padding: 18px 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.theater-table td {
+    padding: 16px 15px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    color: #475569;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.theater-table tbody tr {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: rowAppear 0.3s ease forwards;
+}
+
+.theater-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.theater-table tbody tr:nth-child(2) { animation-delay: 0.15s; }
+.theater-table tbody tr:nth-child(3) { animation-delay: 0.2s; }
+.theater-table tbody tr:nth-child(4) { animation-delay: 0.25s; }
+.theater-table tbody tr:nth-child(5) { animation-delay: 0.3s; }
+.theater-table tbody tr:nth-child(n+6) { animation-delay: 0.35s; }
+
+@keyframes rowAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.theater-table tbody tr:hover {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.theater-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 테이블 내용 스타일링 */
+.theater-type {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.theater-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.movie-price {
+    color: #059669;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.movie-price::after {
+    content: '원';
+    margin-left: 2px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.seat-count {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.empty-note {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .content-container {
+        padding: 15px;
+    }
+    
+    .table-card {
+        padding: 25px;
+        margin: 0 10px;
+    }
+    
+    .theater-table th,
+    .theater-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+    
+    .theater-type,
+    .seat-count {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* 테이블 카드 애니메이션 */
+.table-card {
+    opacity: 0;
+    transform: scale(0.95);
+    animation: cardAppear 0.4s ease forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes cardAppear {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 스크롤바 스타일링 */
+.theater-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.theater-table-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.theater-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    border-radius: 4px;
+}
+
+.theater-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }

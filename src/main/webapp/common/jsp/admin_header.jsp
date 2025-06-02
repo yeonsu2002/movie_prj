@@ -23,7 +23,7 @@
     <!-- 메뉴 영역 -->
     <div class="menu-category">
         <div class="menu-title">관리자 관리</div>
-        <div class="menu-item"><span>▶</span>관리자 목록</div>
+        <div class="menu-item"><a href="${pageContext.request.contextPath }/admin/adminWork/controller/getAdminWorkController.jsp"> <span>▶</span>관리자 목록</a></div>
     </div>
     <div class="menu-category">
         <div class="menu-title">회원 관리</div>

@@ -1,0 +1,319 @@
+@charset "UTF-8";
+/* 매니저 관리 전용 스타일 - 기본 CSS와 충돌 방지 */
+.mgr-container {
+	margin-left: 300px;
+	margin-top: 120px;
+	flex-grow: 1;
+	display: flex;
+	gap: 20px;
+	padding: 20px;
+	min-height: 80vh;
+}
+
+/* 왼쪽 매니저 리스트 영역 */
+.mgr-list-section {
+    flex: 1.2;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mgr-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.mgr-list-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+}
+
+.mgr-add-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mgr-add-btn:hover {
+    background: #218838;
+}
+
+/* 매니저 리스트 테이블 */
+.mgr-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mgr-list-table th {
+    background: #007bff;
+    color: white;
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.mgr-list-table td {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 13px;
+}
+
+.mgr-list-table tr:hover {
+    background: #f1f3f5;
+    cursor: pointer;
+}
+
+.mgr-list-table tr.mgr-selected {
+    background: #e3f2fd;
+}
+
+/* 상태 표시 배지 */
+.mgr-status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.mgr-status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.mgr-status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 오른쪽 상세정보 영역 */
+.mgr-detail-section {
+    flex: 0.8;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* 높이 고정 및 스크롤 처리 */
+    height: calc(80vh - 40px); /* 컨테이너 높이에서 패딩 제외 */
+    overflow-y: auto; /* 세로 스크롤 */
+    display: flex;
+    flex-direction: column;
+}
+
+.mgr-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    /* 헤더는 고정 */
+    flex-shrink: 0;
+}
+
+.mgr-detail-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+}
+
+.mgr-action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.mgr-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.mgr-btn-edit {
+    background: #ffc107;
+    color: #212529;
+}
+
+.mgr-btn-edit:hover {
+    background: #e0a800;
+}
+
+.mgr-btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.mgr-btn-delete:hover {
+    background: #c82333;
+}
+
+.mgr-btn-reset {
+    background: #6c757d;
+    color: white;
+}
+
+.mgr-btn-reset:hover {
+    background: #5a6268;
+}
+
+/* 상세정보 테이블 */
+.mgr-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.mgr-detail-table tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.mgr-detail-table th {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    text-align: left;
+    font-weight: bold;
+    width: 30%;
+    color: #495057;
+}
+
+.mgr-detail-table td {
+    padding: 15px 20px;
+    color: #212529;
+}
+
+/* 프로필 이미지 영역 */
+.mgr-profile-section {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.mgr-profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #007bff;
+    margin-bottom: 10px;
+}
+
+.mgr-profile-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.mgr-profile-position {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* 빈 상태 메시지 */
+.mgr-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    /* 남은 공간 채우기 */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.mgr-empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #dee2e6;
+}
+
+/* 상세정보 컨텐츠 영역 - 스크롤 처리 */
+.mgr-detail-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px; /* 스크롤바 공간 확보 */
+}
+
+/* 스크롤바 스타일링 (webkit 기반 브라우저) */
+.mgr-detail-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mgr-detail-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.mgr-detail-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.mgr-detail-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* 검색 필터 영역 */
+.mgr-search-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.mgr-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.mgr-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.mgr-search-select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
+.mgr-search-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mgr-search-btn:hover {
+    background: #0056b3;
+}

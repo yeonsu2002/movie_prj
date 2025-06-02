@@ -169,12 +169,12 @@ public class ReservedSeatService {
 	 * 임시좌석 모두 가져오는 코드
 	 * @return
 	 */
-	public List<TempSeatDTO> searchAllTempSeat(){
+	public List<TempSeatDTO> searchAllTempSeatBySchedule(int scheduleIdx){
 		List<TempSeatDTO> list = null;
 		
 		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
 		try {
-			list = rsDAO.selectAllTempSeat();
+			list = rsDAO.selectAllTempSeatBySchedule(scheduleIdx);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -198,4 +198,22 @@ public class ReservedSeatService {
 		}
 		return list;
 	}//searchTempSeatNumberWithSchedule
+	
+	/**
+	 * tempSeat에 해당 칼럼이 존재하는지
+	 * @param seatIdx
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public Boolean isTempSeatInTable(int seatIdx, int scheduleIdx) {
+		boolean flag = false;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			flag = rsDAO.selectCntTempSeat(seatIdx, scheduleIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return flag;
+	}
 }

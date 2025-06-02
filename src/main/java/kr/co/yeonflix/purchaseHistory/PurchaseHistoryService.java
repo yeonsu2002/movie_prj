@@ -1,6 +1,7 @@
 package kr.co.yeonflix.purchaseHistory;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class PurchaseHistoryService {
 
@@ -57,4 +58,40 @@ public class PurchaseHistoryService {
 		}
 		return flag;
 	}//hasPurchasedMovie
+	
+	/**
+	 * 해당 예매내역에 해당하는 구매내역 가져오기
+	 * @param reservationIdx
+	 * @return
+	 */
+	public PurchaseHistoryDTO searchOnePurchaseHistory(int reservationIdx) {
+		PurchaseHistoryDTO phDTO = null;
+		
+		PurchaseHistoryDAO phDAO = PurchaseHistoryDAO.getInstance();
+		try {
+			phDTO = phDAO.selectOnePurchaseHistory(reservationIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return phDTO;
+	}//searchOnePurchaseHistory
+	
+	/**
+	 * 해당 유저의 모든 구매 내역
+	 * @param userIdx
+	 * @return
+	 */
+	public List<PurchaseHistoryDTO> searchAllPurchasebyUser(int userIdx){
+		List<PurchaseHistoryDTO> list = null;
+		PurchaseHistoryDAO phDAO = PurchaseHistoryDAO.getInstance();
+		try {
+			list = phDAO.selectAllPurchaseByUser(userIdx);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return list;
+	}//searchAllPurchasebyUser
 }

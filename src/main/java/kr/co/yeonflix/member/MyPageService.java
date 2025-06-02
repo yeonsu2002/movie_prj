@@ -21,7 +21,7 @@ public class MyPageService {
 
 	        memberDTO.setMemberId(userData.getMemberId());
 
-	        MemberDTO existingMember = mpDAO.selectOne(memberDTO.getMemberId());
+	        MemberDTO existingMember = mpDAO.selectOne(memberDTO.getUserIdx());
 
 	        if (memberDTO.getMemberPwd() == null || memberDTO.getMemberPwd().isEmpty()) {
 	            memberDTO.setMemberPwd(existingMember.getMemberPwd());
@@ -55,7 +55,7 @@ public class MyPageService {
 
 	        if (flag) {
 	            // 갱신된 DB 상태로 세션 업데이트
-	            MemberDTO updatedMember = mpDAO.selectOne(memberDTO.getMemberId());
+	            MemberDTO updatedMember = mpDAO.selectOne(memberDTO.getUserIdx());
 	            session.setAttribute("userData", updatedMember);
 	        }
 
@@ -70,11 +70,11 @@ public class MyPageService {
 
 
     // 회원정보 조회 메서드 (필요시)
-    public MemberDTO searchMember(String memberId) {
+    public MemberDTO searchMember(int userIdx) {
         MemberDTO dto = null;
         MyPageDAO dao = MyPageDAO.getInstance();
         try {
-            dto = dao.selectOne(memberId);
+            dto = dao.selectOne(userIdx);
         } catch (SQLException e) {
             e.printStackTrace();
         }
