@@ -9,6 +9,7 @@
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -323,6 +324,7 @@ $(document).ready(function () {
       <th scope="col">상영관</th>
       <th scope="col">관람일시</th>
       <th scope="col">결과</th>
+      <th scope="col">일시</th>
     </tr>
   </thead>
   <tbody>
@@ -346,10 +348,20 @@ $(document).ready(function () {
   <td>
     <c:choose>
         <c:when test="${ticket.canceledDate == null}">
-            결제 완료
+            결제 완료 
         </c:when>
         <c:otherwise>
-           예매취소: ${ticket.canceledDate}
+           예매취소
+        </c:otherwise>
+    </c:choose>
+</td>
+  <td>
+    <c:choose>
+        <c:when test="${ticket.canceledDate == null}">
+      	  <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
+        </c:when>
+        <c:otherwise>
+           <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
         </c:otherwise>
     </c:choose>
 </td>

@@ -67,7 +67,7 @@ public class MyPageDAO {
         try {
             con = db.getDbConn();
 
-            String sql = "SELECT USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE FROM member WHERE MEMBER_ID = ?";
+            String sql = "SELECT USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE FROM member WHERE  USER_IDX = ?";
             pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, userIdx);
             rs = pstmt.executeQuery();

@@ -1,7 +1,30 @@
+<%@page import="kr.co.yeonflix.member.MemberDAO"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // 로그인한 사용자 userIdx 가져오기
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+
+	if (loginUser == null) {
+    // 로그인 안된 상태 -> 로그인 페이지로 이동
+   	 	response.sendRedirect(request.getContextPath() + "/login/loginFrm.jsp");
+   		 return;
+	}
+
+	int loginUserIdx = loginUser.getUserIdx();
+
+    // 회원 정보 조회
+    MemberService ms = new MemberService();
+    MemberDAO mm=MemberDAO.getInstance();
+    MemberDTO mDTO=mm.selectOneMember(loginUserIdx);
+
+    // JSP에 member 객체 넘기기
+    request.setAttribute("member", mDTO);
+ %>
 
 <!DOCTYPE html>
 <html>
@@ -100,9 +123,9 @@
         <!-- 프로필 이미지 또는 아이콘 -->
         <img src="http://localhost/movie_prj/common/img/default_img.png"  class="profile-img" />
       <div class="profile-info">
-        <h2>유연수님 </h2>
-        <span class="profile-id">아이디: yeonsu2002</span>
-        <span class="profile-id">닉네임: 운전연수</span>
+        <h2><c:out value="${member.userName}" /></h2>
+        <span class="profile-id">아이디: <c:out value="${member.memberId}" /></span>
+        <span class="profile-id">닉네임: <c:out value="${member.nickName}" /></span>
       </div>
     </div>
     <br><br>
@@ -117,7 +140,7 @@
     </div>
     
     <div class="empty-content">
-      <p>기대되는 영화가 없습니다.</p>
+      <p>기대되는 영화가 없습니다.</p><br>
       <p>영화 상세 페이지에서 '기대돼요!'를 선택하여 영화를 추가해보세요.</p>
       <button class="btn btn-danger mt-3">무비 차트</button>
     </div>
