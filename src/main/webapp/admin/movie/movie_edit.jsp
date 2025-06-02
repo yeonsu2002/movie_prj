@@ -1,3 +1,7 @@
+<%@page import="kr.co.yeonflix.movie.people.PeopleDTO"%>
+<%@page import="kr.co.yeonflix.movie.people.PeopleService"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeDTO"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonService"%>
 <%@page import="java.util.List"%>
@@ -7,6 +11,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<%@ include file="/common/jsp/admin_header.jsp" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -155,7 +160,12 @@
  
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script>
+  <%
+  String mode = request.getParameter("mode");
+  
+  %>
 $(function(){
+	var mode = "<%= mode %>";
 	$('#dAddBtn').click(function() {
 	    var left = window.screenX + 830;
 	    var top  = window.screenY + 150;
@@ -169,12 +179,12 @@ $(function(){
 	  });
 	
 	$("#btnImg").click(function(){
-		$("#profileImg").click();
+		$("#posterImg").click();
 	})
 	
-	$("#profileImg").change(function( evt ){
+	$("#posterImg").change(function( evt ){
 		//선택한 파일이 이미지인지 체크
-		$("#imgName").val( $("#profileImg").val() );
+		$("#imgName").val( $("#posterImg").val() );
 		//이벤트를 발생시킨 file 객체를 얻는다. 
 		var file = evt.target.files[0];
 		//스트림 생성
@@ -186,26 +196,72 @@ $(function(){
 		
 		//파이을 읽어들여 img 설정//미리보기
 		reader.readAsDataURL(file);
-		
 	      
-      
-      
 	})//click
+	
+	$('#dRemoveBtn').click(function() {
+	    var input = $('input[name="directors"]');
+	    var values = input.val().split(',').map(item => item.trim()).filter(item => item);
+	    values.pop(); // 마지막 항목 제거
+	    input.val(values.join(', ')); // 콤마로 다시 결합
+	});
+
+	$('#aRemoveBtn').click(function() {
+	    var input = $('input[name="actors"]');
+	    var values = input.val().split(',').map(item => item.trim()).filter(item => item);
+	    values.pop();
+	    input.val(values.join(', '));
+	});
+	
+	$("#positive").click(function(){
+		 
+	
+		$("#action").val(mode);
+		
+		$("#frm").submit()
+		
+	
+	})
+	
+  // 장르와 등급 hidden 필드 초기화
+    $("#genreIdx").val($("#genre").val());
+    $("#gradeIdx").val($("#grade").val());
+
+  // 기존 change 이벤트 유지
+  $("#grade").change(function() {
+	  $("#gradeIdx").val($(this).val()); // 선택된 value 값을 hidden 필드에 설정
+  });
+
+  $("#genre").change(function() {
+	  $("#genreIdx").val($(this).val()); // 선택된 value 값을 hidden 필드에 설정
+  });
+		
+	
+	$("#negation").click(function(){
+		if(mode=="update"){
+			if(confirm("정말 삭제하시겠습니까?")){
+				$("#action").val("delete");
+				$("#frm").submit();
+			}
+		}else{
+			history.back();
+		}
+	})
+	
+	
 });//ready    
 
 	function toggleTooltip() {
 	      const tooltip = document.getElementById("tooltip");
 	      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
+	      
 	    }
   </script>
  
 </head>
 <body>
   <div class="content-container">
-  <%
-  String mode = request.getParameter("mode");
   
-  %>
   <%
   String movieIdxStr = request.getParameter("movieIdx");
   int movieIdxInt = 0;
@@ -227,14 +283,54 @@ $(function(){
   gradeList = gs.gradeList();
   
   mDTO = ms.searchOneMovie(movieIdxInt);
+  MovieCommonCodeService mccs = new MovieCommonCodeService();
+  List<MovieCommonCodeDTO> mccList = new ArrayList<MovieCommonCodeDTO>();
+  PeopleService ps = new PeopleService();
   
+  
+  mccList = mccs.searchCommon(movieIdxInt);
+  
+  if(mode.equals("update")) {
+	    int movieGenreCode = 0;
+	    int movieGradeCode = 0;
+	    
+	    System.out.println("mccList 내용:");
+	    for(MovieCommonCodeDTO code : mccList) {
+	        if("장르".equals(code.getCodeType())) {
+	            movieGenreCode = code.getCodeIdx();
+	        } else if("등급".equals(code.getCodeType())) {
+	            movieGradeCode = code.getCodeIdx();
+	        }
+	    }
+	    
+	    request.setAttribute("movieGenreCode", movieGenreCode);
+	    request.setAttribute("movieGradeCode", movieGradeCode);
+	}
+
+  
+  System.out.println("mccList 내용:");
+  for(MovieCommonCodeDTO code : mccList) {
+      System.out.println("CodeIdx: " + code.getCodeIdx() + 
+                        ", CodeType: " + code.getCodeType());
+  }
+
+  // genreList와 gradeList도 출력
+  System.out.println("genreList:");
+  for(CommonDTO genre : genreList) {
+      System.out.println(genre.getCodeIdx() + " - " + genre.getMovieCodeType());
+  }
+
+  System.out.println("gradeList:");
+  for(CommonDTO grade : gradeList) {
+      System.out.println(grade.getCodeIdx() + " - " + grade.getMovieCodeType());
+  }
   
   request.setAttribute("genreList", genreList);
   request.setAttribute("gradeList", gradeList);
+  request.setAttribute("movieIdx", movieIdxInt);
   
-  
-
   %>
+
     <div class="content">
     
     <c:choose>
@@ -253,9 +349,15 @@ $(function(){
       <div id="tooltip" class="tooltip">
         포스터, 영화제목, 영화설명, 트레일러URL, 감독, 주연배우(3명), 장르,<br />
         상영등급, 제작국가, 상영시간
+<ul>
+<c:forEach var="g" items="${genreList}">
+  <li>${g.codeIdx} - ${g.movieCodeType}</li>
+</c:forEach>
+</ul>
       </div>
 
-      <form action="MovieController" method="post" enctype="multipart/form-data">
+      <form action="movie_process.jsp" method="post" id="frm" enctype="multipart/form-data">
+		<input type="hidden" name="action" id="action" value="<%= "update".equals(mode) ? "update" : "insert" %>"/>        
         <input type="hidden" name="movieIdx" value="<%= "update".equals(mode) ? mDTO.getMovieIdx() : "" %>" />
         <div class="form-flex-container">
           <!-- 왼쪽 영역 -->
@@ -263,6 +365,7 @@ $(function(){
             <div class="form-row">
               <label for="title">영화제목</label>
               <input type="text" id="movieName" name="movieName" value="<%= "update".equals(mode) ? mDTO.getMovieName() : "" %>" />
+              
             </div>
 
             <div class="form-row">
@@ -272,27 +375,32 @@ $(function(){
 
               <div class="form-row">
               <label for="genre">장르</label>
-              <select id="genre" name="genre" class="warning">
-			  <option value="">-- 장르를 선택하세요 --</option>
-			  <c:forEach var="g" items="${genreList}">
-			    <option value="${g.codeIdx}" <c:if test="${g.codeIdx == mDTO.genre}">selected</c:if>>
-			      ${g.movieCodeType}
-			    </option>
-			  </c:forEach>
-			</select>
+          <!-- 장르 선택 박스 -->
+<select id="genre" name="genre" class="warning">
+    <option value="">-- 장르를 선택하세요 --</option>
+    <c:forEach var="g" items="${genreList}">
+        <option value="${g.codeIdx}"
+         
+            ${g.codeIdx == movieGenreCode ? 'selected="selected"' : ''}>
+            ${g.movieCodeType}
+        </option>
+    </c:forEach>
+</select>
+        <input type="hidden" name="genreIdx" id="genreIdx"/>
 
-            </div>
+<!-- 등급 선택 박스 -->
+<select id="grade" name="grade" class="warning">
+    <option value="">-- 등급을 선택하세요 --</option>
+    <c:forEach var="g" items="${gradeList}">
+        <option value="${g.codeIdx}" 
+            ${g.codeIdx == movieGradeCode ? 'selected="selected"' : ''}>
+            ${g.movieCodeType}
+        </option>
+    </c:forEach>
+</select>
+        <input type="hidden" name="gradeIdx" id="gradeIdx"/>
 
-           <div class="form-row">
-              <label for="grade">상영등급</label>
-              <select id="grade" name="grade" class="warning">
-                <option value="">-- 등급을 선택하세요 --</option>
-			 	 <c:forEach var="g" items="${gradeList}">
-			    <option value="${g.codeIdx}" <c:if test="${g.codeIdx == mDTO.genre}">selected</c:if>>
-			      ${g.movieCodeType}
-			    </option>
-			  </c:forEach>
-              </select>
+			      <input type="hidden" name="gradeIdx" id="gradeIdx"/>
             </div>
 
             <div class="form-row">
@@ -302,14 +410,14 @@ $(function(){
 				 
             <div class="form-row">
               <label>감독</label>
-              <input type="text" class="person-input" name="directors" value="${movie.directors}" />
+              <input type="text" class="person-input" name="directors" value="<%= "update".equals(mode) ? mDTO.getDirectors() : ""%>" readonly="readonly" />
               <button type="button" class="btn" id="dAddBtn">감독리스트</button>
               <button type="button" class="btn" id="dRemoveBtn">삭제</button>
             </div>
 	
             <div class="form-row">
               <label>배우</label>
-              <input type="text" class="person-input" name="actors" value="${movie.actors}" />
+              <input type="text" class="person-input" name="actors" value="<%= "update".equals(mode) ? mDTO.getActors() : ""%>" readonly="readonly" />
               <button type="button" class="btn" id="aAddBtn">배우리스트</button>
               <button type="button" class="btn" id="aRemoveBtn">삭제</button>
             </div>
@@ -336,14 +444,16 @@ $(function(){
               <label>Media</label>
             </div>
             <div>
-              <img src="<%= "update".equals(mode) ? ("http://localhost/movie_prj/common/img/" + mDTO.getPosterPath()) : "http://localhost/movie_prj/common/img/default_poster.png" %>" class="poster-image" id="img" />	
+              	
+	<img src="<%= "update".equals(mode) ? ("http://localhost/movie_prj/common/img/" + mDTO.getPosterPath()) : "http://localhost/movie_prj/common/img/default_poster.png" %>" class="poster-image" id="img" />
+	<input type="hidden" name="posterPath" value="<%= "update".equals(mode) ? ("http://localhost/movie_prj/common/img/" + mDTO.getPosterPath()) : "default_poster.png" %>" />
 	
               
               <div style="display: flex; gap: 10px;">
-                <button type="button" class="btn">Remove</button>
+                
                 <input type="button" value="이미지선택" id="btnImg" class="btn btn-info btn-sm"/>
 			    <input type="hidden" name="imgName" id="imgName"/>
-			    <input type="file" style="display: none" name="profileImg" id="profileImg"/>
+			    <input type="file" style="display: none" name="posterImg" id="posterImg"/>
               </div>
             </div>
 
@@ -355,12 +465,15 @@ $(function(){
         </div>
 
         <div class="actions">
-          <button type="submit" name="action" value="update" class="btn">수정</button>
-          <button type="submit" name="action" value="delete" class="btn">삭제</button>
+          <input type="button" name="positive" id="positive" value="<%= "update".equals(mode) ? "수정" : "등록" %>" class="btn"/>
+          <input type="button" name="negation" id="negation" value="<%= "update".equals(mode) ? "삭제" : "취소" %>" class="btn">
         </div>
       </form>
     </div>
   </div>
+
+
+
 
 </body>
 </html>

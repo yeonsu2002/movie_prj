@@ -92,4 +92,28 @@ public class CommonDAO {
 		}//finally
 		return list;
 	}//selectGenre
+	
+//	public void insertCommon(CommonDTO cDTO) throws SQLException{
+//		
+//		DbConnection db = DbConnection.getInstance();
+//		
+//		Connection con = null;
+//		PreparedStatement pstmt = null;
+//		try {
+//		con = db.getDbConn();
+//		
+//		StringBuilder insertCommon = new StringBuilder();
+//		insertCommon.append("insert into movie_common_table (code_idx, movie_code_type, movie_code_name)")
+//		.append(" values (code_idx_seq.nextval,?,?)");
+//		
+//		pstmt = con.prepareStatement(insertCommon.toString());
+//		pstmt.setString(1, cDTO.getMovieCodeType());
+//		pstmt.setString(2, cDTO.getMovieCodeName());
+//		
+//		}finally {
+//			db.dbClose(null, pstmt, con);
+//		}//insertCommon
+//		
+//		
+//	}//insertCommon
 }
