@@ -348,7 +348,7 @@ $(function(){
 
 	<div class="divider"></div>
 	
-	<button class="btn-primary" id="next-step" disabled>다음</button>
+	<button class="btn-primary" id="next-step" disabled >다음</button>
 </div>
 
 <script>

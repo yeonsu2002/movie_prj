@@ -4,14 +4,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
-
-/* 	Enumeration<String> params = request.getParameterNames();
-	while (params.hasMoreElements()) {
-    String paramName = params.nextElement();
-    String paramValue = request.getParameter(paramName);
-    System.out.println(paramName + " = " + paramValue);
-	} */
-	
 	String memberId = request.getParameter("memberId");
 	String memberPwd = request.getParameter("memberPwd");
 	
@@ -20,14 +12,17 @@
 	
 	System.out.println("loginUser = " + loginUser);
 	
-	/* String isactive = loginUser.getIsActive();
-	isactive = isactive == null ? "null값" : isactive;
-	System.out.println("isactive = " + isactive);
-	
-	if(loginUser.getIsActive().equals("N")){
-		out.print("isDeleted");
+	if(loginUser != null && "N".equals(loginUser.getIsActive())){
+		
+		try {
+			response.setContentType("text/plain;charset=UTF-8");
+			out.print("isDeleted");
+		} catch (Exception e) {
+	    e.printStackTrace();
+	    System.out.println("Forward 실패: " + e.getMessage());
+		}
 		return;
-	} */
+	}
 	
 	if(loginUser != null && loginUser.getUserIdx() > 0){
 	  //보안상 초기화 

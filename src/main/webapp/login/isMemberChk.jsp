@@ -129,37 +129,7 @@ $(function(){
  		
 	});
 	
-	//안씀
-	function checkMyJoinSatatus(){
-		const form = $("#joinChkFrm")[0];
-		const formData = new FormData(form);
-		
-		$.ajax({
-			url:"${pageContext.request.contextPath}/login/joinChk.jsp",
-			type:"POST",
-			data:formData,
-			proccessData:false,// 중요: formData는 가공하면 안 됨
-			contentType:false,// 중요: contentType 자동 설정 막기
-			success: function (data) {
-      	console.log("서버 응답:", data);
-      	//이미 가입중이면 가입되어있다 jsp 로 리다이렉트()
-      	location.href="${pageContext.request.contextPath}/member?action=alreadyMember";
-      	//기존회원이 아님 -> 가입페이지로 이동
-      	location.href="${pageContext.request.contextPath}/member?action=joinVerificationFrm";
-	    },
-	    error: function (xhr, status, error) {
-	    	onsole.error("에러 발생!");
-    	  console.log("status: ", status);                			// 요청 상태 (예: "error")
-    	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
-    	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
-    	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
-	    }
-			
-		});
-	}
-	
 });
-
 </script>
 </head>
 <body>
@@ -181,7 +151,7 @@ $(function(){
 						</ul>
 					</div>
 	
-					<div class="form-section" >
+					<div class="form-section">
 						<form action="${pageContext.request.contextPath}/login/controller/joinChk.jsp" method="post" id="joinChkFrm">
 							<input type="text" name="name" class="input-field" placeholder="이름을 입력해주세요." required>
 							<input type="text" name="birth" class="input-field" placeholder="법정생년월일 8자리를 입력해주세요." maxlength="8" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">

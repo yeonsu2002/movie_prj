@@ -8,5 +8,10 @@
 //테이블 insert완료되고 난 후, 세션에서 삭제해야 함 
 
 String desc = "비회원 예매하기 컨트롤러 (미완)";
+
+request.getParameter("email");
+
+
+
 %>
 <%= desc %>

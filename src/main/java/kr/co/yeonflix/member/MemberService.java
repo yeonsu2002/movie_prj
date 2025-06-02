@@ -372,6 +372,7 @@ public class MemberService {
 	            mDTO.setMemberId(rs.getString("member_id"));
 	            mDTO.setNickName(rs.getString("nick_name"));
 	            mDTO.setUserName(rs.getString("user_name"));
+	            mDTO.setIsActive(rs.getString("is_active"));
 	            
 	            Date birthDate = rs.getDate("birth");
 	            if (birthDate != null) {

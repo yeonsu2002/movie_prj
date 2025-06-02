@@ -47,7 +47,7 @@ public class MemberDAO {
     try {
       con = dbCon.getDbConn(); // 실제 DB연결 받아오는거
 
-      String getMemberQuery = " SELECT user_idx, member_id, member_pwd, user_name, nick_name, birth, email, picture FROM member WHERE member_id = ? ";
+      String getMemberQuery = " SELECT user_idx, member_id, member_pwd, user_name, nick_name, birth, email, picture, is_active FROM member WHERE member_id = ? ";
       getMemberPstmt = con.prepareStatement(getMemberQuery);
       getMemberPstmt.setString(1, memberId);
 
@@ -66,6 +66,7 @@ public class MemberDAO {
           memberVO.setBirth(rsMember.getDate("birth").toLocalDate());
           memberVO.setEmail(rsMember.getString("email"));
           memberVO.setPicture(rsMember.getString("picture"));
+          memberVO.setIsActive(rsMember.getString("is_active"));
 
           userIdx = rsMember.getInt("user_idx");
         } 
