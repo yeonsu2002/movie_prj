@@ -343,7 +343,16 @@ $(document).ready(function () {
   <td>${ticket.movieName}</td>
   <td>${ticket.theaterName}</td>
   <td>${ticket.screenDate}</td>
-  <td>${ticket.reservationStatus}</td>
+  <td>
+    <c:choose>
+        <c:when test="${ticket.canceledDate == null}">
+            결제 완료
+        </c:when>
+        <c:otherwise>
+           예매취소: ${ticket.canceledDate}
+        </c:otherwise>
+    </c:choose>
+</td>
 </tr>
   </c:forEach>
 </tbody>
