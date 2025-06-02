@@ -15,19 +15,27 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
 //파라미터로 예매 Idx 받아오기
+System.out.println("reservationIdx : " + request.getParameter("reservationIdx"));
+
+
 int reservationIdx = Integer.parseInt(request.getParameter("reservationIdx"));
 
+System.out.println("reservationIdx : " + reservationIdx);
 ReservationService rs = new ReservationService();
 ReservationDTO resDTO = rs.searchOneSchedule(reservationIdx);
+System.out.println("resDTO : " + resDTO);
 
 //Schedule 객체 가져오기
 int scheduleIdx = resDTO.getScheduleIdx();
+System.out.println("scheduleIdx : " + scheduleIdx);
 ScheduleService ss = new ScheduleService();
 ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
-
+System.out.println("schDTO : " + schDTO);
 //Movie 객체 가져오기
 int movieIdx = schDTO.getMovieIdx();
 MovieDTO mDTO = ss.searchOneMovie(movieIdx);
+System.out.println("movieIdx : " + movieIdx);
+System.out.println("mDTO : " + mDTO);
 
 //좌석 정보 가져오기
 ReservedSeatService rss = new ReservedSeatService();

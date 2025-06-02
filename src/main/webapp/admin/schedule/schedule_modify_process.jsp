@@ -1,10 +1,9 @@
+<%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
 <%@page import="java.sql.Timestamp"%>
 <%@page import="java.sql.Date"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8" info=""%>
-<jsp:useBean id="schDTO" class="kr.co.yeonflix.schedule.ScheduleDTO"
-	scope="page" />
 
 <%
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleIdx"));
@@ -19,7 +18,7 @@ ScheduleService ss = new ScheduleService();
 int runningTime = (ss.searchOneMovie(movieIdx)).getRunningTime();
 Timestamp endTime = new Timestamp(startTime.getTime() + (runningTime * 60 * 1000L));
 
-schDTO.setScheduleIdx(scheduleIdx);
+ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 schDTO.setMovieIdx(movieIdx);
 schDTO.setTheaterIdx(theaterIdx);
 schDTO.setScreenDate(screenDate);

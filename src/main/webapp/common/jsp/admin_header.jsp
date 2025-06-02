@@ -23,7 +23,7 @@
     <!-- 메뉴 영역 -->
     <div class="menu-category">
         <div class="menu-title">관리자 관리</div>
-        <div class="menu-item"><span>▶</span>관리자 목록</div>
+        <div class="menu-item"><a href="${pageContext.request.contextPath }/admin/adminWork/controller/getAdminWorkController.jsp"> <span>▶</span>관리자 목록</a></div>
     </div>
     <div class="menu-category">
         <div class="menu-title">회원 관리</div>
@@ -35,8 +35,8 @@
     </div>
     <div class="menu-category">
         <div class="menu-title">영화 관리</div>
-        <div class="menu-item"><span>▶</span>영화 리스트</div>
-        <div class="menu-item"><span>▶</span>영화 등록</div>
+        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_list.jsp">영화 리스트</a></div>
+        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_edit.jsp?mode=insert">영화 등록</a></div>
         <div class="menu-item"><span>▶</span>영화 리뷰 관리</div>
     </div>
     <div class="menu-category">

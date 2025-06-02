@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PeopleDTO {
-	private int people_code_idx;
-	private String people_code_type,people_name;
+	private int peopleCodeIdx;
+	private String peopleCodeType,peopleName;
 }

@@ -75,7 +75,7 @@
     <h5 class="card-sec">YEONFLIX에 관한 궁금한 사항은 고객센터로 문의 주시면 신속히 해결해드리겠습니다.</h5>
   
     <a href="http://localhost/movie_prj/mypage/MainPage.jsp" type="button" class="btn btn-secondary" style="width: 100px">취소</a>
-    <a href="http://localhost/movie_prj/mypage/bye.jsp" class="btn btn-danger" style="width: 100px">탈퇴</a>
+    <a href="http://localhost/movie_prj/mypage/bye.jsp"  class="btn btn-danger" style="width: 100px" onclick="return confirm('정말 탈퇴하시겠습니까?')">탈퇴</a>
     
     
   </div>

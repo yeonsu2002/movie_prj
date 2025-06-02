@@ -3,6 +3,8 @@ package kr.co.yeonflix.reservation;
 import java.sql.SQLException;
 import java.util.List;
 
+import kr.co.yeonflix.reservedSeat.ReservedSeatService;
+
 public class ReservationService {
 
 	/**
@@ -128,5 +130,48 @@ public class ReservationService {
 		}
 		return list;
 	}//searchDetailReservationWithUser
+	
+	/**
+	 * 예매리스트에 보여주기 위한 스케줄별 예매내역
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx, String col, String key){
+		List<UserReservationDTO> list = null;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		ReservedSeatService rss = new ReservedSeatService();
+		try {
+			list = resDAO.selectUserReservationListBySchedule(scheduleIdx, col, key);
+			for(UserReservationDTO urDTO : list) {
+				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
+				String seatsInfo = String.join(", ", seatList);
+				urDTO.setSeatsInfo(seatsInfo);
+				String tel = urDTO.getTel();
+				urDTO.setTel(tel.substring(tel.length() - 4));
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+		
+	}//searchUserReservationListBySchedule
+	
+	/**
+	 * 총 레코드의 수
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public int totalCount(int scheduleIdx, String col, String key) {
+		int cnt = 0;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		try {
+			cnt = resDAO.selectTotalCount(scheduleIdx, col, key);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cnt;
+	}//totalCount
 	
 }

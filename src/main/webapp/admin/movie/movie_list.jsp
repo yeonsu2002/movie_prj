@@ -14,8 +14,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>관리자 대시보드</title>
-<link rel="stylesheet"
-	href="http://localhost/movie_prj/common/css/admin.css">
+<link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <style type="text/css">
 	.content-container {
 		position: fixed;
@@ -39,6 +39,24 @@
     }
     .pagination .active { background: #555; color: #fff; }
   </style>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script>
+    
+
+	$('#dAddBtn').click(function() {
+	    var left = window.screenX + 200;
+	    var top  = window.screenY + 150;
+	    window.open('actor_list.jsp', 'id', 'width=512,height=313,left=' + left + ',top=' + top);
+	  });
+	
+	
+	function toggleTooltip() {
+	      const tooltip = document.getElementById("tooltip");
+	      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
+	    }
+  </script>
+  
 </head>
 <body>
   <div class="content-container">
@@ -47,7 +65,7 @@ MovieService ms = new MovieService();
 List<MovieDTO> list = new ArrayList<MovieDTO>();
 list = ms.searchMovieList();
 request.setAttribute("movieList", list);
-System.out.println(list.size());
+
 %>
     <!-- 컨텐츠 -->
     <div class="content">
@@ -65,7 +83,7 @@ System.out.println(list.size());
           <!-- 실제 데이터 바인딩 -->
           <c:forEach var="m" items="${movieList}">
             <tr>
-              <td><a href="movie_edit.jsp?movieIdx=${m.movieIdx}">${m.movieName}</a></td>
+              <td><a href="movie_edit.jsp?movieIdx=${m.movieIdx}&mode=update">${m.movieName}</a></td>
               <td>${m.releaseDate}</td>
               <td>${m.endDate}</td>
               <td>${m.screeningStatusStr}</td>

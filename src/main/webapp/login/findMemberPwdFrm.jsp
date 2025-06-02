@@ -276,17 +276,43 @@ $(function(){
 		
 	})//인증번호 확인버튼 끝
 	
-	
-	/* 비밀번호 찾기 버튼을 누르면, 페이지 이동 */
-	$("#findPwdBtn").on("click", function(){
-		sendTempPwd();
-	});
 		
 });//ready
 
 
 //비밀번호 DB 난수로 수정후에, Email보내기 함수  
-
+/* ajax안씀  */
+/* function sendTempPwd(){
+	let userId = $("#userId").val();
+	let birth = $("#birth").val();
+	let email = $("#email").val();
+	let verifiedCode = $("#verifiedCode").val();
+	
+	$.ajax({
+		url : "${pageContext.request.contextPath}/login/controller/findMemPwd.jsp",
+		type :"POST",
+		data : {
+			userId : userId,
+			birth : birth,
+			email : email,
+			verifiedCode : verifiedCode,
+			action : "sendTempPwd"
+		},
+		success : function(){
+		},
+		error : function(xhr, status, error){
+			onsole.error("에러 발생!");
+   	  console.log("status: ", status);                			// 요청 상태 (예: "error")
+   	  console.log("error: ", error);                  			// 예외 메시지 (예: "Internal Server Error")
+   	  console.log("xhr.status: ", xhr.status);        			// HTTP 상태 코드 (예: 500, 404)
+   	  console.log("xhr.responseText: ", xhr.responseText);  // 서버가 보낸 에러 메시지 (HTML, JSON 등)
+		}
+		
+	}); 
+	
+	
+}
+*/
 
 /* join1의 타이머 함수를 참고한 수정된 타이머 함수 */
 function startTimer(duration, display) {

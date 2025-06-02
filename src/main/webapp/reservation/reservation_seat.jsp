@@ -1,3 +1,6 @@
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="java.time.Duration"%>
+<%@page import="kr.co.yeonflix.reservedSeat.TempSeatDTO"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
@@ -11,11 +14,40 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
+
+
 //파라미터로 받은 값으로 선택한 상영스케줄 찾기
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleIdx"));
 ScheduleService ss = new ScheduleService();
 ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
 
+//선점된 좌석들 5분이 지났으면 없애기
+//현재 스케줄의 선점된 좌석들만 5분이 지났으면 없애기
+ReservedSeatService rss = new ReservedSeatService();
+// 수정: 현재 스케줄의 임시좌석만 조회
+List<TempSeatDTO> tempSeatsList = rss.searchAllTempSeatBySchedule(scheduleIdx);
+int removedCount = 0; // 실제로 삭제된 좌석 수를 카운트
+
+for(TempSeatDTO tempSeat : tempSeatsList){
+    LocalDateTime holdTime = tempSeat.getClickTime().toLocalDateTime();
+    int seatIdx = tempSeat.getSeatIdx();
+    Duration d = Duration.between(holdTime, LocalDateTime.now());
+    
+    //현재는 테스트용으로 10초로 해놨으나 나중에 5분으로 변경
+    if(d.toSeconds() >= 10){
+        // 수정: 해당 스케줄의 해당 좌석만 삭제
+        boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
+        if(removed) {
+            removedCount++; // 실제 삭제된 경우에만 카운트
+        }
+    }
+}
+
+// 수정: 실제로 삭제된 좌석 수만큼만 잔여좌석 증가
+if(removedCount > 0) {
+    schDTO.setRemainSeats(schDTO.getRemainSeats() + removedCount);
+    ss.modifySchedule(schDTO);
+}
 //상영스케줄의 해당 영화 찾기
 int movieIdx = schDTO.getMovieIdx();
 MovieDTO mDTO = ss.searchOneMovie(movieIdx);
@@ -26,13 +58,16 @@ TheaterService ts = new TheaterService();
 TheaterDTO tDTO = ts.searchTheaterWithIdx(theaterIdx);
 
 //예매된 좌석 정보
-ReservedSeatService rss = new ReservedSeatService();
 List<String> occupiedSeats = rss.searchSeatNumberWithSchedule(scheduleIdx);
+
+//임시선점된 좌석 정보
+List<String> tempSeats = rss.searchTempSeatNumberWithSchedule(scheduleIdx);
 
 request.setAttribute("schDTO", schDTO);
 request.setAttribute("mDTO", mDTO);
 request.setAttribute("tDTO", tDTO);
 request.setAttribute("occupiedSeats", occupiedSeats);
+request.setAttribute("tempSeats", tempSeats);
 %>
 <!DOCTYPE html>
 <html>
@@ -59,6 +94,13 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 	        "${seat}"<c:if test="${!status.last}">,</c:if>
 	    </c:forEach>
 	];
+	
+	var tempSeats = [
+		<c:forEach var="temp" items="${tempSeats}" varStatus="status">
+			"${temp}"<c:if test="${!status.last}">,</c:if>
+		</c:forEach>
+	];
+	
 
 	$(function() {
 
@@ -68,6 +110,10 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 	        var seatName = row + col;
 	        
 	        if (occupiedSeats.includes(seatName)) {
+	            $(this).addClass('occupied');
+	        }
+	        
+	        if(tempSeats.includes(seatName)){
 	            $(this).addClass('occupied');
 	        }
 	    });
@@ -130,10 +176,12 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 			$(this).addClass('selected');
 		});
 
+		//뒤로가기 버튼 클릭시
 		$('.nav-left').click(function() {
 			history.back();
 		});
 
+		//결제하기 버튼 클릭시
 		$('.nav-right').click(function () {
 		    var selectedCount = $('.seat.selected').length;
 		    var maxCnt = $('.num-btn.selected').text();
@@ -148,99 +196,56 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 		        return;
 		    }
 			
-		    showModal();
+		    var seatsInfo = $("#seatInfo").text();
+		    var scheduleIdx = "${schDTO.scheduleIdx}";
+		    
+		    //임시 좌석 선점 처리
+		    $.ajax({
+				url:"http://localhost/movie_prj/reservation/temp_seat_process.jsp",
+				method:"POST",
+				data: { scheduleIdx: scheduleIdx,
+					  seatsInfo :seatsInfo },
+				success: function(response){
+					if(response.trim() === "invalid"){
+						alert("이미 선점된 좌석입니다.");
+					} else{
+						showModal();
+					}
+				},
+				error: function(){
+					alert("오류가 발생하였습니다1. 다시 시도해주세요.");
+				}
+		    });
 		     
 		});
 		
-		$("#creditcard").click(function(){
-			IMP.request_pay({
-		        pg: "danal_tpay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
+		$('[data-payment-pg]').click(function(){
+		    const pg = $(this).data('payment-pg');
+		    processPayment(pg);
 		});
 		
-		$("#kakaopay").click(function(){
-			IMP.request_pay({
-		        pg: "kakaopay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
-		});
-		$("#smilepay").click(function(){
-			IMP.request_pay({
-		        pg: "smilepay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
-		});
-		$("#tosspay").click(function(){
-			IMP.request_pay({
-		        pg: "tosspay",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
-		});
-		$("#payco").click(function(){
-			IMP.request_pay({
-		        pg: "payco",
-		        pay_method: "card",
-		        amount: totalPrice,
-		        name: "연플릭스",
-		        merchant_uid: "merchant_" + new Date().getTime()
-		    }, function (response) {
-		        if (response.success) {
-		            alert("결제 성공!");
-		            completePayment();
-		        } else {
-		            alert("결제 실패: " + response.error_msg);
-		            hideModal();
-		        }
-		    }); 
-		});
-		
+		//임시용 나중에 지우기
 		$("#phone").click(function(){
-			completePayment();
+			 var seatsInfo = $("#seatInfo").text();
+			 var scheduleIdx = "${schDTO.scheduleIdx}";
+			    
+			    $.ajax({
+					url:"http://localhost/movie_prj/reservation/valid_time_chk.jsp",
+					method:"POST",
+					data: { scheduleIdx: scheduleIdx,
+						  seatsInfo :seatsInfo },
+					success: function(response){
+						if (response.trim() === "invalid") {
+							alert("선택한 좌석이 만료되었습니다.\n다시 선택해 주세요.");
+							location.href = "http://localhost/movie_prj/reservation/reservation.jsp";
+						} else{
+							completePayment();
+						}
+					},
+					error: function(){
+						alert("오류가 발생하였습니다2. 다시 시도해주세요.");
+					}
+			    });
 		});
 		
 		$(".close").click(function(){
@@ -254,7 +259,7 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 		var moviePrice = ${tDTO.moviePrice}; 
         var selectedCount = $('.seat.selected').length;
         totalPrice = selectedCount * moviePrice;
-        $('#priceInfo').text('가격: ' + moviePrice.toLocaleString() + " x " + selectedCount + " = " +totalPrice.toLocaleString() + '원');
+        $('#priceInfo').text(totalPrice.toLocaleString() + '원');
     }
     
     function showModal() {
@@ -269,13 +274,59 @@ request.setAttribute("occupiedSeats", occupiedSeats);
     	  $('body').css('overflow', 'auto');  // 스크롤 복구
     	}
     
+    //결제 처리
     function completePayment(){
-    	  var seatInfo = $("#seatInfo").text();
-	      $('#seatsParam').val(seatInfo);
+    	  var seatsInfo = $("#seatInfo").text();
+	      $('#seatsParam').val(seatsInfo);
 	      $('#priceParam').val(totalPrice);
 	      
 	      $('#reservationForm').submit();
     }
+    
+    //결제할 때 좌석이 유효한지 체크
+    function chkValidTime(callback){
+    	 var seatsInfo = $("#seatInfo").text();
+		 var scheduleIdx = "${schDTO.scheduleIdx}";
+		    
+		    $.ajax({
+				url:"http://localhost/movie_prj/reservation/valid_time_chk.jsp",
+				method:"POST",
+				data: { scheduleIdx: scheduleIdx,
+					  seatsInfo :seatsInfo },
+				success: function(response){
+					if (response.trim() === "invalid") {
+						alert("선택한 좌석이 만료되었습니다.\n다시 선택해 주세요.");
+						location.href = "http://localhost/movie_prj/reservation/reservation.jsp";
+					} else{
+						callback();
+					}
+				},
+				error: function(){
+					alert("오류가 발생하였습니다3. 다시 시도해주세요.");
+				}
+		    });
+    }
+    
+    //결제 함수
+    function processPayment(pg) {
+	    chkValidTime(function(){
+	        IMP.request_pay({
+	            pg: pg,
+	            pay_method: "card",
+	            amount: totalPrice,
+	            name: "연플릭스",
+	            merchant_uid: "merchant_" + new Date().getTime()
+	        }, function (response) {
+	            if (response.success) {
+	                alert("결제 성공!");
+	                completePayment();
+	            } else {
+	                alert("결제 실패: " + response.error_msg);
+	                hideModal();
+	            }
+	        }); 
+	    });
+	}
 </script>
 </head>
 <body>
@@ -368,12 +419,9 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 					<div class="nav-center">
 						<div class="movie-poster"></div>
 						<div class="movie-info">
-							<div class="movie-title">${mDTO.movieName}</div>
-							<div>장르</div>
-							<div>${mDTO.runningTime}분</div>
-							<div>15세 이용가</div>
-							<div>좌석: <span id="seatInfo"></span></div>
-							<div id="priceInfo">가격: 0원</div>
+							<div class="movie-title" style="font-size: 18px">${mDTO.movieName} | ${mDTO.runningTime}분 | 15세 관람가</div><br>
+							<div style="font-size: 17px">좌석: <span id="seatInfo" class="movie-title"></span></div><br>
+							<div style="font-size: 17px;">총 금액: <span id="priceInfo" class="movie-title" style="font-size: 17px; color:#BF2828;"></span></div>
 						</div>
 					</div>
 					<div class="nav-right">
@@ -407,12 +455,12 @@ request.setAttribute("occupiedSeats", occupiedSeats);
 			</div>
 			<br><br>
     <div class="grid">
-      <div class="card" id="creditcard"><img src="http://localhost/movie_prj/common/img/creditcard.png"/></div>
+      <div class="card" data-payment-pg="danal_tpay" id="creditcard"><img src="http://localhost/movie_prj/common/img/creditcard.png"/></div>
       <div class="card" id="phone"><img src="http://localhost/movie_prj/common/img/phone.png"/></div>
-      <div class="card" id="kakaopay"><img src="http://localhost/movie_prj/common/img/kakaopay.png"/></div>
-      <div class="card" id="tosspay"><img src="http://localhost/movie_prj/common/img/tosspay.png"/></div>
-      <div class="card" id="smilepay"><img class="payment-img" src="http://localhost/movie_prj/common/img/smilepay.png" /></div>
-      <div class="card" id="payco"><img src="http://localhost/movie_prj/common/img/payco.png"/></div>
+      <div class="card"  data-payment-pg="kakaopay" id="kakaopay"><img src="http://localhost/movie_prj/common/img/kakaopay.png"/></div>
+      <div class="card"  data-payment-pg="tosspay" id="tosspay"><img src="http://localhost/movie_prj/common/img/tosspay.png"/></div>
+      <div class="card"  data-payment-pg="smilepay" id="smilepay"><img class="payment-img" src="http://localhost/movie_prj/common/img/smilepay.png" /></div>
+      <div class="card"  data-payment-pg="payco" id="payco"><img src="http://localhost/movie_prj/common/img/payco.png"/></div>
     </div>
   </div>
 </body>

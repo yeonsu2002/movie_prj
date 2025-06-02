@@ -153,16 +153,68 @@
      }
   </style>
  
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script>
+$(function(){
+	$('#dAddBtn').click(function() {
+	    var left = window.screenX + 830;
+	    var top  = window.screenY + 150;
+	    window.open('people_list.jsp?people=director', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
+	  });
+	
+	$('#aAddBtn').click(function() {
+	    var left = window.screenX + 830;
+	    var top  = window.screenY + 150;
+	    window.open('people_list.jsp?people=actor', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
+	  });
+	
+	$("#btnImg").click(function(){
+		$("#profileImg").click();
+	})
+	
+	$("#profileImg").change(function( evt ){
+		//선택한 파일이 이미지인지 체크
+		$("#imgName").val( $("#profileImg").val() );
+		//이벤트를 발생시킨 file 객체를 얻는다. 
+		var file = evt.target.files[0];
+		//스트림 생성
+		var reader = new FileReader();
+		//FileReader 객체의 onload event handler 설정
+		reader.onload = function(evt){
+			$("#img").prop("src", evt.target.result);//Base64
+		}
+		
+		//파이을 읽어들여 img 설정//미리보기
+		reader.readAsDataURL(file);
+		
+	      
+      
+      
+	})//click
+});//ready    
+
+	function toggleTooltip() {
+	      const tooltip = document.getElementById("tooltip");
+	      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
+	    }
+  </script>
+ 
 </head>
 <body>
   <div class="content-container">
   <%
+  String mode = request.getParameter("mode");
+  
+  %>
+  <%
   String movieIdxStr = request.getParameter("movieIdx");
   int movieIdxInt = 0;
+  if (movieIdxStr != null && !movieIdxStr.trim().isEmpty()) {
   try {
       movieIdxInt = Integer.parseInt(movieIdxStr);
   } catch (NumberFormatException e) {
 	  e.printStackTrace();
+  }
   }
   MovieDTO mDTO = new MovieDTO();
   List<CommonDTO> gradeList = new ArrayList<CommonDTO>();	
@@ -179,32 +231,43 @@
   
   request.setAttribute("genreList", genreList);
   request.setAttribute("gradeList", gradeList);
+  
+  
 
   %>
     <div class="content">
+    
+    <c:choose>
+  <c:when test="${param.mode == 'insert'}">
+    <h2>영화 등록
+    <button type="button" class="tooltip-button" onclick="toggleTooltip()">?</button>
+    </h2>
+  </c:when>
+  <c:when test="${param.mode == 'update'}">
       <h2>
         영화 수정/삭제
         <button type="button" class="tooltip-button" onclick="toggleTooltip()">?</button>
       </h2>
-
+  </c:when>
+</c:choose>
       <div id="tooltip" class="tooltip">
         포스터, 영화제목, 영화설명, 트레일러URL, 감독, 주연배우(3명), 장르,<br />
         상영등급, 제작국가, 상영시간
       </div>
 
       <form action="MovieController" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="movieIdx" value="<%=mDTO.getMovieIdx() %>" />
+        <input type="hidden" name="movieIdx" value="<%= "update".equals(mode) ? mDTO.getMovieIdx() : "" %>" />
         <div class="form-flex-container">
           <!-- 왼쪽 영역 -->
           <div class="form-left">
             <div class="form-row">
               <label for="title">영화제목</label>
-              <input type="text" id="movieName" name="movieName" value="<%=mDTO.getMovieName() %>" />
+              <input type="text" id="movieName" name="movieName" value="<%= "update".equals(mode) ? mDTO.getMovieName() : "" %>" />
             </div>
 
             <div class="form-row">
               <label for="country">제작국가</label>
-              <input type="text" id="country" name="country" value="<%=mDTO.getCountry() %>" />
+              <input type="text" id="country" name="country" value=" <%= "update".equals(mode) ? mDTO.getCountry() : "" %>" />
             </div>
 
               <div class="form-row">
@@ -234,36 +297,36 @@
 
             <div class="form-row">
               <label for="duration">상영시간</label>
-              <input type="text" id="duration" name="duration" value="<%=mDTO.getRunningTime() %>" /> 분
+              <input type="text" id="duration" name="duration" value="<%="update".equals(mode) ? mDTO.getRunningTime() : "" %>" /> 분
             </div>
 				 
-            <!--<div class="form-row">
+            <div class="form-row">
               <label>감독</label>
               <input type="text" class="person-input" name="directors" value="${movie.directors}" />
-              <button type="button" class="btn" onclick="addPerson('directors')">추가</button>
-              <button type="button" class="btn" onclick="removePerson('directors')">삭제</button>
-            </div> -->
+              <button type="button" class="btn" id="dAddBtn">감독리스트</button>
+              <button type="button" class="btn" id="dRemoveBtn">삭제</button>
+            </div>
 	
-            <!--  <div class="form-row">
+            <div class="form-row">
               <label>배우</label>
               <input type="text" class="person-input" name="actors" value="${movie.actors}" />
-              <button type="button" class="btn" onclick="addPerson('actors')">추가</button>
-              <button type="button" class="btn" onclick="removePerson('actors')">삭제</button>
-            </div>-->
+              <button type="button" class="btn" id="aAddBtn">배우리스트</button>
+              <button type="button" class="btn" id="aRemoveBtn">삭제</button>
+            </div>
 
             <div class="form-row">
               <label for="openDate">개봉일</label>
-              <input type="date" id="openDate" name="openDate" value="<%=mDTO.getReleaseDate() %>" />
+              <input type="date" id="openDate" name="openDate" value="<%= "update".equals(mode) ? mDTO.getReleaseDate() : ""%>" />
             </div>
 
             <div class="form-row">
               <label for="closeDate">상영종료일</label>
-              <input type="date" id="closeDate" name="closeDate" value="<%=mDTO.getEndDate() %>" />
+              <input type="date" id="closeDate" name="closeDate" value="<%= "update".equals(mode) ? mDTO.getEndDate() : ""%>" />
             </div>
 
             <div class="form-row">
               <label for="description">영화정보</label>
-              <textarea id="description" name="description"><%=mDTO.getMovieDescription() %></textarea>
+              <textarea id="description" name="description"><%= "update".equals(mode) ? mDTO.getMovieDescription() : ""%></textarea>
             </div>
           </div>
 
@@ -273,16 +336,20 @@
               <label>Media</label>
             </div>
             <div>
-              <img src="<%=mDTO.getPosterPath() %>" alt="Poster" class="poster-image" />
+              <img src="<%= "update".equals(mode) ? ("http://localhost/movie_prj/common/img/" + mDTO.getPosterPath()) : "http://localhost/movie_prj/common/img/default_poster.png" %>" class="poster-image" id="img" />	
+	
+              
               <div style="display: flex; gap: 10px;">
                 <button type="button" class="btn">Remove</button>
-                <input type="file" name="posterFile" class="btn" />
+                <input type="button" value="이미지선택" id="btnImg" class="btn btn-info btn-sm"/>
+			    <input type="hidden" name="imgName" id="imgName"/>
+			    <input type="file" style="display: none" name="profileImg" id="profileImg"/>
               </div>
             </div>
 
             <div class="form-row" style="margin-top: 20px;">
               <label for="trailerUrl">트레일러URL</label>
-              <input type="text" id="trailerUrl" name="trailerUrl" value="<%= mDTO.getTrailerUrl() %>" />
+              <input type="text" id="trailerUrl" name="trailerUrl" value="<%= "update".equals(mode) ? mDTO.getTrailerUrl() : "" %>" />
             </div>
           </div>
         </div>
@@ -295,19 +362,5 @@
     </div>
   </div>
 
-  <script>
-    function toggleTooltip() {
-      const tooltip = document.getElementById("tooltip");
-      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
-    }
-
-    function addPerson(field) {
-      alert(field + " 항목 추가 로직을 구현하세요.");
-    }
-
-    function removePerson(field) {
-      alert(field + " 항목 삭제 로직을 구현하세요.");
-    }
-  </script>
 </body>
 </html>
