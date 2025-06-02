@@ -7,6 +7,7 @@
 	bottom: 0;
 	padding: 20px;
 	background-color: #f0f0f0;
+	overflow-y: auto;
 }
 .title {
   margin-bottom: 5px;

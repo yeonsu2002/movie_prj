@@ -20,81 +20,32 @@
 
     if (reservationIdxParam != null) {
         try {
-            int reservationIdx = Integer.parseInt(reservationIdxParam);
-            
-            ReservationDTO rsDTO = new ReservationDTO();
-            rsDTO.setReservationIdx(reservationIdx); 
-
-            ReservationService rs = new ReservationService();
-/* -------------------------------------------------------------------------------------- */
-
-
-            PurchaseHistoryDTO phDTO = new PurchaseHistoryDTO();
-            phDTO.setPurchaseHistoryIdx(reservationIdx);  // reservationIdx가 구매내역 번호라고 가정
-
-            PurchaseHistoryService phs = new PurchaseHistoryService();
-            boolean purchaseSuccess = phs.modifyPurchaseHistory(reservationIdx);  // 구매내역 변경 성공 여부
-            
-            
-      /* 
-		PurchaseHistoryService 여기에 추가해야함.      
-      
-      	public boolean modifyPurchaseHistory(int reservationIdx) {//여기도
-		boolean flag = false;
-		
-		PurchaseHistoryDAO phDAO = PurchaseHistoryDAO.getInstance();
-		ReservedSeatDAO resDAO=ReservedSeatDAO.getInstance(); ////////// 여기 추가
-		try {
-			phDAO.updatePurchaseHistory(reservationIdx);
-			resDAO.updateReservedSeatAll(reservationIdx);////////여기 추가
-			flag = true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return flag;
-	}//modifyPurchaseHistory */
-            
-            
-/* ------------------------------------------------------------------------------------------ */  
-          
-          
-            ReservedSeatDTO resSeatDTO=new ReservedSeatDTO();
-            resSeatDTO.setReservedSeatStatus(0);
-            
-            ReservedSeatService rss = new ReservedSeatService();
-           	int reservedSeatSuccess = rss.modifyReservedSeatAll(reservationIdx);
-            
-            
-/* -------------------------------------------------------------------------------------------------- */           
-		
-
-			ReservationDTO resDTO = rs.searchOneSchedule(reservationIdx);  // DB에서 예약 정보 가져오기
+			int reservationIdx = Integer.parseInt(reservationIdxParam);
+			ReservationService rs = new ReservationService();
+			ReservationDTO resDTO = rs.searchOneSchedule(reservationIdx);
 			
-			if (resDTO != null) {
-			    int scheduleIdx = resDTO.getScheduleIdx();
+			//예매내역 취소시간 업데이트
+			boolean reservationSuccess = rs.modifyReservation(resDTO);
 			
-			    int restoredSeatCount = rss.modifyReservedSeatAll(reservationIdx);
+			//구매내역 취소로 업데이트
+			PurchaseHistoryService ps = new PurchaseHistoryService();
+			PurchaseHistoryDTO phDTO = ps.searchOnePurchaseHistory(reservationIdx);
+			boolean purchaseSuccess = ps.modifyPurchaseHistory(phDTO);
 			
-			    if (restoredSeatCount > 0) {
-			        ScheduleService schService = new ScheduleService();
+			//예매한 좌석들 일괄적으로 0으로 변경
+			ReservedSeatService rss = new ReservedSeatService();
+			int canceledSeats = rss.modifyReservedSeatAll(reservationIdx);
 			
-			        // 스케줄 정보 불러오기
-			        ScheduleDTO schDTO = schService.searchOneSchedule(scheduleIdx);
+			//남은 좌석 업데이트
+			int scheduleIdx = resDTO.getScheduleIdx();
+			ScheduleService ss = new ScheduleService();
+			ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
+			schDTO.setRemainSeats(schDTO.getRemainSeats() + canceledSeats);
+			boolean remainSeats = ss.modifySchedule(schDTO);
 			
-			        if (schDTO != null) {
-			            int updatedRemainSeats = schDTO.getRemainSeats() + restoredSeatCount;
-			            schDTO.setRemainSeats(updatedRemainSeats);
 			
-			            schService.modifySchedule(schDTO);
-			        }
-			    }
-			}
 
-											
-				            
-            boolean reservationSuccess = rs.modifyReservation(resDTO);  // 예매 상태 변경 성공 여부
-
-            success = purchaseSuccess && reservationSuccess && (reservedSeatSuccess > 0);
+            success = purchaseSuccess && reservationSuccess && (canceledSeats > 0) && remainSeats;
         } catch (NumberFormatException e) {
             success = false;
         }

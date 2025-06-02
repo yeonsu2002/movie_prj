@@ -57,4 +57,22 @@ public class PurchaseHistoryService {
 		}
 		return flag;
 	}//hasPurchasedMovie
+	
+	/**
+	 * 해당 예매내역에 해당하는 구매내역 가져오기
+	 * @param reservationIdx
+	 * @return
+	 */
+	public PurchaseHistoryDTO searchOnePurchaseHistory(int reservationIdx) {
+		PurchaseHistoryDTO phDTO = null;
+		
+		PurchaseHistoryDAO phDAO = PurchaseHistoryDAO.getInstance();
+		try {
+			phDTO = phDAO.selectOnePurchaseHistory(reservationIdx);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return phDTO;
+	}//searchOnePurchaseHistory
 }

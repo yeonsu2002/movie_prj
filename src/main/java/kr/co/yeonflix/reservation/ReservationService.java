@@ -136,12 +136,12 @@ public class ReservationService {
 	 * @param scheduleIdx
 	 * @return
 	 */
-	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx){
+	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx, String col, String key){
 		List<UserReservationDTO> list = null;
 		ReservationDAO resDAO = ReservationDAO.getInstance();
 		ReservedSeatService rss = new ReservedSeatService();
 		try {
-			list = resDAO.selectUserReservationListBySchedule(scheduleIdx);
+			list = resDAO.selectUserReservationListBySchedule(scheduleIdx, col, key);
 			for(UserReservationDTO urDTO : list) {
 				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
 				String seatsInfo = String.join(", ", seatList);
@@ -157,5 +157,21 @@ public class ReservationService {
 		return list;
 		
 	}//searchUserReservationListBySchedule
+	
+	/**
+	 * 총 레코드의 수
+	 * @param scheduleIdx
+	 * @return
+	 */
+	public int totalCount(int scheduleIdx, String col, String key) {
+		int cnt = 0;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		try {
+			cnt = resDAO.selectTotalCount(scheduleIdx, col, key);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cnt;
+	}//totalCount
 	
 }

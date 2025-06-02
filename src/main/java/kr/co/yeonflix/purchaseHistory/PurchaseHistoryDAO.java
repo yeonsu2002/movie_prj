@@ -112,4 +112,38 @@ public class PurchaseHistoryDAO {
 		    }
 		return flag;
 	}
+	
+	/**
+	 * 해당 예매내역에 해당하는 구매내역 가져오기
+	 * @param reservationIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public PurchaseHistoryDTO selectOnePurchaseHistory(int reservationIdx) throws SQLException {
+		PurchaseHistoryDTO phDTO = null;
+		
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			String query = "select PURCHASE_HISTORY_IDX, USER_IDX, RESERVATION_IDX, IS_PURCHASED from purchase_history where reservation_idx=?";
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, reservationIdx);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				phDTO = new PurchaseHistoryDTO();
+				phDTO.setPurchaseHistoryIdx(rs.getInt("PURCHASE_HISTORY_IDX"));
+				phDTO.setUserIdx(rs.getInt("USER_IDX"));
+				phDTO.setReservationIdx(rs.getInt("RESERVATION_IDX"));
+				phDTO.setIsPurchased(rs.getInt("IS_PURCHASED"));
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return phDTO;
+	}
 }
