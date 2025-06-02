@@ -146,6 +146,7 @@ public class ReservationService {
 				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
 				String seatsInfo = String.join(", ", seatList);
 				urDTO.setSeatsInfo(seatsInfo);
+				urDTO.setSeatsCnt(seatList.size());
 				String tel = urDTO.getTel();
 				urDTO.setTel(tel.substring(tel.length() - 4));
 				

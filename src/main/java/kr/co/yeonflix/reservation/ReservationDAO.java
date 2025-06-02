@@ -300,7 +300,7 @@ public class ReservationDAO {
 			query.append("    WHERE r.schedule_idx = ? ");
 			// 검색키워드존재
 			if (col != null) {
-				if (col.equals("memberId")) {
+				if (col.equals("memberId") && !"".equals(key)) {
 					query.append("and instr(member_id,?) != 0");
 				} else if (col.equals("tel")) {
 					query.append("and instr(tel,?) != 0");
@@ -317,7 +317,7 @@ public class ReservationDAO {
 			int bindIdx = 1;
 
 			pstmt.setInt(bindIdx++, scheduleIdx);
-			if(col != null) {
+			if(col != null && !"".equals(key)) {
 				pstmt.setString(bindIdx++, key);
 			}
 			rs = pstmt.executeQuery();
@@ -363,7 +363,7 @@ public class ReservationDAO {
 					.append("   where schedule_idx=? 		");
 
 			// 검색키워드존재
-			if (col != null) {
+			if (col != null && !"".equals(key)) {
 				if (col.equals("memberId")) {
 					sql.append("and instr(member_id,?) != 0");
 				} else if (col.equals("tel")) {
@@ -375,7 +375,7 @@ public class ReservationDAO {
 
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setInt(1, scheduleIdx);
-			if (col != null) {
+			if (col != null && !"".equals(key)) {
 				pstmt.setString(2, key);
 			}
 
