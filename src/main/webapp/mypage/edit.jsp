@@ -192,7 +192,7 @@ select {
 <script type="text/javascript">
 $(function(){
     let isNicknameChecked = false;
-    let originalNickname = $("#originNickName").val();
+    let originalNickname = "${member.nickName}";
     
     // 비밀번호 입력 이벤트
     $("#memberPwd").on("input", function(){
@@ -319,19 +319,16 @@ $(function(){
         return true;
     }
     
-    
-    
-    
-    
     // 닉네임 중복확인
     function checkNicknameDuplicate() {
         let nickname = $("#nickname").val().trim();
-        // 기존 닉네임과 같으면 중복확인 불필요 
+        
         if (nickname === "") {
             alert("닉네임을 입력해주세요.");
             return;
         }
         
+        // 기존 닉네임과 같으면 중복확인 불필요
         if (nickname === originalNickname) {
             $("#nicknameValidation").text("현재 사용중인 닉네임입니다.")
                 .addClass("show success").removeClass("validation-message");
@@ -489,9 +486,9 @@ $(function(){
         return;
     }
 
-    int userIdx = loginDTO.getUserIdx();  
+    int userIdx = loginDTO.getUserIdx();  // ✅ 바꿔야 할 부분
     MyPageService mps = new MyPageService();
-    MemberDTO member = mps.searchMember(userIdx);  
+    kr.co.yeonflix.member.MemberDTO member = mps.searchMember(userIdx);  // 이 메서드도 필요
     pageContext.setAttribute("member", member);
 %>
 
@@ -533,7 +530,6 @@ $(function(){
                 <input type="text" class="inputBox" style="width: 300px;" name="nickName" id="nickname" 
                        value="${member.nickName}" required maxlength="20">
                 <button class="search-button" type="button" id="checkNicknameBtn">중복확인</button>
-                <input type="hidden" value="${member.nickName}" id="originNickName"/>
                 <div id="nicknameValidation" class="validation-message"></div>
                 <div style="font-size: 12px; color: #666; margin-top: 5px;">
                     한글, 영문, 숫자 혼용 가능 (2-20자)
@@ -617,7 +613,8 @@ $(function(){
         <tr>
             <th>휴대폰</th>
             <td>
-                <c:out value="${member.tei}"/>
+                <input type="tel" name="tel" value="${member.tel}" class="inputBox" 
+                       pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" placeholder="010-1234-5678"/>
             </td>
         </tr>
 
