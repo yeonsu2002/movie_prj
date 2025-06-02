@@ -14,8 +14,7 @@
 
 <script type="text/javascript">
 	let loginFrmHtml = null;
-	let verificationTimer = document.getElementById("verification-timer");
-	let timerInterval;
+	let timerInterval; // 타이머 인터벌 변수 추가
 	
 $(function(){
 		loginFrmHtml = $(".box-login.login_1408").html(); //DOM이 모두 준비된 후에 백업
@@ -35,7 +34,6 @@ $(function(){
 			event.preventDefault();
 			nonMemberLoginFrm();
 			$(".sect-loginad").hide(); //광고창 오픈
-			//$(".box-login.login_1408").css("width", "");//원래대로
 			$(".box-login.login_1408").css({width:"900px", height:"auto", display:"flex", flexDirection: "column"});  //사이즈조절
 			$(".personal-info-section").css({maxWidth:"800px", marginLeft:"10px"});// 정보동의서 사이즈조절 
 		});
@@ -62,8 +60,37 @@ $(function(){
 		
 		nonMembrEmailInsert(); //비회원 이메일 select 반응함수 
 		
-		$("#nextBtn").prop("disabled", true);
-		$(document).on
+		$("#nextBtn").prop("disabled", true); //비회원 예매하기 처음에 비활성화 
+		
+		$(document).on("click", "#nextBtn", function(){ //비회원 예매하기 버튼 눌렀을 때
+			//비밀번호 4자리 검증
+			let pw = $("#pw").val().trim();
+			let pwConfirm = $("#pw_confirm").val().trim();
+			if (pw.length !== 4) {
+			  alert("비밀번호는 숫자 4자리로 입력해 주세요.");
+			  $("#pw").focus();
+			  return;
+			}
+			if (pw !== pwConfirm) {
+			  alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+			  $("#pw_confirm").focus();
+			  return;
+			}
+			if (!/^\d{4}$/.test(pw)) { //이거 좀더 알아봐야겠다.
+			  alert("비밀번호는 숫자 4자리여야 합니다.");
+			  return;
+			}
+			//정보제공 체크 검증 
+			if($("input[name='agreement']:checked").val() != "agree"){
+				alert("예매를 진행하시려면 개인정보 수집 및 이용에 동의해 주셔야 합니다.");
+				return;
+			}
+			//자 이제 예매하러 가볼까. 일단 비회원 정보 세션처리먼저 ㄱㄱ
+			$("#nonMemRevFrm").submit();
+			
+			
+		});
+		
 });//-------------------------------------------------------------ready--------------------
 
 function nonMembrEmailInsert(){
@@ -81,19 +108,47 @@ function nonMembrEmailInsert(){
 }
 
 function getVerification(){
-	//1.인증번호 이메일 전송 및 인증번호 세션에 추가 (verificationCode)
-	const email = $("#emailId").val() +"@"+ $("#emailDomainInput").val();
+  // 이메일 validation 추가
+  const emailId = $("#emailId").val().trim();
+  const emailDomain = $("#emailDomainInput").val().trim();
+  
+  if(!emailId || !emailDomain) {
+	  alert("이메일을 올바르게 입력해주세요.");
+	  return;
+  }
+	//이메일 형식 검증
+  const email = emailId + "@" + emailDomain;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRegex.test(email)) {
+    alert("올바른 이메일 형식을 입력해주세요.");
+    return;
+  }
+  
 	console.log("email: " + email);
+	// 1. 인증번호 이메일 전송 및 세션에 추가 ( = verificationCode)
 	$.ajax({
  		url : "${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
 		type : "POST",
 		data : {
 			email : email,
-			actioni : "join"
+			action : "join"
 		},
 		success : function(result){
-			if(result == "success"){
+			if(result.trim() == "success"){
  				alert("이메일발송, 세션추가 성공");
+ 				
+ 			// 2. 인증번호 보내기 버튼 일시적 정지 
+      $("#getVerificationBtn").prop("disabled", true);
+      $("#getVerificationBtn").css("background-color", "#d6d6d6");
+      setTimeout(() => {
+        $("#getVerificationBtn").css("background-color", "");
+        $("#getVerificationBtn").prop("disabled", false);
+      }, 30000); // 30초 후에 재전송 가능 
+      
+      // 3. 타이머 표시 및 시작
+      $("#verification-timer").show();
+      startTimer(300, document.getElementById("verification-timer"));
+ 				
  			} else  if(result == "fail"){
  				alert("이메일발송, 세션추가 실패");
  			}
@@ -104,210 +159,240 @@ function getVerification(){
  	    console.log("error: " + error);
  	    console.log("responseText: " + xhr.responseText);
 		}
- 		
 	});
 	
-	// 2. 인증번호 보내기 버튼 일시적 정지 
-	sendVerificationBtn = $("#getVerificationBtn");
-	sendVerificationBtn.prop("disabled", true);
-  setTimeout(() => {
-	  sendVerificationBtn.prop("disabled", false);
-  }, 60000); // 60초 후에 재전송 가능 
-	
-	//3.타이머 함수 호출
-  startTimer(300, verificationTimer);
-	
-}
+}// end  getVerification()
 
 
 //타이머 함수 
 function startTimer(duration, display) {
-	let verificationError = $("#verification-error");
 	
-    let timer = duration;
-    let minutes, seconds;
+  let timer = duration;
+  let minutes; 
+  let seconds;
+	// 기존 타이머가 있다면 정리
+  clearInterval(timerInterval);
     
-    clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
     
-    timerInterval = setInterval(function() {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-        
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        
-        display.textContent = minutes + ":" + seconds;
-        
-        if (--timer < 0) {
-            clearInterval(timerInterval);
-            display.textContent = "00:00";
-            verificationError.style.display = 'block';
-            verificationError.textContent = "인증 시간이 만료되었습니다. 다시 시도해주세요.";
-            //5분 지났으므로 세션의 인증코드 번호 삭제 
-           	$.ajax({
-           		url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
-           		type : "POST"
-           	});
-            generatedCode = '';
-        }
-    }, 1000);
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    
+    display.textContent = minutes + ":" + seconds;
+    
+    if (--timer < 0) {
+      clearInterval(timerInterval);
+      display.textContent = "00:00";
+      
+      // 에러 메시지 표시
+      $("#verification-error").show();
+      $("#verification-error").text("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      
+      // 5분 지났으므로 세션의 인증코드 번호 삭제 
+      $.ajax({
+        url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+        type : "POST"
+      });
+      
+      // 인증확인 버튼 비활성화
+      $("#verify-code").prop("disabled", true);
+    }
+  }, 1000);
 }
-
 //확인버튼 눌렀을 때 
-let verifyCodeBtn = document.getElementById('verify-code');
-verifyCodeBtn.addEventListener('click', function() {
-    const code = verificationCode.value.trim(); //사용자 입력값 
-    
-    $.ajax({
-    	url : "${pageContext.request.contextPath}/login/controller/checkVerificationCode.jsp",
-    	type : "POST",
-    	dataType : "JSON",
-    	data : {
-    		code : code
-    	},
-    	success : function(response){
-    		console.log("response.result:", response.result);
-    		if(response.result == "success"){
-            verificationError.style.display = 'none';
-            clearInterval(timerInterval);
-            
-            // 비회원 예매하기 버튼 활성화 
-            $("#nextBtn").css("background-color", "#FB4357");
-            $("#nextBtn").prop("disalbed", false);
-    		}
-    		if(response.result === "fail"){
-    			alert("인증번호가 일치하지 않습니다.");
-    			verificationError.style.display = 'block'; //오류표기 
-    		}
-    		
-    	},
-    	error : function(xhr, status, error){
-   	    console.log("AJAX 요청 실패");
-   	    console.log("status: " + status);            // 요청 상태
-   	    console.log("error: " + error);              // 에러 메시지
-   	    console.log("responseText: " + xhr.responseText); // 서버에서 반환된 에러 내용
-    	}
-    	
-    	
-    });
+$(document).on('click', '#verify-code', function() {
+  const code = $("#auth").val().trim();
+  
+  if(code.length !== 6) {
+    alert("인증번호 6자리를 정확히 입력해주세요.");
+    return;
+  }
+  
+  $.ajax({
+    url : "${pageContext.request.contextPath}/login/controller/checkVerificationCode.jsp",
+    type : "POST",
+    dataType : "JSON",
+    data : {
+      code : code
+    },
+    success : function(response){
+      console.log("response.result:", response.result);
+      if(response.result == "success"){
+        // 에러 메시지 숨김
+        $("#verification-error").hide();
+        
+        // 성공 메시지 표시
+        $("#verify-success-msg").show();
+        
+        // 타이머 중지
+        clearInterval(timerInterval);
+        
+        // 버튼들 비활성화 및 색상 변경
+        $("#getVerificationBtn").css("background-color", "#BDBDBD");
+        $("#getVerificationBtn").prop("disabled", true);
+        $("#verify-code").css("background-color", "#BDBDBD");
+        $("#verify-code").prop("disabled", true);
+        $("#birth").prop("readonly", true);
+        $("#emailId").prop("readonly", true);
+        $("#emailDomain").css({
+        	  "pointer-events": "none",
+        	  "background-color": "#f5f5f5"
+        	});
+        
+        //이제 이메일을 hidden 인풋창에 대입 
+			  const emailId = $("#emailId").val().trim();
+			  const emailDomain = $("#emailDomainInput").val().trim();
+				const email = emailId + "@" + emailDomain;
+        $("#hiddenEmail").val(email);
+        
+        // 비회원 예매하기 버튼 활성화 
+        $("#nextBtn").css("background-color", "#FB4357");
+        $("#nextBtn").prop("disabled", false);
+        
+     		// 인증 성공했으므로 세션의 인증코드 번호 삭제 
+        $.ajax({
+          url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+          type : "POST"
+        });
+          
+      } else if(response.result === "fail"){
+        $("#verification-error").show();
+        $("#verification-error").text("인증번호가 일치하지 않습니다.");
+      }
+    },
+    error : function(xhr, status, error){
+      console.log("AJAX 요청 실패");
+      console.log("status: " + status);
+      console.log("error: " + error);
+      console.log("responseText: " + xhr.responseText);
+      alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  });
 });
 
-//비회원 예매 버튼 클릭시
-function nonMemberLoginFrm(){
-	$(".box-login.login_1408").empty();
-	/* 개인정보 수집 및 이용동의서 추가  */
-	let nonMemberLoginFrm = `
-   <div class="personal-info-section">
+//비회원 예매 상단탭 클릭시
+function nonMemberLoginFrm() {
+  $(".box-login.login_1408").empty();
+
+  let nonMemberLoginFrm = `
+    <div class="personal-info-section">
       <h2 class="section-title">STEP 1 개인정보 수집 및 이용동의</h2>
       <p class="section-description">
-          비회원 예매 고객께서는 먼저 개인정보 수집 및 이용 동의 정책에 동의해 주셔야 합니다.
+        비회원 예매 고객께서는 먼저 개인정보 수집 및 이용 동의 정책에 동의해 주셔야 합니다.
       </p>
       <table class="info-table">
-          <thead class="table-header">
-              <tr>
-                  <th>항목</th>
-                  <th>이용목적</th>
-                  <th>보유기간</th>
-                  <th>동의여부</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr class="table-row">
-                  <td class="category-cell">
-                      법정생년월일, 휴대폰번호, 비밀번호
-                  </td>
-                  <td class="purpose-cell">
-                      · 비회원 예매서비스 제공<br>
-                      · 이용자식별, 요금정산, 추심, 신고서비스 개발, 접속빈도 파악 등
-                  </td>
-                  <td class="period-cell">
-                      수집일로부터 5년
-                  </td>
-                  <td class="agreement-cell">
-                      <div class="radio-group">
-                          <div class="radio-item">
-                              <input type="radio" id="agree" name="agreement" value="agree">
-                              <label for="agree">동의함</label>
-                          </div>
-                          <div class="radio-item">
-                              <input type="radio" id="disagree" name="agreement" value="disagree" checked>
-                              <label for="disagree">동의안함</label>
-                          </div>
-                      </div>
-                  </td>
-              </tr>
-          </tbody>
+        <thead class="table-header">
+          <tr>
+            <th>항목</th>
+            <th>이용목적</th>
+            <th>보유기간</th>
+            <th>동의여부</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="table-row">
+            <td class="category-cell">
+              법정생년월일, 휴대폰번호, 비밀번호
+            </td>
+            <td class="purpose-cell">
+              · 비회원 예매서비스 제공<br>
+              · 이용자식별, 요금정산, 추심, 신고서비스 개발, 접속빈도 파악 등
+            </td>
+            <td class="period-cell">
+              수집일로부터 5년
+            </td>
+            <td class="agreement-cell">
+              <div class="radio-group">
+                <div class="radio-item">
+                  <input type="radio" id="agree" name="agreement" value="agree">
+                  <label for="agree">동의함</label>
+                </div>
+                <div class="radio-item">
+                  <input type="radio" id="disagree" name="agreement" value="disagree" checked>
+                  <label for="disagree">동의안함</label>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
       <p class="notice-text">
-          ※ CGV 비회원 예매서비스 제공을 위해 필요한 최소한의 개인정보이므로 입력(수집)에 동의하지 않을 경우 서비스를 이용하실 수 없습니다.
+        ※ YEONFLIX 비회원 예매서비스 제공을 위해 필요한 최소한의 개인정보이므로 입력(수집)에 동의하지 않을 경우 서비스를 이용하실 수 없습니다.
       </p>
       <button class="privacy-policy-btn">개인정보처리(취급)방침전문보기</button>
       <div class="separator-line"></div>
-	</div>
-	
-	<div class="nonMember-insert-section">
-	
-		<form id="nonMemRevFrm" method="post" action="${pageContext.request.contextPath}/login/controller/nonMemReservation.jsp">
-		  <fieldset>
-		    <legend>개인정보 입력(이메일,법정생년월일,비밀번호)</legend>
-		    <br>
-		    <div class="info_notice">
-		      <p>개인정보를 잘못 입력하시면 예매내역 확인/취소 및 티켓 발권이 어려울 수 있으니, 입력하신 정보를 다시 한번 확인해주시기 바랍니다.</p>
-		    </div>
-		    
-		    <div class="form_row">
-		      <label for="birth">법정생년월일(8자리)</label>
-		      <input type="text" id="birth" name="birth" maxlength="8" placeholder="20001225" />
-		    </div>
-		    
-		    <div class="form_row">
-		      <label for="email">이메일 주소</label>
-		      <div class="email_wrap">
-		        <input type="text" id="emailId" name="emailId" placeholder="아이디" />
-		        <span>@</span>
-		        <input type="text" id="emailDomainInput" name="emailDomainInput" />
-		        <select id="emailDomain" name="emailDomain">
-		          <option value="none" selected disabled>이메일 선택</option>
-		          <option value="gmail.com">gmail.com</option>
-		          <option value="naver.com">naver.com</option>
-		          <option value="daum.net">daum.net</option>
-		          <option value="custom">직접 입력</option>
-		        </select>
-		        <input type="text" id="emailCustomDomain" name="emailCustomDomain" style="display:none;" placeholder="직접 입력" />
-		        <input type="hidden" id="email" name="email">
-		        <button type="button" class="btn_sub" style="width: 112px" id="getVerificationBtn" onclick="getVerification()">인증번호받기</button>
-		        <span style="display:none" id="verification-timer">5:00</span>
-		      </div>
-		    </div>
-		    
-		    <div class="form_row">
-		      <label for="auth">인증번호 (6자리)</label>
-		      <input type="text" id="auth" name="auth" maxlength="4" />
-		      <button type="button" class="btn_sub" id="verify-code">인증확인</button>
-		      <div class="error-message" id="verification-error">인증번호가 일치하지 않습니다.</div>
-		    </div>
-		    
-		    <div class="form_row">
-		      <label for="pw">비밀번호(4자리)</label>
-		      <input type="password" id="pw" name="pw" maxlength="4" />
-		    </div>
-		    
-		    <div class="form_row">
-		      <label for="pw_confirm">비밀번호확인</label>
-		      <input type="password" id="pw_confirm" name="pw_confirm" maxlength="4" />
-		    </div>
-		    
-		    <div class="form_submit">
-		      <button type="submit" class="btn_submit" id="nextBtn" style="background-color: grey;" disabled>비회원 예매하기</button>
-		    </div>
-		  </fieldset>
-		</form>
-	</div>
-		`;
-	
-	$(".box-login.login_1408").html(nonMemberLoginFrm);
-	
+    </div>
+
+    <div class="nonMember-insert-section">
+      <form id="nonMemRevFrm" method="post" action="${pageContext.request.contextPath}/login/controller/nonMemReservation.jsp">
+        <fieldset>
+          <legend>개인정보 입력(이메일,법정생년월일,비밀번호)</legend>
+          <br>
+          <div class="info_notice">
+            <p>개인정보를 잘못 입력하시면 예매내역 확인/취소 및 티켓 발권이 어려울 수 있으니, 입력하신 정보를 다시 한번 확인해주시기 바랍니다.</p>
+          </div>
+
+          <div class="form_row">
+            <label for="birth">법정생년월일(8자리)</label>
+            <input type="text" id="birth" name="birth" maxlength="8" placeholder="20001225" />
+          </div>
+
+          <div class="form_row">
+            <label for="email">이메일 주소</label>
+            <div class="email_wrap">
+              <input type="text" id="emailId" name="emailId" placeholder="아이디" />
+              <span>@</span>
+              <input type="text" id="emailDomainInput" name="emailDomainInput" readonly />
+              <select id="emailDomain" name="emailDomain">
+                <option value="none" selected disabled>이메일 선택</option>
+                <option value="gmail.com">gmail.com</option>
+                <option value="naver.com">naver.com</option>
+                <option value="daum.net">daum.net</option>
+                <option value="custom">직접 입력</option>
+              </select>
+              <input type="hidden" id="hiddenEmail" name="email" value="">
+              <button type="button" class="btn_sub" style="width: 112px" id="getVerificationBtn" onclick="getVerification()">인증번호받기</button>
+              <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">5:00</span>
+            </div>
+          </div>
+
+          <div class="form_row">
+            <label for="auth">인증번호 (6자리)</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="text" id="auth" name="auth" maxlength="6" style="width: 200px;" oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
+              <button type="button" class="btn_sub" id="verify-code">인증확인</button>
+            </div>
+            <div id="verification-error" style="color: #f14d4d; font-size: 13px; margin-top: 5px; display: none;">
+              인증번호가 일치하지 않습니다.
+            </div>
+            <div id="verify-success-msg" style="color: #2ecc71; font-size: 13px; margin-top: 5px; display: none;">
+              이메일 인증이 완료되었습니다.
+            </div>
+          </div>
+
+          <div class="form_row">
+            <label for="pw">비밀번호(4자리)</label>
+            <input type="password" id="pw" name="pw" maxlength="4" />
+          </div>
+
+          <div class="form_row">
+            <label for="pw_confirm">비밀번호확인</label>
+            <input type="password" id="pw_confirm" name="pw_confirm" maxlength="4" />
+          </div>
+
+          <div class="form_submit">
+            <button type="button" class="btn_submit" id="nextBtn" style="background-color: #BDBDBD;" disabled>비회원 예매하기</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  `;
+
+  $(".box-login.login_1408").html(nonMemberLoginFrm);
 }
+
 	
 function nonMemberCheckReservationFrm(){
 	//비회원 예매확인 버튼 클릭시

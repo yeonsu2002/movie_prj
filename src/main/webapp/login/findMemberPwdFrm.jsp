@@ -267,7 +267,7 @@ $(function(){
 					console.log("AJAX 요청 실패");
      	    console.log("status: " + status);
      	    console.log("error: " + error);
-     	    console.log("responseText: " + xhr.responseText);
+  랴ㅜㅇ   	    console.log("responseText: " + xhr.responseText);
 				}
 				
 			}); //end ajax

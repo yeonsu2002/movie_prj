@@ -464,6 +464,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	            
 	            // 다음버튼 활성화 
 	            nextStepBtn.disabled = false;
+	            
+	         		// 인증 성공했으므로 세션의 인증코드 번호 삭제 
+	            $.ajax({
+	              url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+	              type : "POST"
+	            });
+	              
         		}
         		if(response.result === "fail"){
         			alert("인증번호가 일치하지 않습니다.");

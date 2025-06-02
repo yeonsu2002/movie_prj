@@ -44,7 +44,7 @@
 	  	String mailType = "authCode";
 			MailUtil.sendEmail(context, email, verificationCode, mailType);
 			session.setAttribute("verificationCode", verificationCode); //세션에 인증번호 저장 
-			System.out.println("회원가입 세션 인증번호 : " + session.getAttribute("verificationCode"));
+			System.out.println("(회원,비회원)회가입 세션 인증번호 : " + session.getAttribute("verificationCode"));
 			
 			out.print("success");
 		} catch( Exception e){
