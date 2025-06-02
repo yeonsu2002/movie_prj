@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
 
@@ -145,5 +147,42 @@ public class PurchaseHistoryDAO {
 			dbCon.dbClose(rs, pstmt, con);
 		}
 		return phDTO;
-	}
+	}//selectOnePurchaseHistory
+	
+	/**
+	 * 유저의 모든 구매내역 가져오기
+	 * @param userIdx
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<PurchaseHistoryDTO> selectAllPurchaseByUser(int userIdx) throws SQLException {
+		List<PurchaseHistoryDTO> list = new ArrayList<PurchaseHistoryDTO>();
+		
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		
+		try {
+			con = dbCon.getDbConn();
+			String query = "select PURCHASE_HISTORY_IDX, USER_IDX, RESERVATION_IDX, IS_PURCHASED from purchase_history where user_idx=?";
+			pstmt = con.prepareStatement(query);
+			pstmt.setInt(1, userIdx);
+			rs = pstmt.executeQuery();
+			
+			PurchaseHistoryDTO phDTO = null;
+			while(rs.next()) {
+				phDTO = new PurchaseHistoryDTO();
+				phDTO.setPurchaseHistoryIdx(rs.getInt("PURCHASE_HISTORY_IDX"));
+				phDTO.setUserIdx(rs.getInt("USER_IDX"));
+				phDTO.setReservationIdx(rs.getInt("RESERVATION_IDX"));
+				phDTO.setIsPurchased(rs.getInt("IS_PURCHASED"));
+				
+				list.add(phDTO);
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return list;
+	}//selectAllPurchaseWithUser
 }

@@ -1,6 +1,7 @@
 package kr.co.yeonflix.purchaseHistory;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class PurchaseHistoryService {
 
@@ -75,4 +76,22 @@ public class PurchaseHistoryService {
 		
 		return phDTO;
 	}//searchOnePurchaseHistory
+	
+	/**
+	 * 해당 유저의 모든 구매 내역
+	 * @param userIdx
+	 * @return
+	 */
+	public List<PurchaseHistoryDTO> searchAllPurchasebyUser(int userIdx){
+		List<PurchaseHistoryDTO> list = null;
+		PurchaseHistoryDAO phDAO = PurchaseHistoryDAO.getInstance();
+		try {
+			list = phDAO.selectAllPurchaseByUser(userIdx);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return list;
+	}//searchAllPurchasebyUser
 }
