@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
-import kr.co.yeonflix.movie.MovieDTO;
 
 public class MovieCommonCodeDAO {
 	

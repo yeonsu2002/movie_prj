@@ -300,24 +300,25 @@ public int updateMovieCommonCode(int code, int num, String common) throws SQLExc
         con = db.getDbConn();
 
         StringBuilder sql = new StringBuilder();
-        sql.append("	UPDATE MOVIE_COMMON_CODE_TABLE	")
-        .append("	SET CODE_IDX=?	")
-        .append("	WHERE movie_idx=? and movie_code_name=?	");
+        sql.append(" UPDATE movie_common_code_table ")
+           .append(" SET code_idx = ? ")
+           .append(" WHERE movie_idx = ? ")
+           .append(" AND code_idx IN (")
+           .append("     SELECT code_idx ")
+           .append("     FROM movie_common_table ")
+           .append("     WHERE movie_code_name = ?")
+           .append(" )");
 
-        
-        
-            
-            
-        
         pstmt = con.prepareStatement(sql.toString());
-        pstmt.setInt(1, code);
-        pstmt.setInt(2, num);
-        pstmt.setString(3, common);
+        pstmt.setInt(1, code);        // 새로운 code_idx
+        pstmt.setInt(2, num);         // movie_idx
+        pstmt.setString(3, common);   // movie_code_type ("장르" 또는 "등급")
         rowCnt = pstmt.executeUpdate();
     } finally {
         db.dbClose(null, pstmt, con);
     }
     return rowCnt;
+    
 }
 
 

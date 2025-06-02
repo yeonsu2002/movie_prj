@@ -16,17 +16,23 @@
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+	
+%>
+
 
 <%
 request.setCharacterEncoding("UTF-8");
 //파일 업로드 수행
-File saveDir = new File("C:/dev/workspace/jsp_prj/src/main/webapp/upload");
+File saveDir = new File("C:/dev/workspace/movie_prj/src/main/webapp/common/img");
 int maxSize = 1024 * 1024 * 10;
 	
+
+
 MultipartRequest mr = new MultipartRequest(request,saveDir.getAbsolutePath(), maxSize, "UTF-8", new DefaultFileRenamePolicy());
 String action = mr.getParameter("action");
 String fileName = mr.getFilesystemName("posterImg");
-
+System.out.println("fileName" + fileName);
 MovieDTO mDTO = new MovieDTO();
 
 // 파일 업로드 처리 부분
@@ -42,12 +48,16 @@ if(fileName != null) {
         posterPath = existingPath.substring(existingPath.lastIndexOf("/") + 1);
     }
 }
+
 MovieService ms = new MovieService();
 PeopleService ps = new PeopleService();
 CommonService cs = new CommonService();
 CommonDTO genre = new CommonDTO();
 CommonDTO grade = new CommonDTO();
 int movieIdx = Integer.parseInt(mr.getParameter("movieIdx"));
+
+System.out.println("movieIdx : " + movieIdx);
+
 mDTO.setMovieIdx(movieIdx);
 mDTO.setMovieName(mr.getParameter("movieName"));
 mDTO.setCountry(mr.getParameter("country"));

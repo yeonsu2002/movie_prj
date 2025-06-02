@@ -1,12 +1,15 @@
 package kr.co.yeonflix.movie;
 
 import java.sql.Date;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.yeonflix.movie.people.PeopleService;
+
+
 
 public class MovieService {
 	
@@ -54,8 +57,8 @@ public class MovieService {
 	public boolean addMovie(int genreCode, int gradeCode , MovieDTO mDTO) {
 	    boolean flag = false;
 
-	    MovieDAO mDAO = MovieDAO.getInstance();
 	    PeopleService ps = new PeopleService();
+	    MovieDAO mDAO = MovieDAO.getInstance();
 	    
 	    try {
 	        // 1. 영화 테이블에 등록
