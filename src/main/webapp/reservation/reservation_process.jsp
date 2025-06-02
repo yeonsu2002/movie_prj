@@ -55,22 +55,15 @@
     // 좌석 예매 등록 or 갱신
     for (String seat : seats) {
         int seatIdx = rss.searchSeatIdx(seat);
-        ReservedSeatDTO rsDTO = rss.searchSeatWithIdxAndSchedule(seatIdx, scheduleIdx);
 
-        if (rsDTO == null) {
-            rsDTO = new ReservedSeatDTO();
+        ReservedSeatDTO rsDTO = new ReservedSeatDTO();
             rsDTO.setSeatIdx(seatIdx);
             rsDTO.setScheduleIdx(scheduleIdx);
-        }
 
         rsDTO.setReservedSeatStatus(1);
         rsDTO.setReservationIdx(reservationIdx);
 
-        if (rsDTO.getReservedSeatIdx() == 0) {
             rss.addReservedSeat(rsDTO);
-        } else {
-            rss.modifyReservedSeat(rsDTO);
-        }
         
         //임시 좌석 삭제 후 잔여좌석 돌려놓기
         boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);

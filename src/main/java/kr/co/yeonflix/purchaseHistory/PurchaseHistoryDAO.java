@@ -165,7 +165,7 @@ public class PurchaseHistoryDAO {
 		
 		try {
 			con = dbCon.getDbConn();
-			String query = "select PURCHASE_HISTORY_IDX, USER_IDX, RESERVATION_IDX, IS_PURCHASED from purchase_history where user_idx=?";
+			String query = "select PURCHASE_HISTORY_IDX, USER_IDX, RESERVATION_IDX, IS_PURCHASED from purchase_history where user_idx=? and is_purchased=1";
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, userIdx);
 			rs = pstmt.executeQuery();

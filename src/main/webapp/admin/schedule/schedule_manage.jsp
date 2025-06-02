@@ -110,6 +110,10 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 			$("#reservationParam").submit();
 		})
 		
+		$(".tab").click(function(){
+			$(this).closest("form").submit();
+		});
+		
 	});
 </script>
 </head>
@@ -121,16 +125,18 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 				value="${param.date != null ? param.date : minDate}" />
 
 			<c:forEach var="tab" items="${tabs}" varStatus="i">
-				<a href="schedule_manage.jsp?date=${tab[1]}">
+				<form method="post" action="" name="scheduleForm">
 					<div class="tab ${tab[1] == selectedDate ? 'active' : ''}">
 						${tab[0]}</div>
-				</a>
+					<input type="hidden" name="date" value="${tab[1]}"/>
+				</form>
 			</c:forEach>
 		</div>
 		<br>
 		<div class="filter">
 			<label>상영관 : </label> <select id="theaterSelect">
 				<c:forEach var="thList" items="${theaterList}">
+				
 					<option value="${thList.theaterIdx}"
 						<c:if test="${param.theater == thList.theaterIdx}">selected</c:if>>
 						${thList.theaterName}</option>
