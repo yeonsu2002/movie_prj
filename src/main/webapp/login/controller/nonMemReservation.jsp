@@ -1,3 +1,5 @@
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.time.LocalDate"%>
 <%@page import="kr.co.yeonflix.member.NonMemberService"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.time.LocalDateTime"%>
@@ -10,13 +12,20 @@
 	String birth = request.getParameter("birth");
 	String password = request.getParameter("pw");
 	
-	/*  
-	이거는 최종 결제 process에서 해야지 참..
+	  
+	//일단 세션에 저장하게 객체생성 해주고
 	NonMemberDTO nmDTO = new NonMemberDTO();
-	NonMemberService nmService = new NonMemberService();
-	nmDTO = nmService.saveNonMem(birth, email, password); //dao아직 안함
-	*/
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+	nmDTO.setBirth(LocalDate.parse(birth, formatter));
+	nmDTO.setEmail(email);
+	nmDTO.setTicket_pwd(password);
+	nmDTO.setCreatedAt(LocalDateTime.now());
 	
+	//이거는 최종 결제 process에서 해야지 참..                                             DAO아직 안했다. 까먹지마라 -> nmDTO객체로 db생성해야함
+	//NonMemberService nmService = new NonMemberService();
+	//nmDTO = nmService.saveNonMem(birth, email, password); //dao아직 안함
+	
+	 
 	session.setAttribute("nonMemberInfo", nmDTO);
 	//세션객체 30분 유지, 단 마지막 통신으로부터 30분동안 아무 통신도 없을때를 의미(session.setAttribute()한 모든 내용을)
 	session.setMaxInactiveInterval(1800);;
