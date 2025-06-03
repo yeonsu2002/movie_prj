@@ -23,7 +23,22 @@ AdminDTO adminDTO = new AdminDTO();
 MultipartRequest multi = null;
 int fileMaxSize = 10 * 1024 * 1024;
 
-String savePath = "C:\\dev\\movie\\userProfiles"; //사진저장소. 
+//플랫폼에 따른 savePath 설정 (내 맥북에서 하려고)
+String platform = request.getHeader("sec-ch-ua-platform");
+if (platform != null) {
+    platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
+}
+System.out.println("platform = " + platform);
+String savePath = "";
+
+if("Windows".equals(platform)){
+	savePath = "C:\\dev\\movie\\userProfiles";
+} else if ("macOS".equals(platform)){
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
+}
+System.out.println("savePath = " + savePath);
+
 
 File saveDir = new File(savePath);
 
@@ -51,7 +66,6 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	String adminEmail = multi.getParameter("adminEmail");
 	String tel = multi.getParameter("phone");
 	String manageArea = multi.getParameter("manageArea");
-	String adminTel = multi.getParameter("phone");
 	LocalDateTime lastLoginDate = LocalDateTime.now();
 	String isActive = "Y";
 	String managerIp = request.getRemoteAddr();
@@ -61,11 +75,10 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	adminDTO.setAdminPwd(adminPwd);
 	adminDTO.setAdminName(adminName);
 	adminDTO.setAdminEmail(adminEmail);
-	adminDTO.setAdminTel(adminTel);
+	adminDTO.setTel(tel);
 	adminDTO.setManageArea(manageArea);
 	adminDTO.setLastLoginDate(lastLoginDate);
 	adminDTO.setIsActive(isActive);
-	adminDTO.setAdminTel(adminTel);
 	
 	adminDTO.setRole(Role.ROLE_MANAGER);
 	
@@ -125,9 +138,7 @@ AdminService adminService = new AdminService();
 boolean result = adminService.joinAdmin(adminDTO);
 
 if(result){
-  out.println(
-      "<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); location.replace='" + request.getContextPath() + "/admin/adminWork/adminWork.jsp' </script>"
-      );
+	out.println("<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");
   //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
 } else {
 	out.println("<script>alert('매니저 가입에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");

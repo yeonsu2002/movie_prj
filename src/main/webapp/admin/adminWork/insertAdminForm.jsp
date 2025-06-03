@@ -66,7 +66,7 @@
 		</table>
 		<div class="btn-group-right">
 			<button type="reset" id="resetBtn" class="btn btn-secondary ">초기화</button>
-			<button type="button" id="submitBtn" class="btn btn-primary">등록</button>
+			<button type="submit" id="submitBtn" class="btn btn-primary">등록</button>
 		</div>
 	</form>
 </div>

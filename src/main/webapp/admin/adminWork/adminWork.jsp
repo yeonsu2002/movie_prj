@@ -27,7 +27,6 @@ $(function() {
 		alert("${errorMsg}");
 	</c:if>
 	
-	
     // 매니저 행 클릭 시 상세정보 표시
     $('.mgr-list-table tbody tr').click(function() {
 	    // 기존 선택 해제
@@ -45,9 +44,11 @@ $(function() {
 	    let maangerPicture = $(this).find('.mgr-picture img').attr('src');
 	    let managerIpList = $(this).find('.mgr-ipList').text().trim();
 	    let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
+	    let userIdx = $("#userIdx").val();
 	    
 	    // 상세정보 영역 업데이트
-	    updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, maangerPicture, managerIpList, managerLastLogin);
+	    updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, maangerPicture, managerIpList, managerLastLogin, userIdx);
+   
     });
     
     // 검색 기능
@@ -93,7 +94,7 @@ $(function() {
 /*------------------------------- $(function(){}); 바깥에 정의하는 함수 : 전역스코프, 직접 호출, 재사용 가능 함수 정의------------------------------------------- */
 
 // 매니저 상세정보 업데이트 함수
-function updateManagerDetail(id, name, email, phone, status, role, picture, IpList, lastLoginDate) {
+function updateManagerDetail(id, name, email, phone, status, role, picture, IpList, lastLoginDate, userIdx) {
     $('.mgr-profile-name').text(name + " 매니저");
     $('.mgr-profile-position').text("관리: " + role);
     
@@ -107,8 +108,7 @@ function updateManagerDetail(id, name, email, phone, status, role, picture, IpLi
     $('#mgrProfileImg').attr('src', picture);
     $('#mgrDetailIp').text(IpList);
     $('#mgrDetailLastLogin').text(lastLoginDate);
-    
-    
+    $("#userIdx").val(userIdx);
     
     // 빈 상태 숨기고 상세정보 표시
     $('.mgr-empty-state').hide();
@@ -124,13 +124,12 @@ function editManager() {
         alert('수정할 매니저를 선택해주세요.');
         return;
     }
-    
     let managerId = selectedRow.data('manager-id');
-    alert('매니저 ID : ' + managerId + ' 수정 실행');
+    
     // AJAX로 매니저 정보 조회
     $.ajax({
-	    url: '${pageContext.request.contextPath}/admin/adminWork/controller/updateAdminController.jsp',
-	    method: 'GET',
+	    url: '${pageContext.request.contextPath}/admin/adminWork/controller/getUpdateAdminController.jsp',
+	    type: 'GET',
 	    data: { managerId: managerId },
 	    dataType: 'json', // 서버에서 JSON을 받을 거라고 명시
 	    success: function(data) {
@@ -157,35 +156,45 @@ function editManager() {
 function deleteManager() {
     var selectedRow = $('.mgr-selected');
     if (selectedRow.length === 0) {
-        alert('삭제할 매니저를 선택해주세요.');
+        alert('비활성화 할 매니저를 선택해주세요.');
         return;
     }
-    
+
     var managerId = selectedRow.data('manager-id');
     var managerName = selectedRow.find('.mgr-name').text();
     
-    if (confirm(managerName + ' 매니저를 정말 삭제하시겠습니까?')) {
-        alert('매니저 ID ' + managerId + ' 삭제 기능을 구현해주세요.');
-        // 실제로는 서버에 삭제 요청 전송
+    const isActive = selectedRow.find(".mgr-status").data("is-active");
+    if (isActive !== 'Y') {
+        alert(managerId + " 매니저는 이미 비활성화 상태입니다.");
+        return;
+    }
+    
+    if (confirm(managerName + ' 매니저를 정말 비활성화 하시겠습니까?')) {
+				
+        $.ajax({
+        	url : "${pageContext.request.contextPath}/admin/adminWork/controller/deleteManagerController.jsp",
+        	method : "post",
+        	data : {managerId : managerId},
+        	dataType : "json",
+        	success : function(response){
+        		if(response.result === "success"){
+        			alert("매니저 비활성화 성공");
+        			location.replace("${pageContext.request.contextPath}/admin/adminWork/controller/getAdminWorkController.jsp");
+        		} else if (response.result === "fail"){
+        			alert("매니저 비활성화 실패 ");
+        		}
+        	},
+        	error : function(xhr, status, error){
+						console.log("AJAX 요청 실패");
+			 	    console.log("status: " + status);
+			 	    console.log("error: " + error);
+			 	    console.log("responseText: " + xhr.responseText);
+					}
+        });
     }
 }
 
-// 비밀번호 초기화 함수
-function resetPassword() {
-    var selectedRow = $('.mgr-selected');
-    if (selectedRow.length === 0) {
-        alert('비밀번호를 초기화할 매니저를 선택해주세요.');
-        return;
-    }
-    
-    var managerId = selectedRow.data('manager-id');
-    var managerName = selectedRow.find('.mgr-name').text();
-    
-    if (confirm(managerName + ' 매니저의 비밀번호를 초기화하시겠습니까?')) {
-        alert('매니저 ID ' + managerId + ' 비밀번호 초기화 기능을 구현해주세요.');
-        // 실제로는 서버에 비밀번호 초기화 요청
-    }
-}
+
 
 /* modal 함수: fetch는 좀더 공부해봐야겠어  */
 // 매니저 추가 모달창 
@@ -299,8 +308,9 @@ $(document).on('input', '#phone1, #phone2, #phone3', function() {
 function fillModalWithData(adminData) {
 	console.log("fillModalWithData() 실행 : " + adminData.adminId);
   // 기본 정보 채우기
+  
   $('#adminId').val(adminData.adminId);
-  $('#adminPwd').val(adminData.adminPwd);
+  //$('#adminPwd').val(adminData.adminPwd);
   $('#adminName').val(adminData.adminName);
   $('#adminEmail').val(adminData.adminEmail);
   
@@ -322,10 +332,35 @@ function fillModalWithData(adminData) {
     $('#mgrProfileImg').attr('src', adminData.profileImage);
   }
   
+  // 프로필 이미지가 있다면
+  if (adminData.picture) {
+	  $('#mgrProfileImg').attr('src', '/profile/' + adminData.picture);
+	} else {
+	  $('#mgrProfileImg').attr('src', '/common/default_img.png'); // 기본 이미지 등
+	}
+  //유저 idx넘기기
+  if(adminData.userIdx) {
+	  $("#useridx").val(adminData.userIdx);
+  }
+  
   // 등록일 (수정 시에는 보통 변경하지 않음)
   if (adminData.insertDate) {
     $('input[name="insertDate"]').val(adminData.insertDate);
   }
+  
+  //취소버튼 클릭시 (모달 닫고 부모페이지 리다이렉트)
+	$('#cancelBtn').click(function() {
+	  alert("취소 버튼 누름 ");
+	  $('#adminModal').modal('hide'); // 모달 닫기
+	});
+  
+  //수정버튼 클릭시 (수정하고 부모페이지 리다이렉트)
+	$('#updateBtn').click(function() {
+		alert("수정 버튼 누름 ");
+	  $('#adminForm').submit();
+	});
+
+
   
 	//모달창 열기	
   //updateManager("${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp");
@@ -398,7 +433,7 @@ function fillModalWithData(adminData) {
 								<td class="mgr-picture" style="display: none"><img src="/profile/${manager.picture }"> </td>
 								<td class="mgr-name"><c:out value="${manager.adminName }" /> </td>
 								<td class="mgr-email"><c:out value="${manager.adminEmail }" /> </td>
-								<td class="mgr-phone"><c:out value="${manager.adminTel }" /> </td>
+								<td class="mgr-phone"><c:out value="${manager.tel }" /> </td>
 								<c:choose>
 									<c:when test="${manager.manageArea == 'ManageMember' }"><td class="mgr-role">회원</td></c:when>
 									<c:when test="${manager.manageArea == 'ManageMovie' }"><td class="mgr-role">영화</td></c:when>
@@ -406,7 +441,14 @@ function fillModalWithData(adminData) {
 									<c:when test="${manager.manageArea == 'ManageInquiry' }"><td class="mgr-role">공지/문의</td></c:when>
 									<c:otherwise>현재 관리영역이 부여되지 않았습니다.</c:otherwise>
 								</c:choose>
-								<td class="mgr-status"><span class="mgr-status-badge mgr-status-active"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
+								<c:choose>
+									<c:when test="${manager.isActive == 'N' }">
+										<td class="mgr-status" data-is-active="${manager.isActive}" ><span class="mgr-status-badge mgr-status-active" style="background-color: #e03800; color: white;"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
+									</c:when>
+									<c:otherwise>
+										<td class="mgr-status" data-is-active="${manager.isActive}" ><span class="mgr-status-badge mgr-status-active"><c:out value="${manager.isActive == 'Y' ? '활성' : '비활성'}" /> </span></td>
+									</c:otherwise>
+								</c:choose>
 								<td class="mgr-last-login">${manager.formattedLoginDate }</td>
 								<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
 								<td class="mgr-ipList" style="display: none">
@@ -414,7 +456,7 @@ function fillModalWithData(adminData) {
 										<div>${ip.ipAddress} [생성일: ${ip.formattedCreatedAt}]</div>
 									</c:forEach>
 								</td>
-								<td style="display: none" class="mgr-userIdx">${manager.userIdx }</td>
+								<td style="display: none" id="userIdx" class="mgr-userIdx">${manager.userIdx }</td>
 							</tr>
 						</c:forEach>
 					</c:otherwise>
@@ -432,9 +474,8 @@ function fillModalWithData(adminData) {
 				<h2 class="mgr-detail-title">매니저 상세정보</h2>
 				<div class="mgr-action-buttons">
 					<button class="mgr-btn mgr-btn-edit" onclick="editManager()">수정</button>
-					<button class="mgr-btn mgr-btn-reset" onclick="resetPassword()">
-						비밀번호 초기화</button>
-					<button class="mgr-btn mgr-btn-delete" onclick="deleteManager()">삭제</button>
+<!-- 					<button class="mgr-btn mgr-btn-reset" onclick="resetPassword()">비밀번호 초기화</button> -->
+					<button class="mgr-btn mgr-btn-delete" onclick="deleteManager()">비활성화</button>
 				</div>
 			</div>
 

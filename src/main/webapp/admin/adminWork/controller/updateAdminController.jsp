@@ -1,53 +1,159 @@
-<%@ page import="java.time.LocalDateTime" %>
-<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %> 
-<%@ page import="com.fasterxml.jackson.datatype.jsr310.JavaTimeModule" %> 
-<%@ page import="com.fasterxml.jackson.databind.SerializationFeature" %> 
-<%@ page import="kr.co.yeonflix.admin.AdminDTO" %> 
-<%@ page import="kr.co.yeonflix.admin.AdminService" %>
-<%@ page language="java" contentType="application/json; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="kr.co.yeonflix.admin.AdminService"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="kr.co.yeonflix.admin.AllowedIPDTO"%>
+<%@page import="java.util.List"%>
+<%@page import="com.oreilly.servlet.multipart.DefaultFileRenamePolicy"%>
+<%@page import="org.apache.commons.fileupload.servlet.ServletFileUpload"%>
+<%@page import="java.io.File"%>
+<%@page import="com.oreilly.servlet.MultipartRequest"%>
+<%@page import="kr.co.yeonflix.admin.AdminDTO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"
+    info=""%>
+<% 
+AdminDTO adminDTO = new AdminDTO();
 
-<%
-	 // 응답 데이터를 JSON으로 보내기 위한 설정
-	 response.setContentType("application/json;charset=UTF-8"); // JSON 응답 타입 설정
-	 request.setCharacterEncoding("UTF-8"); // 요청 파라미터 한글 처리
+MultipartRequest multi = null;
+int fileMaxSize = 10 * 1024 * 1024;
+
+//플랫폼에 따른 savePath 설정 (내 맥북에서 하려고)
+String platform = request.getHeader("sec-ch-ua-platform");
+if (platform != null) {
+  platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
+}
+System.out.println("platform = " + platform);
+String savePath = "";
+
+if("Windows".equals(platform)){
+	savePath = "C:\\dev\\movie\\userProfiles";
+} else if ("macOS".equals(platform)){
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
+}
+System.out.println("savePath = " + savePath);
+
+File saveDir = new File(savePath);
+
+if (!saveDir.exists()) {
+  boolean created = saveDir.mkdirs(); // 디렉토리 생성
+  System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
+}
+
+if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	
-	 String managerId = request.getParameter("managerId");
-	 System.out.println("managerId : " + managerId); 
-	
-	 AdminService adService = new AdminService();
-	 AdminDTO adminDTO = null; 
-	 String jsonResponse = ""; // JSON 문자열 저장 변수
-	
-	 try {
-	   adminDTO = adService.getAdminInfo(managerId);
-	
-	   // Jackson의 ObjectMapper 생성 (JSON 변환기) : ObjectMapper는 자바 객체를 JSON 문자열로 바꿔줍니다.
-	   ObjectMapper objectMapper = new ObjectMapper();
-	
-	   // LocalDateTime 같은 자바 8 날짜/시간 클래스를 처리하려면 이 모듈 등록
-	   objectMapper.registerModule(new JavaTimeModule());
-	
-	   // 날짜/시간을 숫자(timestamp)가 아닌 ISO 문자열("2024-06-01T15:30:00")로 출력되게 설정
-	   objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-	
-	   if (adminDTO != null) {
-	       // AdminDTO 객체를 JSON 문자열로 변환
-	       jsonResponse = objectMapper.writeValueAsString(adminDTO);
-	   } else {
-	       // 조회 결과가 없으면 에러 메시지를 JSON 형식으로 반환
-	       jsonResponse = "{\"error\":\"관리자 정보를 찾을 수 없습니다.\"}";
-	       /* 	{
-				  	"error": "관리자 정보를 찾을 수 없습니다."
-					} 
-	       이러한 형태. 이스케이프때문에 귀찮네*/ 
-	   }
+	try{
+		multi = new MultipartRequest(request, savePath, fileMaxSize,  "UTF-8", new DefaultFileRenamePolicy());
+		System.out.println("MultipartRequest 생성 완료, 저장 경로: " + savePath);
 	} catch (Exception e) {
-	    // 예외 발생 시 로그 출력 및 에러 메시지 반환
-	    e.printStackTrace();
-	    jsonResponse = "{\"error\":\"서버 오류 발생\"}";
+		e.printStackTrace();
+		out.println("<script>alert('form처리중 오류 발생'); history.back(); </script>");
+		return; //에러발생 -> 처리중단
+	}
+
+	String userIdx = multi.getParameter("userIdx");
+	String adminId = multi.getParameter("adminId");
+	String adminLevel = "MANAGER"; //고정값 
+	String adminPwd = multi.getParameter("adminPwd");
+	String adminName = multi.getParameter("adminName");
+	String adminEmail = multi.getParameter("adminEmail");
+	String tel = multi.getParameter("phone");
+	String manageArea = multi.getParameter("manageArea");
+	//LocalDateTime lastLoginDate = LocalDateTime.now(); 이건 빼야돼 
+	String isActive = multi.getParameter("accountStatus");
+	//String managerIp = request.getRemoteAddr();
+	
+	
+	List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
+	
+	String[] allowedIps = multi.getParameterValues("allowedIp");
+	
+	if (allowedIps != null) {
+	  for (String ip : allowedIps) {
+  		AllowedIPDTO managerIpVO = new AllowedIPDTO();
+	  	managerIpVO.setAdminId(adminId);
+	  	managerIpVO.setIpAddress(ip);
+	  	managerIpVO.setCreatedAt(LocalDateTime.now());
+	  	
+			list.add(managerIpVO);
+	  }
+	} else {
+		AllowedIPDTO managerIpVO = new AllowedIPDTO();
+	 	managerIpVO.setAdminId(adminId);
+	 	managerIpVO.setIpAddress(request.getRemoteAddr());
+	 	managerIpVO.setCreatedAt(LocalDateTime.now());
+	 	
+		list.add(managerIpVO);
 	}
 	
-	// 클라이언트에게 JSON 결과 전송
-	response.getWriter().write(jsonResponse);
+	adminDTO.setIPList(list);
+	
+	adminDTO.setUserIdx(userIdx);
+	adminDTO.setAdminId(adminId);
+	adminDTO.setAdminLevel(adminLevel);
+	adminDTO.setAdminPwd(adminPwd);
+	adminDTO.setAdminName(adminName);
+	adminDTO.setAdminEmail(adminEmail);
+	adminDTO.setTel(tel);
+	adminDTO.setManageArea(manageArea);
+	//adminDTO.setLastLoginDate(lastLoginDate);
+	adminDTO.setIsActive(isActive);
+	
+	adminDTO.setRole(Role.ROLE_MANAGER);
+	
+	//테스트 출력용 
+	AllowedIPDTO ipDTO = new AllowedIPDTO();
+	ipDTO = adminDTO.getIPList().get(0);
+	String ipAddr = ipDTO.getIpAddress().toString();
+
+}
+
+//이미지 처리 
+File profileFile = multi.getFile("profileImage");
+String originalFileName = multi.getOriginalFileName("profileImage");
+String savedFileName = multi.getFilesystemName("profileImage");
+
+
+if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
+	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
+	
+	String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
+	
+	if(ext.equals("PNG") || ext.equals("JPG") || ext.equals("GIF") || ext.equals("JPEG")){
+		// MultipartRequest가 이미 파일을 저장했으므로 savedFileName 사용
+		if(savedFileName != null) {
+			// URL 인코딩은 필요시에만 적용 (보통 DB 저장시에는 원본명 사용)
+			adminDTO.setPicture(savedFileName);
+			System.out.println("DB에 저장할 파일명: " + savedFileName);
+		} else {
+		  adminDTO.setPicture("default_img.png");
+			System.out.println("파일 저장 실패, 기본 이미지 사용");
+		}
+	} else {
+	  adminDTO.setPicture("default_img.png");
+		System.out.println("지원하지 않는 파일 형식, 기본 이미지 사용");
+	}
+} else { 
+  adminDTO.setPicture("default_img.png");
+	System.out.println("업로드된 파일이 없음, 기본 이미지 사용");
+}
+
+// 최종 파일 확인
+if(!adminDTO.getPicture().equals("default_img.png")) {
+	File finalFile = new File(savePath + "/" + adminDTO.getPicture());
+}
+
+//서비스 호출
+AdminService adminService = new AdminService();
+boolean result = adminService.updateAdmin(adminDTO);
+
+//boolean result = adminService.joinAdmin(adminDTO);
+
+if(result){
+	out.println("<script>alert('매니저 수정작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");
+  //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
+} else {
+	out.println("<script>alert('매니저 수정작업에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
+}
 
 %>
