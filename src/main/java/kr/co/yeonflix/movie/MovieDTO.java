@@ -16,7 +16,7 @@ import lombok.ToString;
 public class MovieDTO {
 
    private int movieIdx, runningTime,screeningStatus;
-   private String movieName, posterPath, country, movieDescription, trailerUrl, screeningStatusStr;
+   private String movieName, posterPath, country, movieDescription, trailerUrl, screeningStatusStr, actors, directors;
    private Date releaseDate, endDate;
    	
 

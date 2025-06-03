@@ -30,6 +30,7 @@
 	  session = request.getSession(true); // 새로운 세션 생성
 	  //로그인계정 세션 설정
 		session.setAttribute("loginUser", loginUser);
+	  session.setMaxInactiveInterval(1800); //30분만 주자 
 	  
 		response.setContentType("text/plain;charset=UTF-8");
 		out.print("success");

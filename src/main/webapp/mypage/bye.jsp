@@ -1,7 +1,21 @@
+<%@page import="java.sql.SQLException"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    MemberDTO user = (MemberDTO) session.getAttribute("loginUser");
+
+    if (user != null) {
+        MemberService ms = new MemberService();
+        boolean result = ms.modifyIsActive(user.getUserIdx(), "N");
+
+        // 세션 종료 (로그아웃)
+        session.invalidate();
+    }
+%>
 
 <!DOCTYPE html>
 <html>
