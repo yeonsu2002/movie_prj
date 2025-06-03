@@ -15,21 +15,23 @@
 	String birth = request.getParameter("birth");
 	String password = request.getParameter("pw");
 	
-	System.out.println(email + "/" + birth + "/" + password);
-	
+	/*  
+	이거는 결제최종 process에서 해야지 참ㅍ
 	NonMemberDTO nmDTO = new NonMemberDTO();
 	NonMemberService nmService = new NonMemberService();
 	nmDTO = nmService.saveNonMem(birth, email, password); //dao아직 안함
-	
-	System.out.println("DB에 저장된 nmDTO : " + nmDTO);
+	*/
 	
 	session.setAttribute("nonMemberInfo", nmDTO);
 	//세션객체 30분 유지, 단 마지막 통신으로부터 30분동안 아무 통신도 없을때를 의미(session.setAttribute()한 모든 내용을)
 	session.setMaxInactiveInterval(1800);; 
 
+	//디버깅용
 	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("nonMemberInfo");
 	System.out.println("세션에 저장된 sessionNMDTO : " + sessionNMDTO);
 	
+	
+	response.sendRedirect(location);
 
 
 
