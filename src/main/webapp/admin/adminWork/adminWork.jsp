@@ -5,7 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
 <%-- <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" /> --%>
-<jsp:include page="/common/jsp/admin_header.jsp" /> 
+<jsp:include page="/common/jsp/admin_header.jsp" />  
 <!DOCTYPE html>
 <html lang="ko">
 <head>

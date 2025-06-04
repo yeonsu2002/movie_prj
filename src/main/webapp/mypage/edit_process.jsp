@@ -25,7 +25,7 @@
 
     if (ServletFileUpload.isMultipartContent(request)) {
         try {
-            multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
+            multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8");
 
             // 세션에서 유저 가져오기
             MemberDTO sessionDTO = (MemberDTO) session.getAttribute("loginUser");
@@ -42,10 +42,14 @@
             // 파라미터 설정
             String memberPwd = multi.getParameter("memberPwd");
             String nickName = multi.getParameter("nickName");
-            String email = multi.getParameter("email");
+            String email1 = multi.getParameter("email1");
+            String email2 = multi.getParameter("email2");
+            String email = "";
 
-            if (email == null || email.trim().isEmpty()) {
-                email = sessionDTO.getEmail();
+            if (email1 != null && email2 != null && !email1.trim().isEmpty() && !email2.trim().isEmpty()) {
+                email = email1 + "@" + email2;
+            } else {
+                email = sessionDTO.getEmail(); // 비어 있으면 기존 이메일 유지
             }
 
             memberVO.setMemberPwd(memberPwd);
@@ -60,18 +64,19 @@
             String originalFileName = multi.getOriginalFileName("profile");
             String savedFileName = multi.getFilesystemName("profile");
             String existingPicture = sessionDTO.getPicture();
-
+			String picture=existingPicture;
+            
             if (profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()) {
                 String ext = originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toUpperCase();
                 if (ext.equals("PNG") || ext.equals("JPG") || ext.equals("GIF") || ext.equals("JPEG")) {
-                    memberVO.setPicture(savedFileName != null ? savedFileName : existingPicture);
+                	picture=(savedFileName != null ? savedFileName : existingPicture);
                 } else {
-                    memberVO.setPicture("default_img.png");
+                	picture = "default_img.png"; 
                 }
-            } else {
-                // 새 이미지가 없으면 기존 이미지 유지
-                memberVO.setPicture(existingPicture);
-            }
+                } else {
+                    System.out.println("이미지 업로드 없음, 기존 이미지 유지: " + existingPicture);
+                }
+            memberVO.setPicture(picture);
             // DB 업데이트
             MemberService memberService = new MemberService();
             boolean result = memberService.modifyMember(memberVO);
@@ -93,6 +98,8 @@
         json.put("result", false);
         json.put("message", "유효하지 않은 요청입니다.");
     }
-
+   
     out.print(json.toJSONString());
+    
+
 %>
