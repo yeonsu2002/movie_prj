@@ -655,7 +655,7 @@ public class MemberDAO {
 	        // 1. 기존 회원 정보 가져오기
 	        MemberDTO existing = getMemberByUserIdx(memberVO.getUserIdx());
 	        
-	        
+	      
 	        // 2. 비밀번호가 null 또는 빈 값이면 기존 비밀번호 유지
 	        String password = memberVO.getMemberPwd();
 	        if (password == null || password.trim().isEmpty()) {
