@@ -22,11 +22,15 @@
   //이메일중복확인
   boolean isEmailDupl = mService.checkEmailDuplicate(email);
   
-  //탈퇴여부 확인
-  MemberDTO memberDTO = mService.selectOneMember(memberId);
+  //탈퇴여부 확인(null인경우엔? )
   String isActive = "Y";
-  if(memberDTO != null){
-  	isActive = memberDTO.getIsActive();
+  try {
+	  MemberDTO memberDTO = mService.getOneMember(email);
+	  if(memberDTO != null){
+	    isActive = memberDTO.getIsActive();
+	  }
+  } catch (Exception e){
+    e.printStackTrace();
   }
   
   if(memberId != null && !memberId.isBlank()){ //가입정보가 이미 존재함 

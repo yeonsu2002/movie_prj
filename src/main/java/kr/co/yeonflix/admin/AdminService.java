@@ -40,6 +40,17 @@ public class AdminService {
     return adDAO.selectAdminInfo(adminId);
   }
   
+  //매니저 강제 탈퇴(삭제)
+  public boolean deleteAdmin(String adminId) throws SQLException {
+	return adDAO.deleteAdmin(adminId);
+  }
+  
+  //매니저 수정 작업
+  public boolean updateAdmin(AdminDTO adminDTO) {
+	System.out.println("서비스 updateAdmin _ adminDTO() : " + adminDTO);
+	return false;
+	//return adDAO.updateAdmin(adminDTO);
+  }
   
   
   

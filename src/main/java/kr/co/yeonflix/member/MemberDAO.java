@@ -777,5 +777,56 @@ public class MemberDAO {
 	    }
 	}
 
+	//이메일로 회원정보 조회
+  public MemberDTO selectMemberByEmail(String email) throws SQLException {
+    
+    MemberDTO mDTO = null;
+
+    DbConnection db = DbConnection.getInstance();
+    ResultSet rs = null;
+    PreparedStatement pstmt = null;
+    Connection con = null;
+
+    try {
+        con = db.getDbConn();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM member ")
+           .append("WHERE email = ?");
+
+        pstmt = con.prepareStatement(sql.toString());
+        pstmt.setString(1, email);
+
+        rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            mDTO = new MemberDTO();
+            mDTO.setUserIdx(rs.getInt("user_idx")); 
+            mDTO.setMemberId(rs.getString("member_id"));
+            mDTO.setNickName(rs.getString("nick_name"));
+            mDTO.setUserName(rs.getString("user_name"));
+            mDTO.setIsActive(rs.getString("is_active"));
+            
+            Date birthDate = rs.getDate("birth");
+            if (birthDate != null) {
+                mDTO.setBirth(birthDate.toLocalDate());
+            }
+            
+            mDTO.setTel(rs.getString("tel"));
+            mDTO.setEmail(rs.getString("email"));
+            
+            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
+            if (createdTimestamp != null) {
+                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
+            }
+            mDTO.setPicture(rs.getString("picture"));
+        }
+    } finally {
+        db.dbClose(rs, pstmt, con);
+    }
+
+    return mDTO;
+  }
+
 
 }

@@ -18,7 +18,7 @@
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 	nmDTO.setBirth(LocalDate.parse(birth, formatter));
 	nmDTO.setEmail(email);
-	nmDTO.setTicket_pwd(password);
+	nmDTO.setTicket_pwd(password); 
 	nmDTO.setCreatedAt(LocalDateTime.now());
 	
 	//이거는 최종 결제 process에서 해야지 참..                                             DAO아직 안했다. 까먹지마라 -> nmDTO객체로 db생성해야함

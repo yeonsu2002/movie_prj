@@ -10,12 +10,14 @@
     // 수정 버튼 클릭 이벤트
     $('#updateBtn').click(function() {
       if (validateForm()) {
+    	  alert("수정 버튼 누름 ");
         $('#adminForm').submit();
       }
     });
 
     // 취소 버튼 클릭 이벤트
     $('#cancelBtn').click(function() {
+    	  alert("취소 버튼 누름 ");
       $('#adminModal').modal('hide'); // 모달 닫기
     });
 
@@ -53,7 +55,7 @@
 </script>
 <div id="container">
   <!-- 프로필 섹션 -->
-  <form action="${pageContext.request.contextPath}/admin/adminWork/controller/updateAdminProcessController.jsp" 
+  <form action="${pageContext.request.contextPath}/admin/adminWork/controller/updateAdminController.jsp" 
     id="adminForm" method="post" enctype="multipart/form-data">
     
     <div class="mgr-profile-section" style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
@@ -118,20 +120,35 @@
         <th>계정 상태</th>
         <td id="mgrDetailStatus">
           <select name="accountStatus" class="input-info">
-            <option value="active">활성</option>
-            <option value="inactive">비활성</option>
-            <option value="suspended">정지</option>
+            <option value="Y">활성</option>
+            <option value="N">비활성</option>
           </select>
         </td>
       </tr>
       <tr>
-        <th>등록일</th>
+        <th>접속 IP관리</th>
+        <td id="mgrDetailStatus">
+        	<select id="allowedIpSelect" name="allowedIp" multiple size="5" style="height: 100px;">
+					  <option value="192.168.0.1">192.168.0.1</option>
+					  <option value="10.0.0.5">10.0.0.5</option>
+					</select>
+					<div class="ip-input" style="display: flex">
+						<input id="ipInput" class="ipInput" placeholder="IP를 입력해주세요." style="height: 55.19px;">
+						<button id="saveIpBtn" class="btn btn-primary btn-sm">입력 IP 추가</button>
+						<button id="removeIpBtn" class="btn btn-danger btn-sm">선택 IP 삭제</button>
+					</div>
+        </td>
+      </tr>
+<%--       <tr>
+        <th>등록일 : 기능미구현  </th> 
         <fmt:formatDate var="today" value="<%=new Date() %>" pattern="yyyy-MM-dd"/>
         <td id="mgrDetailRegDate">
           <input class="input-info" type="text" value="${today}" style="text-align: center;" name="insertDate" readonly>
         </td>
-      </tr>
+      </tr> --%>
     </table>
+    
+    <input type="hidden" id="userIdx" name="userIdx" value="">
     
     <div class="btn-group-right">
       <button type="button" id="cancelBtn" class="btn btn-secondary">취소</button>
