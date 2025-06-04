@@ -1,142 +1,52 @@
 @charset "UTF-8";
+
 .content-container {
-            position: fixed;
-            top: 80px;
-            left: 300px;
-            right: 0;
-            bottom: 0;
-            padding: 20px;
-            background-color: #f9fafb;
-        }
-        .dashboard-grid {
-            display: grid;
-            width: 100%;
-            grid-template-columns: 1fr 1fr;
-            margin-bottom: 20px;
-            margin-left: 40px;
-        	margin-top: 40px; 
-        }
-        
-        .dashboard-card {
-            background: white;
-            width: 80%;
-            height: 100%;
-            border-radius: 8px;
-            padding: 50px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border: 1px solid #e5e7eb;
-        }
-        
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #374151;
-        }
-        
-        .chart-container {
-            width: 100%;
-            height: 200px;
-            position: relative;
-        }
-        
-        .bar-chart {
-            display: flex;
-            align-items: end;
-            justify-content: space-around;
-            height: 100%;
-            padding: 10px 0;
-        }
-        
-        .bar-group {
-            display: flex;
-            align-items: end;
-            gap: 5px;
-        }
-        
-        .bar {
-            width: 35px;
-            border-radius: 3px 3px 0 0;
-        }
-        
-        .bar-blue {
-            background-color: #3b82f6;
-        }
-        
-        .bar-pink {
-            background-color: #ec4899;
-        }
-        
-        .bar-light-green {
-            background-color: #86efac;
-        }
-        
-        .bar-green {
-            background-color: #22c55e;
-        }
-        
-        .line-chart {
-            background: white;
-            position: relative;
-            height: 100%;
-            padding: 20px;
-        }
-        
-        .line-chart canvas {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .chart-legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-        
-        .stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        
-        .stats-table th,
-        .stats-table td {
-            border: 1px solid #d1d5db;
-            padding: 12px;
-            text-align: center;
-        }
-        
-        .stats-table th {
-            background-color: #f9fafb;
-            font-weight: bold;
-            color: #374151;
-        }
-        
-        .stats-table td {
-            color: #4b5563;
-        }
-        
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    position: fixed;
+    top: 80px;
+    left: 300px;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+    background-color: #f9fafb;
+
+    display: flex;
+    justify-content: center;  /* 가로 중앙 */
+    align-items: flex-start;  /* 세로 위쪽 */
+    overflow-y: auto;
+}
+
+.dashboard-grid {
+    width: 90%;
+    max-width: 1300px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;                
+    padding: 10px 60px;
+    box-sizing: border-box;
+}
+
+.dashboard-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px 32px;      
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); 
+    border: 1px solid #e5e7eb;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #374151;
+}
+
+.chart-container {
+    width: 100%;
+    height: 260px;            
+    position: relative;
+}
+
