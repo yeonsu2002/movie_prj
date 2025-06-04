@@ -89,7 +89,7 @@ function loginProcess(){
 	let adminPwd = $("#adminPwd").val();
 	console.log(adminId  + "/" + adminPwd);
 	$.ajax({
-		url:"${pageContext.request.contextPath}/admin/login/controller/adminLogincontroller.jsp",
+		url:"${pageContext.request.contextPath}/admin/login/controller/adminLoginController.jsp",
 		data:{
 			adminId : adminId,
 			adminPwd : adminPwd
