@@ -44,7 +44,7 @@
 	} catch (Exception e){
 	  e.printStackTrace();
 	}
-	 
+	  
 	//디버깅용
 	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("guestUser");
 	System.out.println("세션에 저장된 guestUser : " + sessionNMDTO);
