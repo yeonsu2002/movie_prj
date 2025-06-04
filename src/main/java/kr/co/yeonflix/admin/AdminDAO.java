@@ -321,6 +321,7 @@ public boolean deleteAdmin(String adminId) throws SQLException {
 
 
 //매니저 수정 
+/**
 public boolean updateAdmin(AdminDTO adminDTO) {
 	  
     boolean result = false;
@@ -436,7 +437,7 @@ public boolean updateAdmin(AdminDTO adminDTO) {
     return result;
 	
 }
-  
+*/  
 
   
   

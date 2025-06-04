@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.member.Role"%>
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="kr.co.yeonflix.admin.AdminService"%>
 <%@page import="java.util.ArrayList"%>
@@ -29,7 +30,6 @@ if("Windows".equals(platform)){
 	savePath = "C:\\dev\\movie\\userProfiles";
 } else if ("macOS".equals(platform)){
 	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
-	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
 }
 System.out.println("savePath = " + savePath);
 
@@ -51,7 +51,7 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 		return; //에러발생 -> 처리중단
 	}
 
-	String userIdx = multi.getParameter("userIdx");
+	int userIdx = Integer.parseInt( multi.getParameter("userIdx"));
 	String adminId = multi.getParameter("adminId");
 	String adminLevel = "MANAGER"; //고정값 
 	String adminPwd = multi.getParameter("adminPwd");
@@ -112,7 +112,7 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 File profileFile = multi.getFile("profileImage");
 String originalFileName = multi.getOriginalFileName("profileImage");
 String savedFileName = multi.getFilesystemName("profileImage");
-
+System.out.println("originalFileName : " + originalFileName);
 
 if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
 	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
@@ -147,11 +147,8 @@ if(!adminDTO.getPicture().equals("default_img.png")) {
 AdminService adminService = new AdminService();
 boolean result = adminService.updateAdmin(adminDTO);
 
-//boolean result = adminService.joinAdmin(adminDTO);
-
 if(result){
 	out.println("<script>alert('매니저 수정작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");
-  //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
 } else {
 	out.println("<script>alert('매니저 수정작업에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
 }

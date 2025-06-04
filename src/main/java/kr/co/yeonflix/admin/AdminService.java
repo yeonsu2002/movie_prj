@@ -47,7 +47,7 @@ public class AdminService {
   
   //매니저 수정 작업
   public boolean updateAdmin(AdminDTO adminDTO) {
-	System.out.println("adminDTO : " + adminDTO);
+	System.out.println("서비스 updateAdmin _ adminDTO() : " + adminDTO);
 	return false;
 	//return adDAO.updateAdmin(adminDTO);
   }

@@ -315,8 +315,9 @@ function fillModalWithData(adminData) {
   $('#adminEmail').val(adminData.adminEmail);
   
   // 연락처 분리해서 채우기
-  if (adminData.phone) {
-    let phoneParts = adminData.phone.split('-');
+  if (adminData.tel) {
+    let phoneParts = adminData.tel.split('-');
+	  console.log( "phoneParts : "+ phoneParts);
     if (phoneParts.length === 3) {
       $('#phone1').val(phoneParts[0]);
       $('#phone2').val(phoneParts[1]);
@@ -328,19 +329,16 @@ function fillModalWithData(adminData) {
   $('#manageArea').val(adminData.manageArea);
   
   // 프로필 이미지가 있다면
-  if (adminData.profileImage) {
-    $('#mgrProfileImg').attr('src', adminData.profileImage);
-  }
-  
-  // 프로필 이미지가 있다면
   if (adminData.picture) {
-	  $('#mgrProfileImg').attr('src', '/profile/' + adminData.picture);
+	  $('#mgrProfileImg').attr('src', '/profile/' + adminData.picture); //input file값을 주는게 아님. 단순히 이미지출력임
+	  //$("#profileImageBtn").val(adminData.picture); //input file에는 자바스크립트로 값을 줄 수 없음. 보안위반 
+	  
 	} else {
 	  $('#mgrProfileImg').attr('src', '/common/default_img.png'); // 기본 이미지 등
 	}
   //유저 idx넘기기
   if(adminData.userIdx) {
-	  $("#useridx").val(adminData.userIdx);
+	  $("#userIdx").val(adminData.userIdx);
   }
   
   // 등록일 (수정 시에는 보통 변경하지 않음)
