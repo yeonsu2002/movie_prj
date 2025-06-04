@@ -18,4 +18,6 @@ public class NonMemberDTO {
   private String ticket_pwd;
   private LocalDateTime createdAt;
   
+  private String userType;
+  
 }

@@ -12,27 +12,42 @@
 	String birth = request.getParameter("birth");
 	String password = request.getParameter("pw");
 	
-	  
-	//일단 세션에 저장하게 객체생성 해주고
 	NonMemberDTO nmDTO = new NonMemberDTO();
-	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-	nmDTO.setBirth(LocalDate.parse(birth, formatter));
-	nmDTO.setEmail(email);
-	nmDTO.setTicket_pwd(password); 
-	nmDTO.setCreatedAt(LocalDateTime.now());
+  NonMemberService nmService = new NonMemberService();
+  
+	try{
+	  boolean success = nmService.saveNonMem(birth, email, password);
+	  if(!success){
+	    System.out.println("비회원 생성 실패");
+	    return;
+	  } else if (success){
+	    System.out.println("비회원 생성 성공");
+	    
+	    try{
+		    nmDTO = nmService.getNonMem(email); //권한정보 없음
+		    nmDTO.setUserType("GUEST");
+	      if(nmDTO.getUserIdx() > 0){
+					//일단 세션 깨긋하게 비우고
+					session.invalidate();
+					// 세션 새로 꺼내
+					session = request.getSession(true); 
+					//새 세션에 비회원 정보 저장 
+					session.setAttribute("guestUser", nmDTO);
+					//세션객체 30분 유지, 단 마지막 통신으로부터 30분동안 아무 통신도 없을때를 의미(session.setAttribute()한 모든 내용을)
+					session.setMaxInactiveInterval(1800);;
+	      }
+	    } catch (Exception e){
+	      e.printStackTrace();
+	    }
+	  }
+	  
+	} catch (Exception e){
+	  e.printStackTrace();
+	}
 	
-	//이거는 최종 결제 process에서 해야지 참..                                             DAO아직 안했다. 까먹지마라 -> nmDTO객체로 db생성해야함
-	//NonMemberService nmService = new NonMemberService();
-	//nmDTO = nmService.saveNonMem(birth, email, password); //dao아직 안함
-	
-	 
-	session.setAttribute("nonMemberInfo", nmDTO);
-	//세션객체 30분 유지, 단 마지막 통신으로부터 30분동안 아무 통신도 없을때를 의미(session.setAttribute()한 모든 내용을)
-	session.setMaxInactiveInterval(1800);;
-
 	//디버깅용
-	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("nonMemberInfo");
-	System.out.println("세션에 저장된 sessionNMDTO : " + sessionNMDTO);
+	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("guestUser");
+	System.out.println("세션에 저장된 guestUser : " + sessionNMDTO);
 	
 	response.sendRedirect(request.getContextPath()+ "/reservation/reservation.jsp"); //예매로 이동혀 
 
