@@ -9,12 +9,9 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<<<<<<< HEAD
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
-=======
 <jsp:include page="/common/jsp/admin_header.jsp" />
->>>>>>> 7c53767ecaa3c0ae1d644b48a437658a4fe81110
 
 <jsp:useBean id="rDTO" class="kr.co.yeonflix.member.RangeDTO" scope="page"/>
 <jsp:setProperty name="rDTO" property="*" />
@@ -226,7 +223,7 @@ $(function(){
 	}
 	
 </script>
-
+<jsp:include page="/common/jsp/admin_header.jsp" />
 </head>
 <body>
 
@@ -290,14 +287,12 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
 	<br>
 		<h2>회원 목록</h2>
 	<br>
-	  <div id="searchDiv" style="text-align: center;">
+	<div id="searchDiv" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; justify-content: center;">
 	
-	<div style="text-align: left;" >
     <select id="typeSelect" name="userType" onchange="toggleTable()">
         <option value="member" <c:if test="${param.userType == 'member' || param.userType == null}">selected</c:if>>회원</option>
         <option value="nonmember" <c:if test="${param.userType == 'nonmember'}">selected</c:if>>비회원</option>
     </select>
-	</div>
         <form action="member_table.jsp" id="searchFrm" method="get">
           <input type="hidden" name="currentPage" value="1" />
             <select name="field" id="field">
@@ -313,7 +308,7 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
         </form>
 	</div>
 	<br><br>
-	<h2 style="text-align: left;">회원 수: <span class="badge bg-secondary" style="font-weight: left;">${fn:length(memberList)}건</span></h2>
+	<h2 style="text-align: left;"> 전체 회원 수: <span class="badge bg-secondary">${totalCount}명</span></h2>
 	<table id="memberTable">
     <thead>
       <tr>

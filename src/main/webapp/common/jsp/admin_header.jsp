@@ -56,10 +56,8 @@ function logout(){
     </div>
     
     <div class="menu-category">
-<<<<<<< HEAD
         <div class="menu-title">회원 관리</div>
         <div class="menu-item"><a href="http://localhost/movie_prj/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
-=======
     	<div class="menu-title">회원 관리</div>
 		 	<c:choose>
 		 		<c:when test="${loginAdmin.manageArea eq 'ManageMember' or loginAdmin.manageArea eq '전체'}">
@@ -69,7 +67,6 @@ function logout(){
 		      <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>회원 목록</a></div>
 		 		</c:otherwise>
 		 	</c:choose>
->>>>>>> 7c53767ecaa3c0ae1d644b48a437658a4fe81110
     </div>
     
     <div class="menu-category">

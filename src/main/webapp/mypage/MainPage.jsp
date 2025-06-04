@@ -389,7 +389,7 @@ $(document).ready(function () {
   <td>
     <c:choose>
         <c:when test="${ticket.canceledDate == null}">
-      	  <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
+      	  <fmt:formatDate value="${ticket.reservationDate}" pattern="yyyy-MM-dd HH:mm"/>
         </c:when>
         <c:otherwise>
            <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
