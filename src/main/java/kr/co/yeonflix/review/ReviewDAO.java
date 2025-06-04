@@ -29,14 +29,15 @@ public class ReviewDAO {
 
         try {
             con = db.getDbConn();
-            String sql = "INSERT INTO REVIEW_MOVIE (REVIEW_IDX, USER_IDX, MOVIE_IDX, REVIEW_CONTENTS) "
-                       + "VALUES (REVIEW_IDX_seq.NEXTVAL, ?, ?, ? )";
+            String sql = "INSERT INTO REVIEW_MOVIE (REVIEW_IDX, USER_IDX, MOVIE_IDX, REVIEW_CONTENTS,RATING,WRITE_DATE) "
+                       + "VALUES (REVIEW_IDX_seq.NEXTVAL,?, ?, ?, ?,SYSDATE )";
 
             pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, rDTO.getUserId());     // USER_IDX (작성자)
             pstmt.setInt(2, rDTO.getMovieId());    // MOVIE_IDX (영화 ID)
             pstmt.setString(3, rDTO.getContent());    // REVIEW_CONTENTS (내용)
-
+            pstmt.setDouble(4, rDTO.getRating());
+            
             pstmt.executeUpdate();
         } finally {
             db.dbClose(null, pstmt, con);
@@ -47,6 +48,11 @@ public class ReviewDAO {
     // 특정 영화에 대한 리뷰 조회
     public List<ReviewDTO> selectReviewsByMovieId(String movieId) throws SQLException {
         List<ReviewDTO> list = new ArrayList<>();
+
+        if (movieId == null || movieId.trim().isEmpty()) {
+            System.out.println("movieId가 null 또는 비어 있습니다.");
+            return list; // 빈 리스트 반환
+        }
         DbConnection db = DbConnection.getInstance();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -54,10 +60,11 @@ public class ReviewDAO {
 
         try {
             con = db.getDbConn();
-            String sql = "select review_idx, user_idx, movie_idx, review_contents, rating,  "
-                       + "from review_movie "
-                       + "where movie_idx = ? "
-                       + "order by write_date desc";
+            String sql = "select review_idx, user_idx, movie_idx, review_contents, write_date, rating  "
+                    + "from review_movie "
+                    + "where movie_idx = ? "
+                    + "order by write_date desc" ;
+
 
             pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, Integer.parseInt(movieId));
@@ -69,7 +76,8 @@ public class ReviewDAO {
                 rDTO.setUserId(rs.getInt("USER_IDX"));
                 rDTO.setMovieId(rs.getInt("MOVIE_IDX"));
                 rDTO.setContent(rs.getString("REVIEW_CONTENTS"));
-                rDTO.setRating(rs.getInt("RATING"));
+                rDTO.setRating(rs.getDouble("RATING"));
+                rDTO.setWriteDate(rs.getDate("WRITE_DATE"));
                 list.add(rDTO);
                                 
             }
@@ -79,6 +87,36 @@ public class ReviewDAO {
 
         return list;
     }
+    public List<ReviewDTO> selectAllReviews(Connection con) throws SQLException {
+        List<ReviewDTO> list = new ArrayList<>();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            String sql = "SELECT REVIEW_IDX,	USER_IDX,	MOVIE_IDX,	REVIEW_CONTENTS,	WRITE_DATE,	RATING	"
+            		+ " FROM review_movie ORDER BY write_date DESC";
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                ReviewDTO rDTO = new ReviewDTO();
+                rDTO.setReviewId(rs.getInt("REVIEW_IDX"));
+                rDTO.setUserId(rs.getInt("USER_IDX"));
+                rDTO.setMovieId(rs.getInt("MOVIE_IDX"));
+                rDTO.setContent(rs.getString("REVIEW_CONTENTS"));
+                rDTO.setRating(rs.getDouble("RATING"));
+                rDTO.setWriteDate(rs.getDate("WRITE_DATE"));
+                list.add(rDTO);
+            }
+        } finally {
+            if(rs != null) rs.close();
+            if(pstmt != null) pstmt.close();
+        }
+
+        return list;
+    }
+
+
 
     // 리뷰 삭제
     public int deleteReview(int reviewId) throws SQLException {
@@ -103,7 +141,7 @@ public class ReviewDAO {
     
     
     //관리자 리뷰검색
-    public List<ReviewDTO> searchReviewsByUserId(String keyword) throws SQLException {
+    public List<ReviewDTO> searchReviewsByUserId(String userId) throws SQLException {
         List<ReviewDTO> list = new ArrayList<>();
         DbConnection db = DbConnection.getInstance();
         Connection con = null;
@@ -112,13 +150,13 @@ public class ReviewDAO {
 
         try {
             con = db.getDbConn();
-            String sql = "SELECT r.review_idx, r.user_idx, r.movie_idx, r.review_contents, r.rating " +
+            String sql = "SELECT r.review_idx, r.user_idx, r.movie_idx, r.review_contents, r.rating, r.write_date, u.user_id " +
                          "FROM review_movie r JOIN users u ON r.user_idx = u.user_idx " +
-                         "WHERE u.user_id LIKE ? " +
-                         "ORDER BY r.write_date DESC";
+                         "WHERE u.user_id LIKE ? "+
+                         "ORDER BY r.write_date DESC";; 
 
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, "%" + keyword + "%");
+            pstmt.setString(1, "%" + userId + "%");
 
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -127,7 +165,9 @@ public class ReviewDAO {
                 rDTO.setUserId(rs.getInt("USER_IDX"));
                 rDTO.setMovieId(rs.getInt("MOVIE_IDX"));
                 rDTO.setContent(rs.getString("REVIEW_CONTENTS"));
-                rDTO.setRating(rs.getInt("RATING"));
+                rDTO.setRating(rs.getDouble("RATING"));
+                rDTO.setWriteDate(rs.getDate("WRITE_DATE"));
+                rDTO.setUserLoginId(rs.getString("USER_ID"));
                 list.add(rDTO);
             }
         } finally {
@@ -162,6 +202,38 @@ public class ReviewDAO {
         }
 
         return result;
+    }
+    public static void main(String[] args) {
+        ReviewDAO dao = ReviewDAO.getInstance();
+        DbConnection db = DbConnection.getInstance();
+
+        Connection con = null;
+        try {
+            con = db.getTestConnection();  // JNDI 대신 직접 연결
+            if(con == null) {
+                System.out.println("DB 연결 실패");
+                return;
+            }
+            
+            // 현재 접속한 DB 사용자 확인
+            java.sql.Statement stmt = con.createStatement();
+            java.sql.ResultSet rsUser = stmt.executeQuery("SELECT USER FROM DUAL");
+            if (rsUser.next()) {
+                System.out.println("현재 DB 사용자: " + rsUser.getString(1));
+            }
+            rsUser.close();
+            stmt.close();
+
+            List<ReviewDTO> list = dao.selectAllReviews(con);  // Connection 넘겨주는 버전 호출
+            System.out.println("리뷰 개수: " + list.size());
+            for(ReviewDTO r : list) {
+                System.out.println(r);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if(con != null) try { con.close(); } catch (SQLException e) {}
+        }
     }
 
 }

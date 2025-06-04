@@ -73,5 +73,18 @@ public class ReviewService {
 
         return flag;
     }
+ // 전체 리뷰 조회 (관리자용)
+    public List<ReviewDTO> getAllReviews() {
+        List<ReviewDTO> list = null;
+        ReviewDAO rDAO = ReviewDAO.getInstance();
+
+        try {
+            list = rDAO.selectAllReviews();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
 }
