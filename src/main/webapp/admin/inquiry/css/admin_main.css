@@ -1,0 +1,39 @@
+@charset "UTF-8";
+.inquiry-wrapper {
+  position: absolute;
+  top: 80px;              /* header-container 높이 */
+  left: 300px;            /* sidebar 너비 */
+  right: 0;
+  bottom: 0;
+  padding: 30px;
+  overflow-y: auto;
+  overflow-x: hidden;     /* ← 좌우 스크롤 방지 */
+  background-color: #f9fafb;
+}
+
+.inquiry-wrapper table {
+  width: 100%;            /* ← 테이블이 wrapper 전체에 꽉 차게 */
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.inquiry-wrapper th, 
+.inquiry-wrapper td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.inquiry-wrapper th {
+  background-color: #f3f4f6;
+  font-weight: bold;
+}
+
+.inquiry-wrapper a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.inquiry-wrapper a:hover {
+  text-decoration: underline;
+}

@@ -55,9 +55,10 @@ public class ReservedSeatDAO {
 			dbCon.dbClose(null, pstmt, con);
 		}
 	}// insertRservedSeat
-	
+
 	/**
 	 * 예매 좌석을 업데이트 하는 코드
+	 * 
 	 * @param rsDTO
 	 * @throws SQLException
 	 */
@@ -65,7 +66,7 @@ public class ReservedSeatDAO {
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "UPDATE reserved_seat SET RESERVED_SEAT_STATUS = ?, reservation_idx = ?   WHERE schedule_idx = ? and seat_idx=?";
@@ -76,25 +77,26 @@ public class ReservedSeatDAO {
 			pstmt.setInt(3, rsDTO.getScheduleIdx());
 			pstmt.setInt(4, rsDTO.getSeatIdx());
 			pstmt.executeUpdate();
-			
+
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-		
-	}//updateReservedSeat
+
+	}// updateReservedSeat
 
 	/**
 	 * 예매한 좌석들의 상태를 일괄적으로 0으로 update
+	 * 
 	 * @param reservationIdx
 	 * @throws SQLException
 	 */
 	public int updateReservedSeatAll(int reservationIdx) throws SQLException {
 		int cntSeats = 0;
-		
+
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "UPDATE reserved_seat SET RESERVED_SEAT_STATUS = 0 WHERE reservation_idx = ?";
@@ -102,13 +104,13 @@ public class ReservedSeatDAO {
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, reservationIdx);
 			cntSeats = pstmt.executeUpdate();
-			
+
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-		
+
 		return cntSeats;
-	}//updateReservedSeatAll
+	}// updateReservedSeatAll
 
 	/**
 	 * 좌석번호로 좌석IDX를 가져오는 코드
@@ -203,9 +205,10 @@ public class ReservedSeatDAO {
 
 		return list;
 	}// selectSeatNumberWithSchedule
-	
+
 	/**
 	 * 해당 스케줄에 해당 좌석 가져오는 코드
+	 * 
 	 * @param seatIdx
 	 * @param scheduleIdx
 	 * @return
@@ -213,12 +216,12 @@ public class ReservedSeatDAO {
 	 */
 	public ReservedSeatDTO selectSeatWithIdxAndSchedule(int seatIdx, int scheduleIdx) throws SQLException {
 		ReservedSeatDTO rsDTO = null;
-		
+
 		DbConnection dbCon = DbConnection.getInstance();
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "select RESERVATION_SEAT_IDX, SEAT_IDX, RESERVATION_IDX, SCHEDULE_IDX, RESERVED_SEAT_STATUS from RESERVED_SEAT where SEAT_IDX=? and schedule_idx=?";
@@ -226,8 +229,8 @@ public class ReservedSeatDAO {
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
 			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
+
+			if (rs.next()) {
 				rsDTO = new ReservedSeatDTO();
 				rsDTO.setReservedSeatIdx(rs.getInt("reservation_seat_idx"));
 				rsDTO.setSeatIdx(rs.getInt("seat_idx"));
@@ -235,15 +238,16 @@ public class ReservedSeatDAO {
 				rsDTO.setScheduleIdx(rs.getInt("schedule_idx"));
 				rsDTO.setReservedSeatStatus(rs.getInt("reserved_seat_status"));
 			}
-			
+
 		} finally {
 			dbCon.dbClose(rs, pstmt, con);
 		}
 		return rsDTO;
-	}//selectSeatWithIdxAndSchedule
-	
+	}// selectSeatWithIdxAndSchedule
+
 	/**
 	 * 임시 좌석 생성하는 코드
+	 * 
 	 * @param tsDTO
 	 * @throws SQLException
 	 */
@@ -251,69 +255,71 @@ public class ReservedSeatDAO {
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
-	
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "insert into temp_seat(seat_idx, schedule_idx) values(?,?)";
-			
+
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
-			
+
 			pstmt.executeUpdate();
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-	}//insertTempSeat
-	
+	}// insertTempSeat
+
 	/**
 	 * 시간 지난 임시 좌석 삭제하기 위한 코드
+	 * 
 	 * @param seatIdx
 	 * @param scheduleIdx
 	 * @throws SQLException
 	 */
 	public void deleteTempSeat(int seatIdx, int scheduleIdx) throws SQLException {
-		
+
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "delete from temp_seat where seat_idx=? and schedule_idx=?";
-			
+
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
-			
+
 			pstmt.executeUpdate();
 		} finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-	}//deleteTempSeat
-	
+	}// deleteTempSeat
+
 	/**
 	 * 모든 임시좌석 가져오는 코드
+	 * 
 	 * @return
 	 * @throws SQLException
 	 */
 	public List<TempSeatDTO> selectAllTempSeatBySchedule(int scheduleIdx) throws SQLException {
 		List<TempSeatDTO> list = new ArrayList<TempSeatDTO>();
-		
+
 		DbConnection dbCon = DbConnection.getInstance();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "select seat_idx, schedule_idx, click_time from temp_seat where schedule_idx=?";
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, scheduleIdx);
 			rs = pstmt.executeQuery();
-			
+
 			TempSeatDTO tsDTO = null;
-			while(rs.next()) {
+			while (rs.next()) {
 				tsDTO = new TempSeatDTO();
 				tsDTO.setSeatIdx(rs.getInt("seat_idx"));
 				tsDTO.setScheduleIdx(rs.getInt("schedule_idx"));
@@ -324,10 +330,11 @@ public class ReservedSeatDAO {
 			dbCon.dbClose(rs, pstmt, con);
 		}
 		return list;
-	}//selectAllTempSeat
-	
+	}// selectAllTempSeat
+
 	/**
 	 * 임시 선점되 좌석들의 이름만 빼오기
+	 * 
 	 * @param scheduleIdx
 	 * @return
 	 * @throws SQLException
@@ -357,9 +364,10 @@ public class ReservedSeatDAO {
 
 		return list;
 	}// selectSeatNumberWithSchedule
-	
+
 	/**
 	 * tempSeat에 해당 칼럼이 존재하는지
+	 * 
 	 * @param seatIdx
 	 * @param scheduleIdx
 	 * @return
@@ -371,7 +379,7 @@ public class ReservedSeatDAO {
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
 		Connection con = null;
-		
+
 		try {
 			con = dbCon.getDbConn();
 			String query = "select count(*) from temp_seat where seat_idx=? and schedule_idx=?";
@@ -379,15 +387,47 @@ public class ReservedSeatDAO {
 			pstmt.setInt(1, seatIdx);
 			pstmt.setInt(2, scheduleIdx);
 			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
+
+			if (rs.next()) {
 				return rs.getInt(1) > 0;
 			}
 		} finally {
 			dbCon.dbClose(rs, pstmt, con);
 		}
-		
+
 		return false;
-	}//selectOneTempSeat
-	
+	}// selectOneTempSeat
+
+	/**
+	 * 모든 임시좌석 가져오는 코드
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<TempSeatDTO> selectAllTempSeat() throws SQLException {
+		List<TempSeatDTO> list = new ArrayList<TempSeatDTO>();
+
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+
+		try {
+			con = dbCon.getDbConn();
+			String query = "select seat_idx, schedule_idx, click_time from temp_seat";
+			pstmt = con.prepareStatement(query);
+			rs = pstmt.executeQuery();
+
+			TempSeatDTO tsDTO = null;
+			while (rs.next()) {
+				tsDTO = new TempSeatDTO();
+				tsDTO.setSeatIdx(rs.getInt("seat_idx"));
+				tsDTO.setScheduleIdx(rs.getInt("schedule_idx"));
+				tsDTO.setClickTime(rs.getTimestamp("click_time"));
+				list.add(tsDTO);
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return list;
+	}//selectAllTempSeat
 }

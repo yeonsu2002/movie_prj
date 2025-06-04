@@ -136,12 +136,12 @@ public class ReservationService {
 	 * @param scheduleIdx
 	 * @return
 	 */
-	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx, String col, String key){
+	public List<UserReservationDTO> searchUserReservationListBySchedule(int scheduleIdx, int startNum, int endNum, String col, String key){
 		List<UserReservationDTO> list = null;
 		ReservationDAO resDAO = ReservationDAO.getInstance();
 		ReservedSeatService rss = new ReservedSeatService();
 		try {
-			list = resDAO.selectUserReservationListBySchedule(scheduleIdx, col, key);
+			list = resDAO.selectUserReservationListBySchedule(scheduleIdx, startNum, endNum, col, key);
 			for(UserReservationDTO urDTO : list) {
 				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
 				String seatsInfo = String.join(", ", seatList);

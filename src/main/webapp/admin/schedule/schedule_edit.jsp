@@ -25,7 +25,7 @@ String maxDate = sdf.format(cal.getTime());
 TheaterService ths = new TheaterService();
 List<TheaterDTO> theaterList = ths.searchAllTheater();
 
-//영화 정보 처리
+//영화 정보 처리 (전체 영화 목록)
 ScheduleService ss = new ScheduleService();
 List<MovieDTO> movieList = ss.searchAllMovie();
 
@@ -64,7 +64,64 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script>
 	$(function() {
+		var originalMovieIdx = "${schDTO.movieIdx}"; // 기존 선택된 영화 ID
+		var originalScreenDate = "${schDTO.screenDate}"; // 기존 상영 날짜
+		
+		// 페이지 로드 시 기존 날짜로 영화 목록 초기화
+		if (originalScreenDate) {
+			loadAvailableMovies(originalScreenDate, originalMovieIdx);
+		}
+		
+		// 날짜 변경 시 영화 목록 업데이트
+		$("#screenDate").change(function() {
+			var selectedDate = $(this).val();
+			
+			if (selectedDate) {
+				loadAvailableMovies(selectedDate, null); // 날짜 변경 시에는 기존 선택 무시
+			} else {
+				// 날짜가 선택되지 않으면 영화 선택 비활성화
+				$("#movieIdx").prop("disabled", true);
+				$("#movieIdx").html('<option value="" selected disabled>먼저 상영 날짜를 선택하세요</option>');
+			}
+		});
+		
+		// 영화 목록을 AJAX로 불러오는 함수
+		function loadAvailableMovies(screenDate, selectedMovieId) {
+			$.ajax({
+				url: "get_available_movies.jsp",
+				type: "POST",
+				data: {
+					screenDate: screenDate
+				},
+				dataType: "json",
+				success: function(data) {
+					$("#movieIdx").prop("disabled", false);
+					$("#movieIdx").html('<option value="" disabled selected>상영할 영화를 선택하세요</option>');
+					
+					// 받아온 영화 목록으로 옵션 추가
+					if (data && data.length > 0) {
+						$.each(data, function(index, movie) {
+							var isSelected = (selectedMovieId && movie.movieIdx == selectedMovieId) ? 'selected' : '';
+							$("#movieIdx").append('<option value="' + movie.movieIdx + '" ' + isSelected + '>' + movie.movieName + '</option>');
+						});
+					} else {
+						$("#movieIdx").html('<option value="" selected disabled>해당 날짜에 상영 가능한 영화가 없습니다</option>');
+					}
+				},
+				error: function() {
+					alert("영화 정보를 불러오는데 실패했습니다.");
+					$("#movieIdx").prop("disabled", false);
+					$("#movieIdx").html('<option value="" selected disabled>영화 정보 로드 실패</option>');
+				}
+			});
+		}
+		
 		$("#edit-btn").click(function() {
+			if ($("#screenDate").val() == "") {
+				alert('📅 날짜를 선택하세요');
+				$("#screenDate").focus();
+				return;
+			}
 			if ($("#movieIdx").val() == null || $("#movieIdx").val() == "") {
 				alert('🎬 영화를 선택하세요');
 				$("#movieIdx").focus();
@@ -74,12 +131,6 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 			if ($("#theaterIdx").val() == null || $("#theaterIdx").val() == "") {
 				alert('🏛️ 상영관을 선택하세요');
 				$("#theaterIdx").focus();
-				return;
-			}
-
-			if ($("#screenDate").val() == "") {
-				alert('📅 날짜를 선택하세요');
-				$("#screenDate").focus();
 				return;
 			}
 
@@ -125,35 +176,30 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 				<form action="schedule_modify_process.jsp" id="schedule-form"
 					name="schedule-form" method="post">
 					<input type="hidden" id="scheduleIdx" name="scheduleIdx" value="${scheduleIdx}">
+					<div class="form-group date-field">
+						<label for="screenDate">상영 날짜</label>
+						<input type="date" id="screenDate" min="${minDate}" max="${maxDate}" 
+							name="screenDate" value="${schDTO.screenDate}">
+					</div>
 					
 					<div class="form-group movie-field">
 						<label for="movieIdx">영화 선택</label>
 						<select name="movieIdx" id="movieIdx">
-							<option value="" selected disabled>상영할 영화를 선택하세요</option>
-							<c:forEach var="mList" items="${movieList}" varStatus="i">
-								<option value="${mList.movieIdx}"
-									<c:if test="${mList.movieIdx == schDTO.movieIdx}">selected</c:if>>
-									${mList.movieName}</option>
-							</c:forEach>
+							<option value="" disabled>상영할 영화를 선택하세요</option>
+							<!-- AJAX로 동적으로 로드됨 -->
 						</select>
 					</div>
 					
 					<div class="form-group theater-field">
 						<label for="theaterIdx">상영관 선택</label>
 						<select name="theaterIdx" id="theaterIdx">
-							<option value="" selected disabled>상영관을 선택하세요</option>
+							<option value="" disabled>상영관을 선택하세요</option>
 							<c:forEach var="thList" items="${theaterList}" varStatus="i">
 								<option value="${thList.theaterIdx}"
 									<c:if test="${thList.theaterIdx == schDTO.theaterIdx}">selected</c:if>>
 									${thList.theaterName}</option>
 							</c:forEach>
 						</select>
-					</div>
-					
-					<div class="form-group date-field">
-						<label for="screenDate">상영 날짜</label>
-						<input type="date" id="screenDate" min="${minDate}" max="${maxDate}" 
-							name="screenDate" value="${schDTO.screenDate}">
 					</div>
 					
 					<div class="form-group time-field">
