@@ -11,7 +11,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<jsp:include page="/common/jsp/admin_header.jsp" />
 
 <%
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));

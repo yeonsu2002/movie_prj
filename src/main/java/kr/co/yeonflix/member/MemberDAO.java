@@ -46,7 +46,7 @@ public class MemberDAO {
     try {
       con = dbCon.getDbConn(); // 실제 DB연결 받아오는거
 
-      String getMemberQuery = " SELECT user_idx, member_id, member_pwd, user_name, nick_name, birth, email, picture, is_active FROM member WHERE member_id = ? ";
+      String getMemberQuery = " SELECT * FROM member WHERE member_id = ? ";
       getMemberPstmt = con.prepareStatement(getMemberQuery);
       getMemberPstmt.setString(1, memberId);
 
@@ -66,6 +66,7 @@ public class MemberDAO {
           memberVO.setEmail(rsMember.getString("email"));
           memberVO.setPicture(rsMember.getString("picture"));
           memberVO.setIsActive(rsMember.getString("is_active"));
+          memberVO.setHasTempPwd(rsMember.getString("has_temp_pwd"));
 
           userIdx = rsMember.getInt("user_idx");
         } 
@@ -128,8 +129,8 @@ public class MemberDAO {
 
       String insertCommonUser = " INSERT INTO common_user (user_idx, user_type) VALUES (USER_IDX_SEQ.NEXTVAL, ?) ";
       String getUserIdxQuery = " SELECT USER_IDX_SEQ.CURRVAL FROM dual ";
-      String insertMember = " INSERT INTO member (USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE, PICTURE, MEMBER_IP) "
-          + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+      String insertMember = " INSERT INTO member (USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE, PICTURE, MEMBER_IP, HAS_TEMP_PWD) "
+          + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N') ";
       String getRoleIdxQuery = " SELECT role_idx FROM role WHERE role_name = 'ROLE_MEMBER' ";
       String insertUserRoleTable = " INSERT INTO user_role_table (user_idx, role_idx) VALUES (?, ?) ";
 
@@ -377,32 +378,52 @@ public class MemberDAO {
     }
     return flag; 
   }
-  
-  //발급받은 임시비밀번호로 회원정보 수정 
-  public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
-	  
-	  DbConnection dbCon = DbConnection.getInstance();
-	  Connection con = null;
-	  PreparedStatement pstmt = null;
-	  int result = -1;
-	  try {
-		  con = dbCon.getDbConn();// 실제 DB연결 받아오는거
-		  
-		  String query = " UPDATE member SET member_pwd = ? WHERE email = ?  ";
-		  pstmt = con.prepareStatement(query);
-		  
-		  pstmt.setString(1, encodedTempPwd);
-		  pstmt.setString(2, email);
-		  
-		  System.out.println("executeUpdate 직전: email=" + email + ", tempPwd=" + encodedTempPwd);
-		  result = pstmt.executeUpdate();
-		  System.out.println("executeUpdate 결과: " + result);
-		  
-	  } finally {
-		  dbCon.dbClose(null, pstmt, con);
-	  }
-	  return result > 0;
-  }
+	//발급받은 임시비밀번호로 회원정보 수정
+	public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
+	   DbConnection dbCon = DbConnection.getInstance();
+	   Connection con = null;
+	   PreparedStatement pstmt = null;
+	   PreparedStatement hasTempPwdPstmt = null;
+	
+	   int result = -1;
+	
+	   try {
+	       con = dbCon.getDbConn();
+	       con.setAutoCommit(false); // 트랜잭션 처리
+	
+	       // has_temp_pwd 값을 'Y'로 업데이트
+	       String tempPwdQuery = "UPDATE member SET has_temp_pwd = 'Y' WHERE email = ?";
+	       hasTempPwdPstmt = con.prepareStatement(tempPwdQuery);
+	       hasTempPwdPstmt.setString(1, email);
+	       hasTempPwdPstmt.executeUpdate();
+	
+	       // 실제 비밀번호 업데이트
+	       String pwdUpdateQuery = "UPDATE member SET member_pwd = ? WHERE email = ?";
+	       pstmt = con.prepareStatement(pwdUpdateQuery);
+	       pstmt.setString(1, encodedTempPwd);
+	       pstmt.setString(2, email);
+	       result = pstmt.executeUpdate();
+	
+	       con.commit(); // 둘 다 성공해야  커밋함 
+	       
+	   } catch (Exception e) {
+	       if (con != null) {
+	           try {
+	               con.rollback(); // 예외 발생 -> 롤백
+	           } catch (SQLException se) {
+	               se.printStackTrace();
+	           }
+	       }
+	       e.printStackTrace();
+	   } finally {
+	       dbCon.dbClose(null, hasTempPwdPstmt, null);
+	       dbCon.dbClose(null, pstmt, con);
+	   }
+	
+	   return result > 0;
+	}
+
+
   
   /**
 	 * 입력받은 아이디를 검색하는 
@@ -675,7 +696,7 @@ public class MemberDAO {
 	        }
 
 	        // 4. UPDATE 수행
-	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ? WHERE user_idx = ?";
+	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ?, has_temp_pwd = 'N' WHERE user_idx = ?";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, password);
 	        pstmt.setString(2, memberVO.getNickName());

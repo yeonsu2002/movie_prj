@@ -516,7 +516,13 @@ function login(){
         	alert("탈퇴한 계정입니다. 복구관련 문의는 고객센터로 문의해 주세요.");
         	$("#txtUserId, #txtPwd1").val("");
         	refreshCaptcha();
-        } 
+        } else if (response.trim() === "success-butHasTempPwd"){
+        	if(confirm("현재 임시비밀번호를 사용중입니다. 비밀번호를 변경하시겠습니까? ")){
+        		location.href = "${pageContext.request.contextPath}/mypage/MainPage.jsp";  
+        	} else {
+        		location.href = "${pageContext.request.contextPath}/index.jsp";
+        	}
+        }
 			},
 			error:function(xhr, status, error){
 		    console.log("에러 상태 코드:", xhr.status);
