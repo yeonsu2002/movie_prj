@@ -1,4 +1,4 @@
-<%@page import="kr.co.yeonflix.inquiry.inquiryDAO"%>
+<%@page import="kr.co.yeonflix.notice.noticeDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info=""%>
@@ -10,11 +10,12 @@
 <title><c:out value="${site_name}"/></title>
 <body>
 	<%
-		inquiryDAO iDAO = new inquiryDAO();
-		String num= request.getParameter("num");
-		String answer= request.getParameter("answer_content");
-		iDAO.alterinquiry(num, answer);
-		response.sendRedirect("http://localhost/movie_prj/admin/inquiry/inquiry_admin_main.jsp");
+		noticeDAO nDAO = new noticeDAO();
+		String type= request.getParameter("type");
+		String title= request.getParameter("title");
+		String content= request.getParameter("content");
+		nDAO.insertNotice(type,title,content);
+		response.sendRedirect("notice_admin_main.jsp");
 	%>
 
 <script type="text/javascript">
