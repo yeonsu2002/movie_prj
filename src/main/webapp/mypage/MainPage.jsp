@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.inquiry.inquiryDTO"%>
+<%@page import="kr.co.yeonflix.inquiry.inquiryDAO"%>
 <%@page import="kr.co.yeonflix.member.MemberDAO"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.member.MemberService"%>
@@ -32,26 +34,17 @@
     // JSP에 member 객체 넘기기
     request.setAttribute("member", mDTO);
 
-// 예약 파라미터 처리
-String reservationParam = request.getParameter("reservationIdx");
-
-
-int reservationIdx = 0;
-
-try {
-    if (reservationParam != null && !reservationParam.trim().isEmpty()) {
-        reservationIdx = Integer.parseInt(reservationParam.trim());
-    }
-} catch (NumberFormatException e) {
-    reservationIdx = 0;
-}
-
-
 // 예약 리스트 조회
 ReservationService rs = new ReservationService();
 List<ShowReservationDTO> reservationList = rs.searchDetailReservationWithUser(loginUserIdx);
 request.setAttribute("reservationList", reservationList);
 
+
+String inquiryParam=request.getParameter("inquiry_board_idx");
+
+inquiryDAO iDAO = new inquiryDAO();
+List<inquiryDTO> inquiryList = iDAO.selectAllinquiry(String.valueOf(loginUserIdx));
+request.setAttribute("inquiryList", inquiryList);
 
 %>
 
@@ -263,6 +256,37 @@ $(document).ready(function () {
 	    });
 	});
 	
+	$("#btnInquiry").click(function () {
+	    const selected = $("input[name='choose']:checked")
+	        .map(function () {
+	            return $(this).val();
+	        }).get();
+
+	    if (selected.length === 0) {
+	        alert("삭제할 문의내역을 선택하세요.");
+	        return;
+	    }
+
+	    if (!confirm("정말 삭제하시겠습니까?")) {
+	        return;
+	    }
+
+	    $.ajax({
+	        url: '/movie_prj/inquiry/inquiry_delete.jsp',
+	        method: 'POST',
+	        traditional: true,
+	        data: { choose: selected },
+	        success: function () {
+	            alert("삭제 완료!");
+	            location.reload();
+	        },
+	        error: function () {
+	            alert("삭제 실패했습니다.");
+	        }
+	    });
+	});
+
+	
 });//ready
 
 
@@ -277,7 +301,14 @@ $(document).ready(function () {
 <div id="container">
 <div class="profile-container">
 	<div class="profile-header">
-  		<img alt="한글사진x" src="/profile/${loginUser.picture}" style="width: 130px; height: 130px; border-radius: 5em;">
+  				 <c:choose>
+				        <c:when test="${not empty member.picture}">
+				            <img src="/profile/${member.picture}" alt="프로필이미지"  style="width:130px; height:130px"/>
+				        </c:when>
+				        <c:otherwise>
+				            <img src="/movie_pfj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
+				        </c:otherwise>
+				    </c:choose>
     <div class="profile-info">
    		 <h2>
          	<c:out value="${member.userName}" />
@@ -378,8 +409,8 @@ $(document).ready(function () {
  <div class="header-container">
  <h2>My 문의내역 <span class="badge bg-secondary">${fn:length(inquiryList)}건</span></h2>
  <div class="delete">
- <input type="button" value="선택삭제" class="btn btn-secondary"/>
- <input type="button" value="문의하기" class="btn btn-danger"/>
+ <input type="button" id="btnInquiry" value="선택삭제" class="btn btn-secondary"/>
+ <a href="http://localhost/movie_prj/inquiry/inquiry_add.jsp" class="btn btn-danger">문의하기</a>
  </div>
  </div>
  <br>
@@ -391,6 +422,8 @@ $(document).ready(function () {
       <th scope="col">유형</th>
       <th scope="col">제목</th>
       <th scope="col">등록일</th>
+      <th scope="col">상태</th>
+      <th scope="col">답변일</th>
     </tr>
   </thead>
  <tbody>
@@ -402,10 +435,16 @@ $(document).ready(function () {
  
   <c:forEach var="inquiry" items="${inquiryList}">
     <tr>
-      <td><input class="form-check-input" type="checkbox" value="${inquiry.inquiryId}"></td>
-      <td>${inquiry.category}</td>
-      <td>${inquiry.title}</td>
-      <td>${inquiry.createdDate}</td>
+     <td>
+    <input class="form-check-input" type="checkbox" name="choose"
+       value="${inquiry.inquiry_board_idx}">
+       
+  </td>
+      <td>${inquiry.board_code_name}</td>
+      <td>${inquiry.inquiry_title}</td>
+      <td>${inquiry.created_time}</td>
+      <td>${inquiry.answer_status}</td>
+      <td>${inquiry.answered_time}</td>
     </tr>
 </c:forEach>
 </tbody>

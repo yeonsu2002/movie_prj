@@ -399,12 +399,15 @@ $(function(){
         
         $("#imgName").val(file.name);
         
-        let reader = new FileReader();
+      let reader = new FileReader();
         reader.onload = function(evt){
             $("#img").prop("src", evt.target.result);
         }
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); 
     });
+    
+    
+    
     
     // 이메일 도메인 선택
     $("#emailDomainSelect").change(function(){
@@ -485,10 +488,11 @@ $(function(){
         response.sendRedirect("login.jsp");
         return;
     }
-
+    
+    
     int userIdx = loginDTO.getUserIdx();  
     MyPageService mps = new MyPageService();
-    kr.co.yeonflix.member.MemberDTO member = mps.searchMember(userIdx);  
+    MemberDTO member = mps.searchMember(userIdx);  
     pageContext.setAttribute("member", member);
 %>
 
@@ -496,36 +500,36 @@ $(function(){
     <h2 style="text-align: center; color: black;">회원정보수정</h2>
 </div> 
 
-<form method="post" name="frm" id="frm" enctype="multipart/form-data">
+<form  method="post" name="frm" id="frm" enctype="multipart/form-data">
     <input type="hidden" name="userIdx" value="${member.userIdx}">
     <table class="form-table">
         <!-- 프로필 이미지 -->
         <tr>
-            <th class="required" scope="row" style="text-align: center; vertical-align: middle;">프로필</th>
+            <th scope="row" style="text-align: center; vertical-align: middle;">프로필</th>
             <td>
                 <div class="profile-image-container">
-                    <c:choose>
-                        <c:when test="${not empty member.picture}">
-                            <img src="/profile/${member.picture}" id="img" alt="프로필 이미지"/>
-                        </c:when>
-                        <c:otherwise>
-                            <img src="/common/img/default_img.png" id="img" alt="기본 프로필 이미지"/>
-                        </c:otherwise>
-                    </c:choose>
+                   <c:choose>
+				        <c:when test="${not empty member.picture}">
+				            <img src="/profile/${member.picture}" alt="프로필이미지"/>
+				        </c:when>
+				        <c:otherwise>
+				            <img src="/movie_pfj/common/img/default_img.png" style="width:180px; height:180px" id="img" alt="기본이미지"/>
+				        </c:otherwise>
+				    </c:choose>
                 </div>
                 <br>
                 <input type="button" value="이미지선택" id="btnImg" class="btn btn-light btn-sm"/>
                 <input type="file" name="profile" id="profile" accept=".jpg,.gif,.bmp,.jpeg,.png" style="display:none"/>
                 <input type="hidden" name="imgName" id="imgName" value="${member.picture}"/>
                 <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                    JPG, GIF, BMP, PNG 파일만 등록 가능 (최대 5MB)
+                    JPG, GIF, BMP, PNG 파일만 등록 가능 (최대 5MB) 
                 </div>
             </td>
         </tr>
 
         <!-- 닉네임 -->
         <tr>
-            <th class="required">닉네임</th>
+            <th  class="required">닉네임</th>
             <td>
                 <input type="text" class="inputBox" style="width: 300px;" name="nickName" id="nickname" 
                        value="${member.nickName}" required maxlength="20">
@@ -539,7 +543,7 @@ $(function(){
 
         <!-- 아이디 -->
         <tr>
-            <th class="required">아이디</th>
+            <th>아이디</th>
             <td>
                 <c:out value="${member.memberId}" />
             </td>
@@ -565,7 +569,7 @@ $(function(){
 
         <!-- 이름 -->
         <tr>
-            <th class="required">이름</th>
+            <th>이름</th>
             <td>
                 <c:out value="${member.userName}" />
             </td>
@@ -575,13 +579,13 @@ $(function(){
         <tr>
             <th>생년월일</th>
             <td>
-                <input type="date" name="birth" value="${member.birth}" readonly />
+                <c:out value="${member.birth }"/>
             </td>
         </tr>
 
         <!-- 이메일 -->
         <tr>
-            <th class="required">이메일</th>
+            <th>이메일</th>
             <td>
                 <%
                     String email = member.getEmail();
@@ -613,14 +617,13 @@ $(function(){
         <tr>
             <th>휴대폰</th>
             <td>
-                <input type="tel" name="tel" value="${member.tel}" class="inputBox" 
-                       pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" placeholder="010-1234-5678"/>
+               <c:out value="${member.tel }"/>
             </td>
         </tr>
 
         <!-- 이메일 수신 -->
         <tr>
-            <th class="required">이메일 수신</th>
+            <th>이메일 수신</th>
             <td class="radio-group">
                 <input type="radio" id="email_yes" name="isEmailAgreed" value="Y" 
                        ${member.isEmailAgreed eq 'Y' ? 'checked' : ''} required>
@@ -633,7 +636,7 @@ $(function(){
 
         <!-- SMS 수신 -->
         <tr>
-            <th class="required">SMS 수신</th>
+            <th>SMS 수신</th>
             <td class="radio-group">
                 <input type="radio" id="sms_yes" name="isSmsAgreed" value="Y" 
                        ${member.isSmsAgreed eq 'Y' ? 'checked' : ''} required>
@@ -657,6 +660,7 @@ $(function(){
 </form>
 </div>
 <br><br>
+<p>member.picture: <c:out value="${member.picture}" /></p>
 </main>
 
 <footer>

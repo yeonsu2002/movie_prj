@@ -27,7 +27,7 @@
     </div>
     <div class="menu-category">
         <div class="menu-title">회원 관리</div>
-        <div class="menu-item"><span>▶</span>회원 목록</div>
+        <div class="menu-item"><a href="http://localhost/movie_prj/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
     </div>
     <div class="menu-category">
         <div class="menu-title">상영관 관리</div>

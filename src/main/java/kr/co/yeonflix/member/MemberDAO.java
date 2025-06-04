@@ -668,10 +668,26 @@ public class MemberDAO {
 	                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
 	            }
 	        }
-
+	        
 	        String email = memberVO.getEmail();
 	        if (email == null || email.trim().isEmpty()) {
+	            // 입력값이 없으면 기존 이메일 유지
 	            email = existing.getEmail();
+	        } else {
+	            // 입력값이 있으면 그대로 업데이트 (즉, 수정)
+	            // 여기에 추가 검증 로직 넣어도 됨
+	        }
+	        
+	        String picture = memberVO.getPicture();
+	        if (picture == null || picture.trim().isEmpty()) {
+	            picture = existing.getPicture();
+	        }
+
+
+	       
+	        String tel = memberVO.getTel();
+	        if (tel == null || tel.trim().isEmpty()) {
+	            tel = existing.getTel(); 
 	        }
 
 	        // 4. UPDATE 수행
@@ -679,11 +695,11 @@ public class MemberDAO {
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, password);
 	        pstmt.setString(2, memberVO.getNickName());
-	        pstmt.setString(3, memberVO.getTel());
+	        pstmt.setString(3, tel);
 	        pstmt.setString(4, memberVO.getIsSmsAgreed());
 	        pstmt.setString(5, email);
 	        pstmt.setString(6, memberVO.getIsEmailAgreed());
-	        pstmt.setString(7, memberVO.getPicture());
+	        pstmt.setString(7, picture);
 	        pstmt.setInt(8, memberVO.getUserIdx());
 
 	        int cnt = pstmt.executeUpdate();
@@ -757,6 +773,7 @@ public class MemberDAO {
 	            dto.setEmail(rs.getString("email"));
 	            dto.setIsEmailAgreed(rs.getString("is_email_agreed"));
 	            dto.setPicture(rs.getString("picture"));
+	            dto.setUserIdx(userIdx);
 	            return dto;
 	        }
 	        return null;
