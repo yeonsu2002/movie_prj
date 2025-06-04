@@ -623,7 +623,7 @@ function login(){
 		            			} else {
 			            			location.href="https://i.imgur.com/l7uVLkn.jpeg";
 		            			}
-		            		}
+		            		} 
 		            	}
 		            </script>
 		          </div>
