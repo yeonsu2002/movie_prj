@@ -340,7 +340,7 @@ function fillModalWithData(adminData) {
   if(adminData.userIdx) {
 	  $("#userIdx").val(adminData.userIdx);
   }
-  
+   
   // 등록일 (수정 시에는 보통 변경하지 않음)
   if (adminData.insertDate) {
     $('input[name="insertDate"]').val(adminData.insertDate);
