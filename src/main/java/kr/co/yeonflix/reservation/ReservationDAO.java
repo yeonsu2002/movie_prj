@@ -239,7 +239,7 @@ public class ReservationDAO {
 			con = dbCon.getDbConn();
 			StringBuilder sql = new StringBuilder();
 			sql.append(
-					"SELECT s.schedule_idx, r.reservation_idx, m.movie_name, t.theater_name, s.screen_date, r.canceled_date ");
+					"SELECT s.schedule_idx, r.reservation_idx, m.movie_name, t.theater_name, s.screen_date, r.reservation_date, r.canceled_date ");
 			sql.append("FROM reservation r ");
 			sql.append("JOIN schedule s ON r.schedule_idx = s.schedule_idx ");
 			sql.append("JOIN movie m ON s.movie_idx = m.movie_idx ");
@@ -258,6 +258,7 @@ public class ReservationDAO {
 				srDTO.setMovieName(rs.getString("movie_name"));
 				srDTO.setTheaterName(rs.getString("theater_name"));
 				srDTO.setScreenDate(rs.getDate("screen_date"));
+				srDTO.setReservationDate(rs.getTimestamp("reservation_date"));
 				srDTO.setCanceledDate(rs.getTimestamp("canceled_date"));
 
 				list.add(srDTO);
@@ -276,7 +277,7 @@ public class ReservationDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<UserReservationDTO> selectUserReservationListBySchedule(int scheduleIdx, String col, String key)
+	public List<UserReservationDTO> selectUserReservationListBySchedule(int scheduleIdx, int startNum, int endNum, String col, String key)
 			throws SQLException {
 		List<UserReservationDTO> list = new ArrayList<UserReservationDTO>();
 
@@ -309,7 +310,7 @@ public class ReservationDAO {
 				}
 			}
 			query.append(") ");
-//			query.append("WHERE rnum BETWEEN ? AND ?");
+			query.append("WHERE rnum BETWEEN ? AND ?");
 
 
 			pstmt = con.prepareStatement(query.toString());
@@ -320,6 +321,8 @@ public class ReservationDAO {
 			if(col != null && !"".equals(key)) {
 				pstmt.setString(bindIdx++, key);
 			}
+			pstmt.setInt(bindIdx++, startNum);
+			pstmt.setInt(bindIdx++, endNum);
 			rs = pstmt.executeQuery();
 
 			while (rs.next()) {
@@ -359,8 +362,11 @@ public class ReservationDAO {
 		try {
 			con = db.getDbConn();
 			StringBuilder sql = new StringBuilder();
-			sql.append("	select count(*) cnt		").append("	from reservation			")
-					.append("   where schedule_idx=? 		");
+			sql.append("    SELECT COUNT(*) AS cnt ");
+			sql.append("    FROM reservation r ");
+			sql.append("    JOIN common_user c ON c.user_idx = r.user_idx ");
+			sql.append("    JOIN member m ON c.user_idx = m.user_idx ");
+			sql.append("    WHERE r.schedule_idx = ? ");
 
 			// 검색키워드존재
 			if (col != null && !"".equals(key)) {
