@@ -175,8 +175,15 @@ $(function(){
 				  //5.타이머 시작
 				  startTimer(300, $("#timer")); // join1의 방식으로 변경
 				  
+					//6. 인증번호 보내기 버튼 일시적 정지 (join1과 동일하게 추가)
+	        $(this).prop('disabled', true);
+	        setTimeout(() => {
+	            $(this).prop('disabled', false);
+	        }, 60000); // 60초 후에 재전송 가능
+			
 				} else if (result.trim() === "noUserdata"){
 					alert("등록되지 않은 회원입니다. 개인정보를 다시 한번확인해주세요.");
+					return;
 				}
 			},
 			error: function(xhr, status, error){
@@ -188,12 +195,6 @@ $(function(){
 			}
 			
 		});
-		
-		// 인증번호 보내기 버튼 일시적 정지 (join1과 동일하게 추가)
-        $(this).prop('disabled', true);
-        setTimeout(() => {
-            $(this).prop('disabled', false);
-        }, 60000); // 60초 후에 재전송 가능
 		
 	});
 	

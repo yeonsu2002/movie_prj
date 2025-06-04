@@ -19,5 +19,5 @@ public class ShowReservationDTO {
 	private int scheduleIdx, reservationIdx;
 	private String movieName, theaterName;
 	private Date screenDate;
-	private Timestamp canceledDate;
+	private Timestamp reservationDate, canceledDate;
 }

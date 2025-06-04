@@ -9,8 +9,12 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<<<<<<< HEAD
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+=======
+<jsp:include page="/common/jsp/admin_header.jsp" />
+>>>>>>> 7c53767ecaa3c0ae1d644b48a437658a4fe81110
 
 <jsp:useBean id="rDTO" class="kr.co.yeonflix.member.RangeDTO" scope="page"/>
 <jsp:setProperty name="rDTO" property="*" />

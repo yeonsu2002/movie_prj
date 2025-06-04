@@ -66,25 +66,6 @@
     margin-bottom: 20px;
 }
 
-.movie-item img:hover {
-    transform: scale(1.03);
-}
-.movie-item .rating-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 20px; 
-    height: 20px;
-}
-.movie-item .rank {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 80px;
-    font-style: italic;
-    color: white;
-    border-radius: 4px;
-}
 .fixedBtn_wrap {
     display: flex;
     justify-content: flex-end;
@@ -164,7 +145,25 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   transition: transform 0.2s;
 }
-
+.movie-item img:hover {
+    transform: scale(1.03);
+}
+.movie-item .rating-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px; 
+    height: 20px;
+}
+.movie-item .rank {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 80px;
+    font-style: italic;
+    color: white;
+    border-radius: 4px;
+}
 /* 마퀴 */
 /* 마퀴 전체 컨테이너 */
 .poster-marquee {

@@ -14,7 +14,7 @@ public class AdminService {
     this.adDAO = AdminDAO.getInstance();
   }
   
-  //매니저 가입 
+  //매니저 가입  -> 나중에 try문은 컨트롤러 쪽으로 변경 
   public boolean joinAdmin(AdminDTO adminDTO) {
     boolean result = false;
     
@@ -28,6 +28,11 @@ public class AdminService {
     }
     
     return result;
+  }
+  
+  //매니저 로그인 
+  public AdminDTO adminLogin(String adminId, String adminPwd) {
+	  return adDAO.selectAdminByLogin(adminId, adminPwd);
   }
   
   //관리자 목록 페이지에 매니저 불러오기
