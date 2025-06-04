@@ -1,0 +1,74 @@
+@charset "UTF-8";
+
+	.inquiry-detail-wrapper {
+  position: absolute;
+  top: 80px;            /* header height */
+  left: 300px;          /* sidebar width */
+  right: 0;
+  bottom: 0;
+  padding: 40px;
+  background-color: #f9fafb;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.inquiry-detail-wrapper h2 {
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #111827;
+  font-weight: bold;
+}
+
+.inquiry-detail-wrapper strong {
+  display: inline-block;
+  width: 80px;
+  font-weight: 600;
+  margin-top: 15px;
+  color: #374151;
+}
+
+.inquiry-detail-wrapper label {
+  color: #4b5563;
+  font-size: 16px;
+}
+
+.inquiry-detail-wrapper textarea {
+  display: block;
+  width: 100%;
+  min-height: 150px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  padding: 15px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  resize: vertical;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+.inquiry-detail-wrapper textarea[readonly] {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.inquiry-detail-wrapper .btn-area {
+  display: flex;
+  gap: 15px;
+}
+
+.inquiry-detail-wrapper input[type="button"] {
+  background-color: #6366f1;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.inquiry-detail-wrapper input[type="button"]:hover {
+  background-color: #4f46e5;
+}
+	

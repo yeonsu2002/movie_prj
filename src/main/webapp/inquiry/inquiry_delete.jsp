@@ -9,13 +9,19 @@
 <meta charset="${encoding}">
 <title><c:out value="${site_name}"/></title>
 <body>
-	<%
-		inquiryDAO iDAO = new inquiryDAO();
-		String num= request.getParameter("num");
-		String answer= request.getParameter("answer_content");
-		iDAO.alterinquiry(num, answer);
-		response.sendRedirect("http://localhost/movie_prj/admin/inquiry/inquiry_admin_main.jsp");
-	%>
+<%
+    String[] deleteIds = request.getParameterValues("choose");
+
+    if (deleteIds != null) {
+        inquiryDAO dao = new inquiryDAO();
+        for (String idx : deleteIds) {
+            dao.deleteinquiry(idx);
+        }
+    }
+
+    // 삭제 후 목록 페이지로 이동
+    response.sendRedirect("inquiry_user_main.jsp");
+%>
 
 <script type="text/javascript">
 $(function(){
