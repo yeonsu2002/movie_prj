@@ -151,7 +151,7 @@ function loginProcess(){
             	<button type="button" id="superLogin">총관리자 로그인</button> <!-- 이거 테스트 해봐야겠는데 다른데서 -->
             	<script type="text/javascript">
             		$("#superLogin").on("click", function(){
-            			let password = prompt("총관리자 비밀번호 입력 ");
+            			let password = prompt("총관리자 비밀번호 입력 (superpwd 입력하시오 )");
             			
             			$.ajax({
             				url : "${pageContext.request.contextPath}/admin/login/controller/superLoginController.jsp",
