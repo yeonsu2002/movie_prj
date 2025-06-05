@@ -15,7 +15,7 @@ import kr.co.yeonflix.dao.DbConnection;
 public class MovieDAO {
 	
 private static MovieDAO mDAO;
-	
+	 
 	private MovieDAO() {
 		
 	}
