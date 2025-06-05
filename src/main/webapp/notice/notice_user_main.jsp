@@ -4,39 +4,38 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
+<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>공지/뉴스 관리</title>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
-
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/notice/css/user_main.css">
 </head>
 <body>
-	<header>
-		<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
-	</header>
 <c:import url="http://localhost/movie_prj/customer_service/side_menu.jsp" />
-
-
 	<%
 	int first = 1;
-	int size = 5;
+	int size = 10;
 
 	if (request.getParameter("page") != null) {
 		first = Integer.parseInt(request.getParameter("page"));
 	}
-	//int userIdx = loginUser != null ? loginUser.getUserIdx() : 0;
-	noticeDAO ndao = new noticeDAO();
-	int total = ndao.getNoticeCount();
-	int totalPages = (int) Math.ceil(total / (double) size);
-	
 
 	String type = request.getParameter("type");
+	
+	noticeDAO ndao = new noticeDAO();
+	int total = ndao.getNoticeCount(type);
+	int totalPages = (int) Math.ceil(total / (double) size);
 
 	List<noticeDTO> notices = ndao.selectPagedType(type,first, size);
+	if(request.getParameter("search")!=null){
+		notices = ndao.searchNotice(request.getParameter("search"));
+		total = 1;
+		totalPages = 1;
+	}
 	request.setAttribute("notices", notices);
 	request.setAttribute("currentPage", first);
 	request.setAttribute("totalPages", totalPages);

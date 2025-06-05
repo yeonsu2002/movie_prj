@@ -171,7 +171,7 @@ public class inquiryDAO {
 	    ResultSet rs = null;
 
 	    String sql = 
-	        "SELECT * FROM (" +
+	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id FROM (" +
 	        "    SELECT ROWNUM rnum, a.* FROM (" +
 	        "        SELECT * FROM inquiry_board WHERE user_idx = ? ORDER BY inquiry_board_idx DESC" +
 	        "    ) a WHERE ROWNUM <= ?" +
@@ -214,7 +214,7 @@ public class inquiryDAO {
 	    ResultSet rs = null;
 
 	    String sql = 
-	        "SELECT * FROM (" +
+	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id FROM (" +
 	        "    SELECT ROWNUM rnum, a.* FROM (" +
 	        "        SELECT * FROM inquiry_board ORDER BY inquiry_board_idx DESC" +
 	        "    ) a WHERE ROWNUM <= ?" +
@@ -246,4 +246,35 @@ public class inquiryDAO {
 	    return list;
 	}
 
+	public List<inquiryDTO> Searchinquiry(String type, String input) throws SQLException {
+		List<inquiryDTO> inquiryList = new ArrayList<inquiryDTO>();
+		Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
+				+ "from inquiry_board "
+				+ "where ?=? "
+				+ "order by inquiry_board_idx";
+		try { 
+			conn = dbCon.getDbConn();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, type);
+			pstmt.setString(2, input);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				inquiryDTO iDTO = new inquiryDTO();
+				iDTO.setBoard_code_name(rs.getString("board_code_name"));
+				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
+				iDTO.setInquiry_title(rs.getString("inquiry_title"));
+				iDTO.setInquiry_content(rs.getString("inquiry_content"));
+				iDTO.setCreated_time(rs.getString("created_time"));
+				iDTO.setAnswer_status(rs.getInt("answer_status"));
+				
+				inquiryList.add(iDTO);
+			}
+		}finally {
+			dbCon.dbClose(rs, pstmt, conn);
+		}
+		return inquiryList;
+	}
 }

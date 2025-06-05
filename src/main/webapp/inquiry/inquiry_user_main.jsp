@@ -31,7 +31,7 @@
 	%>
 	<%
 	int first = 1;
-	int size = 5;
+	int size = 10;
 
 	if (request.getParameter("page") != null) {
 		first = Integer.parseInt(request.getParameter("page"));

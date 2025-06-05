@@ -164,7 +164,7 @@ public class noticeDAO {
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT notice_board_idx, board_code_name, notice_title, notice_content, TO_CHAR(created_time, 'YYYY-MM-DD') AS created_time, view_count "
-	               + "FROM notice_board WHERE notice_title LIKE ? ORDER BY created_time DESC";
+	               + "FROM notice_board WHERE notice_title LIKE ? ORDER BY view_count desc";
 	    try {
 	    	conn = dbCon.getDbConn();
 	        pstmt = conn.prepareStatement(sql); 
@@ -186,15 +186,21 @@ public class noticeDAO {
 	    return list;
 	}
 	
-	public int getNoticeCount() throws SQLException {
+	public int getNoticeCount(String type) throws SQLException {
 	    int count = 0;
 	    Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-	    String sql = "SELECT COUNT(*) FROM notice_board";
+	    String sql = "SELECT COUNT(*) FROM notice_board ";
+	    if(type != null && !type.equals("전체")) {
+	    	sql+="where board_code_name=?";
+	    }
 	    try {
 	    	conn = dbCon.getDbConn();
 	        pstmt = conn.prepareStatement(sql);
+	        if(type != null && !type.equals("전체")) {
+		    	pstmt.setString(1, type);
+		    }
 	        rs = pstmt.executeQuery();
 	        if (rs.next()) {
 	            count = rs.getInt(1);
@@ -216,7 +222,7 @@ public class noticeDAO {
 	    ResultSet rs = null;
 
 	    String sql = 
-	        "SELECT * FROM (" +
+	        "SELECT ROWNUM rnum, notice_board_idx,board_code_name,notice_title,notice_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time, view_count FROM (" +
 	        "    SELECT ROWNUM rnum, a.* FROM (" +
 	        "        SELECT * FROM notice_board ORDER BY notice_board_idx DESC" +
 	        "    ) a WHERE ROWNUM <= ?" +
@@ -258,7 +264,7 @@ public class noticeDAO {
 	    ResultSet rs = null;
 
 	    StringBuilder sql = new StringBuilder();
-	    sql.append("SELECT * FROM ( ");
+	    sql.append("SELECT ROWNUM rnum, notice_board_idx,board_code_name,notice_title,notice_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time, view_count FROM ( ");
 	    sql.append("    SELECT ROWNUM rnum, a.* FROM ( ");
 	    sql.append("        SELECT * FROM notice_board ");
 

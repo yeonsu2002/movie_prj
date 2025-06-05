@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <title>공지/뉴스 등록</title>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
 

@@ -9,7 +9,7 @@ body {
 .customer-wrapper {
   max-width: 1000px;
   height:500px;
-  margin: 10px auto 50px;
+  margin: 10px auto 30px;
   padding: 30px;
   background: rgba(0, 0, 0, 0.6); /* 반투명 다크 */
   border-radius: 12px;

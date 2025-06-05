@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -16,6 +17,13 @@
 <link rel="stylesheet" href="http://localhost/movie_prj/inquiry/css/add.css">
 </head>
 <body>
+<%
+	MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+	if (loginUser == null) {
+		response.sendRedirect("http://localhost/movie_prj/login/loginFrm.jsp");//로그인 안되있으면 로그인 사이트로
+		return;
+	}
+	%>
 <div class="inquiry-wrapper">
 <form action="inquiry_accept.jsp" id="inquiry_add">
 <table>
