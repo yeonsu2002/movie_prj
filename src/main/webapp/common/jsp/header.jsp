@@ -11,7 +11,7 @@
 		<ul class=login_menu>
 			<!-- c:url 이랑 imgs src랑 다르다. 가져오는 주소가 다름에 주의!!! -->  
 			<c:choose>
-  	    <c:when test="${not empty sessionScope.loginUser}">
+  	    <c:when test="${not empty loginUser}">
   	    <li><img alt="한글사진x" src="http:/profile/${loginUser.picture}" style="width: 70px; height: 70px; border-radius: 5em;"> </li>
   	    <li style="display: flex; align-items: center; justify-content: center;">[<c:out value="${sessionScope.loginUser.nickName }" />]님 방문을 환영합니다.</li>
         <li><a href="http://localhost/movie_prj/login/controller/logout.jsp"><img src="http://localhost/movie_prj/common/img/loginPassword.png" alt="">로그아웃</a></li>

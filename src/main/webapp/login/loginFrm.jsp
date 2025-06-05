@@ -606,9 +606,26 @@ function login(){
 	            </div>
 	            
 		          <div class="naver-login">
-		            <a href="javascript:getNaverLoginURL();" class="btn_loginNaver">
+		            <a href="javascript:goNaver();" class="btn_loginNaver">
 		              <img src="https://img.cgv.co.kr/image_gt/login/btn_loginNaver.jpg" alt="네이버 로그인">
 		            </a>
+		            <script type="text/javascript">
+		            	function goNaver(){
+		            		if(confirm('좋은거 보여드릴까요?')){
+			            		location.href="https://i.imgur.com/detH3kE.png";
+		            		} else {
+		            			alert("아쉽네요. 진짜 좋은건데");
+		            			alert("그냥 가기 섭섭해요. 진짜 좋은건데..");
+		            			alert("정말 싫어요?");
+		            			alert("진짜 진짜 이거 후회할텐데..");
+		            			if(confirm('마지막으로 한번 더 물어볼게요. 좋은거 보기 싫어요?')){
+			            			location.href="https://i.imgur.com/l7uVLkn.jpeg";
+		            			} else {
+			            			location.href="https://i.imgur.com/l7uVLkn.jpeg";
+		            			}
+		            		} 
+		            	}
+		            </script>
 		          </div>
 	          </fieldset>
 	        </form>
