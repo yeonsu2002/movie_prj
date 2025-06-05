@@ -13,7 +13,6 @@
 			<c:choose>
   	    <c:when test="${not empty loginUser}">
   	    <li>
-	  	    <div><img alt="한글사진x" src="http:/profile/${loginUser.picture}" style="width: 36px; height: 36px; border-radius: 5em;"> </div>
 	  	    <div style="display: flex; align-items: center; justify-content: center;">[<span style="color: blue; font-size: 13px;"> <c:out value="${sessionScope.loginUser.nickName }" /></span>]</div>
   	    </li>
         <li><a href="http://localhost/movie_prj/login/controller/logout.jsp"><img src="http://localhost/movie_prj/common/img/loginPassword.png" alt="">로그아웃</a></li>
