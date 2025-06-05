@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
 import oracle.jdbc.driver.DBConversion;
@@ -147,6 +148,44 @@ public class NonMemberDAO {
     return nmDTO;
   }
 	
-	
+	//전체멤버 보기
+  public List<NonMemberDTO> selectAllNonMember(){
+  	List<NonMemberDTO> list = null;
+  	
+  	//번호, 생년월일, 이메ㅇㄹ, 생성일
+  	DbConnection dbCon = DbConnection.getInstance();
+  	Connection con = null;
+  	ResultSet rs = null;
+  	
+  	String query = "	SELECT * FROM non_member ORDER BY created_at DESC	";
+  	
+  	try {
+			con = dbCon.getDbConn();
+  		
+  		try(PreparedStatement pstmt = con.prepareStatement(query)) {
+  			rs = pstmt.executeQuery();
+  			
+  			while (rs.next()) {
+  				NonMemberDTO vo = new NonMemberDTO();
+  				vo.setUserIdx(rs.getInt("user_idx"));
+  				vo.setBirth(rs.getDate("non_member_birth").toLocalDate());
+  				vo.setEmail(rs.getString("email"));
+  				vo.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+  				
+  				list.add(vo);
+				}
+  			
+  		} catch (Exception e) {
+  			e.printStackTrace();
+  		} 
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+      if (con != null) try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
+		}
+  	
+  	return list;
+  }
 	
 }
