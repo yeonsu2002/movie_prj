@@ -132,6 +132,7 @@
    <a href="http://localhost/movie_prj/mypage/wishMovie.jsp" class="btn btn-light" style="width:230px; height:50px">기대되는 영화</a>
 <a href="http://localhost/movie_prj/mypage/WatchMovie.jsp" class="btn btn-light" style="width:230px; height:50px">내가 본 영화</a>
 <a href="http://localhost/movie_prj/mypage/ReviewMovie.jsp" class="btn btn-danger" style="width:230px; height:50px">내가 쓴 평점</a>
+<a href="http://localhost/movie_prj/mypage/MainPage.jsp" class="btn btn-secondary" style="width:230px; height:40px;  margin-top: 280px;">뒤로</a>
   </div>
   
  </div>

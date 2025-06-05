@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
@@ -16,6 +17,18 @@
 <jsp:useBean id="resDTO" class="kr.co.yeonflix.reservation.ReservationDTO" scope="page" />
 
 <%
+    //세션에 저장된 유저값 가져오기
+ 	MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+    NonMemberDTO guestUser = (NonMemberDTO)session.getAttribute("guestUser");
+    
+    int userIdx = 0;
+    
+    if (loginUser != null) {
+        userIdx = loginUser.getUserIdx();
+    } else{
+    	userIdx = guestUser.getUserIdx();
+    }
+ 
     // 파라미터 받아오기
     int totalPrice = Integer.parseInt(request.getParameter("priceParam"));
     String seatsInfo = request.getParameter("seatsParam");
@@ -28,11 +41,6 @@
 
     Random random = new Random();
     String reservationNumber = String.format("%s-%s-%04d-%04d", thisYear, thisDay, random.nextInt(9000) + 1000, random.nextInt(9000) + 1000);
-
-    //세션에 저장된 유저값 가져오기
- 	MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
-    int userIdx = loginUser.getUserIdx();
-    /* int userIdx = 1; */
 
     // 좌석 정보 분리
     String[] seats = seatsInfo.split(" ");

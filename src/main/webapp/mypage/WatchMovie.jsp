@@ -1,3 +1,6 @@
+<%@page import="java.util.HashSet"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Set"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
@@ -34,6 +37,9 @@ if (loginUser == null) {
     // JSP에 member 객체 넘기기
     request.setAttribute("member", mDTO);
  
+    /* -------------------------------------------------------------------------------------- */
+    
+    Set<Integer> DupMovie=new HashSet<>();
     
     PurchaseHistoryService phs = new PurchaseHistoryService();
     ReservationService rs = new ReservationService();
@@ -43,6 +49,7 @@ if (loginUser == null) {
     List<PurchaseHistoryDTO> purchList = phs.searchAllPurchasebyUser(loginUserIdx);
     List<MovieDTO> movieList = new ArrayList<>();
 
+    
     for (PurchaseHistoryDTO pDto : purchList) {
         int reservationIdx = pDto.getReservationIdx();
 
@@ -53,11 +60,15 @@ if (loginUser == null) {
         ScheduleDTO schDto = ss.searchOneSchedule(scheduleIdx);
         if (schDto == null) continue;
 
+        
         int movieIdx = schDto.getMovieIdx();
+        if (DupMovie.contains(movieIdx)) continue;
+        
         MovieDTO movDto = mov.searchOneMovie(movieIdx);
         if (movDto == null) continue;
 
         movieList.add(movDto); 
+        DupMovie.add(movieIdx);
     }
 
     request.setAttribute("movieList", movieList);
@@ -76,13 +87,36 @@ if (loginUser == null) {
   margin: 30px auto; /* 위아래 여백 + 가운데 정렬 */
   max-width: 1200px;  /* 최대 너비 제한 */
   display: flex;
+  gap: 40px;
 }
 
-/* 좌측 사이드바 스타일 */
 .sidebar {
   width: 250px;
   border-right: 1px solid #e0e0e0;
   padding: 0 10px;
+  margin-right: 50px;
+  position: relative; /* 부모가 기준이 되도록 설정 */
+  min-height: 100%; /* 높이를 늘려서 자식 절대 위치 가능하게 */
+}
+
+.fixed-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  width: 230px;
+  height: 40px;
+  background-color: #f8f9fa;
+  border: 1px solid #ccc;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: black;
+  transition: background-color 0.3s;
+}
+
+.fixed-btn:hover {
+  background-color: #e2e6ea;
 }
 
 /* 우측 콘텐츠 영역 */
@@ -90,7 +124,6 @@ if (loginUser == null) {
   flex: 1;
   padding: 20px;
 }
- 
  
  
  .profile {
@@ -145,17 +178,17 @@ if (loginUser == null) {
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .movie-card {
-  flex: 1 1 200px;
-  max-width: 220px;
+  flex: 0 0 calc(50% - 15px); /* 화면의 50%에서 gap 절반 빼기 */
+  max-width: calc(50% - 15px);
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   display: flex;
-  flex-direction: column; /* 수직 방향 */
+  flex-direction: column;
   align-items: center;
   text-align: center;
   padding: 20px;
@@ -169,7 +202,7 @@ if (loginUser == null) {
 
 .movie-card img {
   width: 180px;          /* 폭은 고정 */
-  height: 270px;         /* ✅ 세로를 더 길게 */
+  height: 270px;         
   object-fit: cover;     /* 비율에 맞춰 자르기 */
   margin-bottom: 15px;
   border-radius: 8px;
@@ -201,6 +234,8 @@ if (loginUser == null) {
 
 </style>
 <script type="text/javascript">
+
+
 </script>
 </head>
 <body>
@@ -224,6 +259,7 @@ if (loginUser == null) {
     <a href="http://localhost/movie_prj/mypage/wishMovie.jsp" class="btn btn-light" style="width:230px; height:50px">기대되는 영화</a>
 	<a href="http://localhost/movie_prj/mypage/WatchMovie.jsp" class="btn btn-danger" style="width:230px; height:50px">내가 본 영화</a>
 	<a href="http://localhost/movie_prj/mypage/ReviewMovie.jsp" class="btn btn-light" style="width:230px; height:50px">내가 쓴 평점</a>
+	<a href="http://localhost/movie_prj/mypage/MainPage.jsp" class="fixed-btn" style="width:230px; height:40px;  margin-top: 280px;">뒤로</a>
   </div>
   
   
@@ -232,7 +268,7 @@ if (loginUser == null) {
    <!-- 메인 콘텐츠 -->
     <div class="main-content">
         <div class="content-header">
-            <h1 class="content-title" style="font-size: 20px; font-weight:bold;">내가 본 영화 <span class="movie-count">${fn:length(movieList)}건</span></h1>
+            <h1 class="content-title" style="font-size: 30px; font-weight:bold;">내가 본 영화 <span class="movie-count">${fn:length(movieList)}건</span></h1>
         </div>
         <br><br>
        <div class="movie-grid">
@@ -244,7 +280,7 @@ if (loginUser == null) {
 		    <c:forEach var="movie" items="${movieList}">
 		      <div class="movie-card">
 		        <div class="movie-poster">
-		          <img src="<c:out value='${movie.posterPath}'/>" alt="<c:out value='${movie.movieName}'/> 포스터" />
+		          <img src="/movie_prj/common/img/${movie.posterPath }"/>
 		        </div>
 		        <br>
 		        <div class="movie-info">

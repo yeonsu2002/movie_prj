@@ -1,7 +1,10 @@
 package kr.co.yeonflix.review;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
+import kr.co.yeonflix.dao.DbConnection;
 
 public class ReviewService {
 
@@ -72,6 +75,27 @@ public class ReviewService {
         }
 
         return flag;
+    }
+ // 전체 리뷰 조회 (관리자용)
+    public List<ReviewDTO> getAllReviews() {
+        List<ReviewDTO> list = null;
+        ReviewDAO rDAO = ReviewDAO.getInstance();
+        Connection con = null;
+
+        try {
+            con = DbConnection.getInstance().getDbConn(); // ✅ 연결 객체 가져오기
+            list = rDAO.selectAllReviews(con);            // ✅ 연결 넘기기
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (con != null) con.close(); // ✅ 자원 반환
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
     }
 
 }

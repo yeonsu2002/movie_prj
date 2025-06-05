@@ -34,7 +34,7 @@
 	cursor: pointer;
 	color: #666;
 	border-radius: 8px;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 	white-space: nowrap;
 	font-weight: 500;
 	margin: 0 4px;
@@ -79,7 +79,7 @@
 	color: #333;
 	background: white;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 	min-width: 200px;
 }
 
@@ -118,7 +118,7 @@ th {
 }
 
 tbody tr {
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 }
 
 tbody tr:hover {
@@ -136,7 +136,7 @@ a {
 	color: #667eea;
 	text-decoration: none;
 	font-weight: 600;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 }
 
 a:hover {
@@ -154,7 +154,7 @@ a:hover {
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 	box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
@@ -172,7 +172,7 @@ a:hover {
 	font-size: 16px;
 	font-weight: 600;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.2s ease;
 	box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 	margin-top: 20px;
 }
@@ -201,7 +201,7 @@ a:hover {
 .coudNotEdit {
 	cursor: pointer;
 	color: #6c757d;
-	transition: color 0.3s ease;
+	transition: color 0.2s ease;
 }
 
 .coudNotEdit:hover {
@@ -255,5 +255,5 @@ a:hover {
 }
 
 .table-container {
-	animation: fadeIn 0.6s ease-out;
+	animation: fadeIn 0.4s ease-out;
 }

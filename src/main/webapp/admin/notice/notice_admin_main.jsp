@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <title>공지/뉴스 관리</title>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
 	
@@ -19,13 +19,13 @@
 <body>
 <%
 	int first = 1;
-	int size = 5;
+	int size = 10;
 
 	if (request.getParameter("page") != null) {
 		first = Integer.parseInt(request.getParameter("page"));
 	}
 	noticeDAO ndao = new noticeDAO();
-	int total = ndao.getNoticeCount();
+	int total = ndao.getNoticeCount("전체");
 	int totalPages = (int) Math.ceil(total / (double) size);
 
 	List<noticeDTO> notices = ndao.selectPaged(first, size);

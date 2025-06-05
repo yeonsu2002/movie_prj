@@ -1,206 +1,270 @@
+<%@page import="kr.co.yeonflix.dashboard.DashboardDTO"%>
+<%@page import="java.util.List"%>
+<%@page import="kr.co.yeonflix.dashboard.DashboardService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%
+    DashboardService dashboardService = new DashboardService();
+
+	List<DashboardDTO> salesList = dashboardService.getDailySales();
+    List<DashboardDTO> theaterList = dashboardService.getReservationByTheaterType();
+    List<DashboardDTO> topMoviesList = dashboardService.getTop5Movies();
+    List<DashboardDTO> memberDailyList = dashboardService.getMemberReservationCount();
+
+    request.setAttribute("theaterList", theaterList); 
+    request.setAttribute("topMoviesList", topMoviesList);
+    request.setAttribute("memberDailyList", memberDailyList);
+%>
+
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>관리자 대시보드</title>
-<link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
-<link rel="stylesheet" href="/movie_prj/admin/dashboard/dashboard.css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드</title>
+    <style> 
+        #chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+    </style>
+    <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
+    <link rel="stylesheet" href="/movie_prj/admin/dashboard/dashboard.css/dashboard.css">
 </head>
 <body>
     <div class="content-container">
         <div class="dashboard-grid">
         
-            <!-- 매출 차트 -->
+            <!-- 매출 차트 카드 -->
             <div class="dashboard-card">
-                <div class="card-title">매출</div>
+                <div class="card-title">일별 매출</div>
                 <div class="chart-container">
-                    <div class="bar-chart">
-                        <div class="bar-group">
-                            <div class="bar bar-blue" style="height: 60px;"></div>
-                            <div class="bar bar-pink" style="height: 120px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-blue" style="height: 80px;"></div>
-                            <div class="bar bar-pink" style="height: 130px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-blue" style="height: 100px;"></div>
-                            <div class="bar bar-pink" style="height: 140px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-blue" style="height: 70px;"></div>
-                            <div class="bar bar-pink" style="height: 135px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-blue" style="height: 110px;"></div>
-                            <div class="bar bar-pink" style="height: 125px;"></div>
-                        </div>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #3b82f6;"></div>
-                            <span>작년 같은 달</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #ec4899;"></div>
-                            <span>올해</span>
-                        </div>
-                    </div>
+                    <canvas id="salesChart" style="width:100%; height:400px;"></canvas>
                 </div>
             </div>
-            
-            <!-- 예약 차트 -->
+            <!-- 상영중 인기 영화 TOP 5 (수평 막대) -->
             <div class="dashboard-card">
-                <div class="card-title">예약</div>
+                <div class="card-title">상영중 TOP 5 예매 영화</div>
                 <div class="chart-container">
-                    <div class="bar-chart">
-                        <div class="bar-group">
-                            <div class="bar bar-green" style="height: 40px;"></div>
-                            <div class="bar bar-light-green" style="height: 180px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-green" style="height: 35px;"></div>
-                            <div class="bar bar-light-green" style="height: 175px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-green" style="height: 50px;"></div>
-                            <div class="bar bar-light-green" style="height: 170px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-green" style="height: 30px;"></div>
-                            <div class="bar bar-light-green" style="height: 165px;"></div>
-                        </div>
-                        <div class="bar-group">
-                            <div class="bar bar-green" style="height: 60px;"></div>
-                            <div class="bar bar-light-green" style="height: 160px;"></div>
-                        </div>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #22c55e;"></div>
-                            <span>신규 예약</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #86efac;"></div>
-                            <span>전체 예약</span>
-                        </div>
-                    </div>
+                    <canvas id="topMoviesChart" style="width:100%; height:400px;"></canvas>
+                </div>
+            </div>
+            <!-- 회원 비회원 예매 건수 차트 -->
+            <div class="dashboard-card">
+                <div class="card-title">회원/비회원 예매 건수</div>
+                <div class="chart-container">
+                    <canvas id="memberChart" style="width:100%; height:400px;"></canvas>
+                </div>
+            </div>
+            <!-- 특별관 예매 비율 (도넛 차트) -->
+            <div class="dashboard-card">
+                <div class="card-title">특별관 예매 비율</div>
+                <div class="chart-container">
+                    <canvas id="theaterChart" style="width:100%; height:400px;"></canvas>
                 </div>
             </div>
         </div>
-        
-        <div class="dashboard-grid">
-            <!-- 회원 차트 -->
-            <div class="dashboard-card">
-                <div class="card-title">회원</div>
-                <div class="chart-container">
-                    <div class="line-chart">
-                        <canvas id="memberChart"></canvas>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #3b82f6;"></div>
-                            <span>신규 회원</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #ec4899;"></div>
-                            <span>전체 회원</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #86efac;"></div>
-                            <span>활성 회원</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 통계 테이블 -->
-            <div class="dashboard-card">
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>현황</th>
-                            <th>현재 상영작 수</th>
-                            <th>상영 예정</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>전체</td>
-                            <td>7</td>
-                            <td>8</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <script>
-            // 라인 차트 그리기 (간단한 Canvas 구현)
-            document.addEventListener('DOMContentLoaded', function() {
-                const canvas = document.getElementById('memberChart');
-                if (!canvas) return;
-                
-                const ctx = canvas.getContext('2d');
-                
-                // Canvas 크기 설정
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
-                
-                // 데이터 포인트 (예시)
-                const data1 = [20, 25, 30, 28, 35, 30, 32]; // 신규 회원
-                const data2 = [45, 50, 55, 52, 58, 55, 60]; // 전체 회원  
-                const data3 = [40, 42, 48, 45, 50, 47, 52]; // 활성 회원
-                
-                const maxValue = Math.max(...data1, ...data2, ...data3);
-                const padding = 20;
-                const chartWidth = canvas.width - padding * 2;
-                const chartHeight = canvas.height - padding * 2;
-                
-                // 라인 그리기 함수
-                function drawLine(data, color) {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    for(let i = 0; i < data.length; i++) {
-                        const x = padding + (i * chartWidth / (data.length - 1));
-                        const y = padding + chartHeight - (data[i] / maxValue * chartHeight);
-                        
-                        if(i === 0) {
-                            ctx.moveTo(x, y);
-                        } else {
-                            ctx.lineTo(x, y);
+    </div>
+    
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+	// 1. 일별 매출 차트
+    const salesData = [
+        <% for (DashboardDTO sales : salesList) { %>
+            {
+                date: '<%= sales.getDate() %>',
+                totalSales: <%= sales.getTotalSales() %>
+            },
+        <% } %>
+    ];
+    const salesLabels  = salesData.map(item => item.date);
+    const sales = salesData.map(item => item.totalSales);
+
+    const salesCtx  = document.getElementById('salesChart').getContext('2d');
+    new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: salesLabels,
+            datasets: [{
+                label: '일별 매출 (원)',
+                data: sales,
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '원'; // 매출 금액을 원 단위로 표시
                         }
                     }
-                    ctx.stroke();
                 }
-                
-                // 배경 격자 그리기
-                ctx.strokeStyle = '#f3f4f6';
-                ctx.lineWidth = 1;
-                
-                // 수평선
-                for(let i = 0; i <= 5; i++) {
-                    const y = padding + (i * chartHeight / 5);
-                    ctx.beginPath();
-                    ctx.moveTo(padding, y);
-                    ctx.lineTo(padding + chartWidth, y);
-                    ctx.stroke();
+            }
+        }
+    });
+ // 2. 회원/비회원 예매 건수 차트 (라인 차트)
+    const memberDailyDataRaw = [
+        <% for (DashboardDTO dto : (List<DashboardDTO>)request.getAttribute("memberDailyList")) { %>
+            {
+                date: '<%= dto.getDate() %>',
+                memberType: '<%= dto.getMemberType() %>',
+                count: <%= dto.getReservationCount() %>
+            },
+        <% } %>
+    ];
+
+    const memberLabels = [...new Set(memberDailyDataRaw.map(item => item.date))].sort();
+    const memberCounts = {}, nonMemberCounts = {};
+    memberLabels.forEach(date => {
+        memberCounts[date] = 0;
+        nonMemberCounts[date] = 0;
+    });
+
+    memberDailyDataRaw.forEach(item => {
+        if (item.memberType === '회원') {
+            memberCounts[item.date] = item.count;
+        } else {
+            nonMemberCounts[item.date] = item.count;
+        }
+    });
+
+    const memberData = memberLabels.map(date => memberCounts[date]);
+    const nonMemberData = memberLabels.map(date => nonMemberCounts[date]);
+
+    const memberCtx = document.getElementById('memberChart').getContext('2d');
+    new Chart(memberCtx, {
+        type: 'line',
+        data: {
+            labels: memberLabels,
+            datasets: [
+                {
+                    label: '회원',
+                    data: memberData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.2)',
+                    tension: 0.3,
+                    pointRadius: 5
+                },
+                {
+                    label: '비회원',
+                    data: nonMemberData,
+                    borderColor: '#ec4899',
+                    backgroundColor: 'rgba(236,72,153,0.2)',
+                    tension: 0.3,
+                    pointRadius: 5
                 }
-                
-                // 라인 그리기
-                drawLine(data1, '#3b82f6');
-                drawLine(data2, '#ec4899');
-                drawLine(data3, '#86efac');
-            });
-        </script>
-        
-    </div>
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: ''
+                }
+            }
+        }
+    });
+      
+    // 3. 특별관 예매 비율
+    const theaterCtx = document.getElementById('theaterChart').getContext('2d');
+    const theaterData = {
+        labels: [
+            <c:forEach var="dto" items="${theaterList}" varStatus="loop">
+                "${dto.theaterType}"<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+        ],
+        datasets: [{
+            label: '예매 수',
+            data: [
+                <c:forEach var="dto" items="${theaterList}" varStatus="loop">
+                    ${dto.reservationCount}<c:if test="${!loop.last}">,</c:if>
+                </c:forEach>
+            ],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)'
+            ],
+            borderWidth: 1
+        }]
+    };
+    new Chart(theaterCtx, {
+        type: 'doughnut',
+        data: theaterData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: ''
+                }
+            }
+        }
+    });
+ // 4. 상영중 인기 영화 TOP 5 차트 (수평 막대)
+    const topMoviesCtx = document.getElementById('topMoviesChart').getContext('2d');
+    const topMoviesData = {
+        labels: [
+            <c:forEach var="dto" items="${topMoviesList}" varStatus="loop">
+             "${dto.movie_name}"<c:if test="${!loop.last}">,</c:if>
+            </c:forEach>
+        ],
+        datasets: [{
+            label: '예매 건수',
+            data: [
+                <c:forEach var="dto" items="${topMoviesList}" varStatus="loop">
+                    ${dto.reservationCount}<c:if test="${!loop.last}">,</c:if>
+                </c:forEach>
+            ],
+            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+        }]
+    };
+    new Chart(topMoviesCtx, {
+        type: 'bar',
+        data: topMoviesData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: '' }
+            }
+        }
+    });
+});
+    </script>
 </body>
 </html>

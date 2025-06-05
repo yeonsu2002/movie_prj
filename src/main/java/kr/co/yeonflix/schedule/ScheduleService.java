@@ -27,6 +27,16 @@ public class ScheduleService {
 		return list;
 	}//searchAllMovie
 	
+	public List<MovieDTO> getAvailableMoviesByDate(Date screenDate){
+		List<MovieDTO> list = new ArrayList<MovieDTO>();
+		for(MovieDTO mDTO : searchAllMovie()) {
+			if(!screenDate.before(mDTO.getReleaseDate()) && !screenDate.after(mDTO.getEndDate())) {
+				list.add(mDTO);
+			}
+		}
+		return list;
+	}
+	
 	public MovieDTO searchOneMovie(int movieIdx) {
 		MovieDTO mDTO = null;
 		

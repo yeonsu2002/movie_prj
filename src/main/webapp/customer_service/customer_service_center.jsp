@@ -21,7 +21,11 @@
 		<div class="customer-wrapper">
 			<div class="button-grid">
 				<div class="menu-card">
-					<label>자주 찾는 질문 목록</label> <input type="text" placeholder="Search" />
+					<label>질문 빠른검색</label>
+					<form action="http://localhost/movie_prj/notice/notice_user_main.jsp" id="frm">
+					 <input type="text"  name="search" placeholder="Search" />	
+					 <input type="button" id="search" value="검색"/>
+					 </form>
 				</div>
 				<div class="menu-card">
 					<label>이메일 문의</label><br>
@@ -35,7 +39,7 @@
 
 			<div class="notice-section">
 				<h2>
-					공지/뉴스 <span>+</span>
+					공지/뉴스 
 				</h2>
 				<table class="notice-table">
 					<%
@@ -74,6 +78,9 @@
 							function() {
 								location.href = "http://localhost/movie_prj/inquiry/inquiry_user_main.jsp";
 							})
+			$("#search").click(function(){
+				$("#frm").submit();
+			})
 		});//ready
 	</script>
 </body>

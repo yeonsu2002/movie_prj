@@ -6,16 +6,17 @@
 <%@ page import="java.util.*" %>
 
 <%
-    String keyword = request.getParameter("keyword");
-    ReviewService reviewService = new ReviewService();
-    List<ReviewDTO> reviewList;
+String keyword = request.getParameter("keyword"); // 
+ReviewService reviewService = new ReviewService();
+List<ReviewDTO> reviewList;
 
-    if (keyword != null && !keyword.trim().isEmpty()) {
-        reviewList = reviewService.searchReviewsByUserId(keyword.trim());
-    } else {
-        // 비워둘 경우, 모든 리뷰를 조회하는 메서드를 추가하면 됩니다.
-        reviewList = new ArrayList<>();
-    }
+if (keyword != null && !keyword.trim().isEmpty()) {
+    reviewList = reviewService.searchReviewsByUserId(keyword.trim());
+} else {
+ 
+    reviewList = reviewService.getAllReviews(); 
+}
+request.setAttribute("reviewList", reviewList);
 %>
 <!DOCTYPE html>
 <html>
@@ -173,6 +174,7 @@ h2 {
                     <th>영화 ID</th>
                     <th>작성자 ID</th>
                     <th>리뷰 내용</th>
+                    <th>작성일</th>
                     <th>평점</th>
                 </tr>
             </thead>
@@ -184,13 +186,14 @@ h2 {
                         <td>${review.movieId}</td>
                         <td>${review.userId}</td>
                         <td>${review.content}</td>
+                        <td>${review.writeDate}</td>
                         <td>${review.rating}</td>
                     </tr>
                 </c:forEach>
 
                 <c:if test="${empty reviewList}">
                     <tr>
-                        <td colspan="6">검색 결과가 없습니다.</td>
+                        <td colspan="7">검색 결과가 없습니다.</td>
                     </tr>
                 </c:if>
             </tbody>
