@@ -11,6 +11,7 @@ request.setCharacterEncoding("UTF-8");
 String movieIdStr = request.getParameter("movieId");
 String content = request.getParameter("content");
 String scoreStr = request.getParameter("score");
+double rating = Double.parseDouble(request.getParameter("rating"));
 
 // 파라미터 변환
 int movieId = 0;
@@ -56,9 +57,10 @@ userId = 1;
 }
 
 ReviewDTO dto = new ReviewDTO();
+
 dto.setMovieId(movieId);
 dto.setContent(content);
-dto.setRating(score);
+dto.setRating(rating);
 dto.setUserId(userId);
 
 // Service를 통해 DB 저장
