@@ -93,7 +93,7 @@ function loginProcess(){
 		data:{
 			adminId : adminId,
 			adminPwd : adminPwd
-		},
+		}, 
 		type: "POST",
 		success: function(response){
 			if(response.trim() === "success"){
