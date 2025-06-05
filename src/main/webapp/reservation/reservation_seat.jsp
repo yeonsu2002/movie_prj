@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonService"%>
 <%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeDTO"%>
@@ -19,6 +21,15 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
+MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+NonMemberDTO guestUser = (NonMemberDTO)session.getAttribute("guestUser");
+if(loginUser == null && guestUser == null){
+	out.println("<script>");
+	out.println("alert('로그인 후 이용가능합니다.');");
+	out.println("location.href='http://localhost/movie_prj/login/loginFrm.jsp';");
+	out.println("</script>");
+	return;
+}
 //파라미터로 받은 값으로 선택한 상영스케줄 찾기
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleIdx"));
 ScheduleService ss = new ScheduleService();
@@ -94,6 +105,7 @@ request.setAttribute("tempSeats", tempSeats);
 request.setAttribute("grade", grade);
 
 %>
+<%=guestUser %>
 <!DOCTYPE html>
 <html>
 <head>
