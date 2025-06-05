@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class MovieCommonCodeDTO {
 	private int movieIdx, codeIdx;
-	private String codeType;
+	private String codeType, codeName;
 }

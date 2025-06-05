@@ -28,6 +28,21 @@ public class MovieService {
 		return list;
 	}//searchMovieChart
 	
+	public List<MovieDTO> searchNonMovieChart(){
+		List<MovieDTO> list = new ArrayList<MovieDTO>();
+		MovieDAO mDAO = MovieDAO.getInstance();
+		LocalDate today = LocalDate.now();
+		Date date = Date.valueOf(today);
+		
+		try {
+			list = mDAO.selectNonMovieChart(date);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}//catch
+		
+		return list;
+	}//searchMovieChart
+	
 	public List<MovieDTO> searchMovieList(){
 		List<MovieDTO> list = new ArrayList<MovieDTO>();
 		MovieDAO mDAO = MovieDAO.getInstance();
@@ -53,6 +68,27 @@ public class MovieService {
 		
 		return mDTO;
 	}//searchOneMovie
+	
+	public double reservationRate(int num) {
+		int count = 0;
+		int totalCount = 0;
+		double result = 0;
+		MovieDAO mDAO = MovieDAO.getInstance();
+		try {
+			count = mDAO.selectMovieReservation(num);
+			totalCount = mDAO.selectMovieReservationCount();
+			//예매율(%) = (특정 영화의 예매 건수 / 전체 영화의 예매 건수) × 100
+			result = ((double)count / totalCount) * 100; 
+			
+			result = Math.round(result * 100) / 100.0; // 소수점 둘째자리까지 반올림
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+		
+	}
 	
 	public boolean addMovie(int genreCode, int gradeCode , MovieDTO mDTO) {
 	    boolean flag = false;

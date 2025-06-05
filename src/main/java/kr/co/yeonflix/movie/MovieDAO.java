@@ -40,8 +40,19 @@ private static MovieDAO mDAO;
 			con = db.getDbConn();
 			
 			StringBuilder selectMovieList = new StringBuilder();
-			selectMovieList.append("	select movie_idx,movie_name,poster_path,release_date,country,running_time,end_date,movie_description,screening_status,trailer_url, actors, directors	")
-			.append("	from movie	");
+			selectMovieList.append(" SELECT movie_idx,movie_name,poster_path,release_date,country,running_time,end_date,movie_description,trailer_url, actors, directors, ")
+		    .append("        CASE screening_status ")
+		    .append("            WHEN 0 THEN '상영예정' ")
+		    .append("            WHEN 1 THEN '상영중' ")
+		    .append("            WHEN 2 THEN '상영종료' ")
+		    .append("        END as status_name ")
+		    .append(" FROM movie ")
+		    .append(" ORDER BY ")
+		    .append("     CASE screening_status ")
+		    .append("         WHEN 1 THEN 1 ")  // 상영중을 첫 번째
+		    .append("         WHEN 0 THEN 2 ")  // 상영예정을 두 번째
+		    .append("         WHEN 2 THEN 3 ")  // 상영종료를 세 번째
+		    .append("     END, release_date DESC, end_date DESC");
 		
 			pstmt=con.prepareStatement(selectMovieList.toString());
 				
@@ -60,16 +71,10 @@ private static MovieDAO mDAO;
 				mDTO.setRunningTime(rs.getInt("running_time"));
 				mDTO.setEndDate(rs.getDate("end_date"));
 				mDTO.setMovieDescription(rs.getString("movie_description"));
-				mDTO.setScreeningStatus(rs.getInt("screening_status"));
+				mDTO.setScreeningStatusStr(rs.getString("status_name"));
 				mDTO.setActors(rs.getString("actors"));
 				mDTO.setDirectors(rs.getString("directors"));
-				if(mDTO.getScreeningStatus() == 0) {
-					mDTO.setScreeningStatusStr("상영예정");
-				}else if(mDTO.getScreeningStatus() == 1) {
-					mDTO.setScreeningStatusStr("상영중");
-				}else {
-					mDTO.setScreeningStatusStr("상영종료");
-				}
+				mDTO.setScreeningStatusStr(rs.getString("status_name"));
 				mDTO.setTrailerUrl(rs.getString("trailer_url"));
 				
 				list.add(mDTO);
@@ -94,10 +99,91 @@ private static MovieDAO mDAO;
 			con = db.getDbConn();
 			
 			StringBuilder selectMovie = new StringBuilder();
-			selectMovie.append("	select movie_idx,movie_name,poster_path,release_date,country,running_time,end_date,movie_description,screening_status,trailer_url, actors, directors	")
-			.append("	from movie	")
-			.append("	where end_date >= ?	");
+//			selectMovie.append("	select movie_idx,movie_name,poster_path,release_date,country,running_time,end_date,movie_description,screening_status,trailer_url, actors, directors	")
+//			.append("	from movie	")
+//			.append("	where end_date >= ?	");
+			
+			selectMovie.append("	SELECT m.movie_idx ,COUNT(m.movie_idx) as rank_movie, m.movie_idx, m.movie_name, m.poster_path, m.release_date, m.country, m.running_time, m.end_date, m.movie_description, m.screening_status, m.trailer_url,  m.actors,  m.directors	")
+			.append("	FROM MOVIE m	")
+			.append("	INNER JOIN SCHEDULE s ON m.movie_idx = s.movie_idx	")
+			.append("	INNER JOIN RESERVATION r ON s.schedule_idx = r.schedule_idx	")
+			.append("	WHERE r.canceled_date is null and end_date >= ?	")
+			.append("	group by m.movie_idx,m.movie_name, m.poster_path, m.release_date, m.country, m.running_time, m.end_date, m.movie_description, m.screening_status, m.trailer_url,  m.actors,  m.directors	")
+			.append("	order by rank_movie desc	");
+			
+//			selectMovie.append("SELECT m.movie_idx, ")
+//	           .append("COUNT(m.movie_idx) as rank_movie, ")
+//	           .append("m.movie_name, m.poster_path, m.release_date, m.country, ")
+//	           .append("m.running_time, m.end_date, m.movie_description, m.screening_status, ")
+//	           .append("m.trailer_url, m.actors, m.directors ")
+//	           .append("FROM MOVIE m ")
+//	           .append("LEFT JOIN SCHEDULE s ON m.movie_idx = s.movie_idx ")
+//	           .append("LEFT JOIN RESERVATION r ON s.schedule_idx = r.schedule_idx ")
+//	           .append("WHERE r.canceled_date IS NULL AND m.end_date >= ? ")
+//	           .append("GROUP BY m.movie_idx, m.movie_name, m.poster_path, m.release_date, ")
+//	           .append("m.country, m.running_time, m.end_date, m.movie_description, ")
+//	           .append("m.screening_status, m.trailer_url, m.actors, m.directors ")
+//	           .append("ORDER BY rank_movie DESC");
+
+			
+			
+			pstmt=con.prepareStatement(selectMovie.toString());
+			
+			
+			  
+			pstmt.setDate(1, today);
+			rs = pstmt.executeQuery();
+			
+			MovieDTO mDTO = null;
+			while(rs.next()) {
+				mDTO = new MovieDTO();
+				mDTO.setMovieIdx(rs.getInt("movie_idx"));
+				mDTO.setMovieName(rs.getString("movie_name"));
+				mDTO.setPosterPath(rs.getString("poster_path"));
+				mDTO.setReleaseDate(rs.getDate("release_date"));
+				mDTO.setCountry(rs.getString("country"));
+				mDTO.setRunningTime(rs.getInt("running_time"));
+				mDTO.setEndDate(rs.getDate("end_date"));
+				mDTO.setMovieDescription(rs.getString("movie_description"));
+				mDTO.setScreeningStatus(rs.getInt("screening_status"));
+				mDTO.setTrailerUrl(rs.getString("trailer_url"));
+				mDTO.setActors(rs.getString("actors"));
+				mDTO.setDirectors(rs.getString("directors"));
+				list.add(mDTO);
+			}//end while
+		} finally {
+			db.dbClose(rs, pstmt, con);
+		}//finally
 		
+		return list;
+	}//selectMovie
+	
+	
+public List<MovieDTO> selectNonMovieChart(Date today) throws SQLException{
+		
+		List<MovieDTO> list = new ArrayList<MovieDTO>();
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		try {
+			con = db.getDbConn();
+			
+			StringBuilder selectMovie = new StringBuilder();
+			
+			selectMovie.append(" SELECT m.movie_idx, COUNT(r.reservation_idx) as rank_movie, m.movie_name, m.poster_path, m.release_date, m.country, m.running_time, m.end_date, m.movie_description, m.screening_status, m.trailer_url, m.actors, m.directors ")
+			.append(" FROM MOVIE m ")
+			.append(" LEFT JOIN SCHEDULE s ON m.movie_idx = s.movie_idx ")
+			.append(" LEFT JOIN RESERVATION r ON s.schedule_idx = r.schedule_idx AND r.canceled_date IS NULL ")
+			.append(" WHERE m.end_date >= ? ")
+			.append(" GROUP BY m.movie_idx, m.movie_name, m.poster_path, m.release_date, m.country, m.running_time, m.end_date, m.movie_description, m.screening_status, m.trailer_url, m.actors, m.directors ")
+			.append(" HAVING COUNT(r.reservation_idx) = 0 ")
+			.append(" ORDER BY COUNT(r.reservation_idx) DESC ");
+			
+			
+			
 			pstmt=con.prepareStatement(selectMovie.toString());
 			
 			
@@ -178,6 +264,78 @@ private static MovieDAO mDAO;
 		return mDTO;
 	}//selectOneMovie
 	
+	public int selectMovieReservation(int num) throws SQLException {
+		
+		DbConnection db = DbConnection.getInstance();
+		int count = 0;
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			con = db.getDbConn();
+			
+			StringBuilder selectMovieReservation = new StringBuilder();
+			selectMovieReservation.append("	SELECT COUNT(m.movie_idx)	")
+			.append("	FROM MOVIE m	")
+			.append("	INNER JOIN SCHEDULE s ON m.movie_idx = s.movie_idx	")
+			.append("	INNER JOIN RESERVATION r ON s.schedule_idx = r.schedule_idx	")
+			.append("	WHERE m.movie_idx = ? and r.canceled_date is null	 ");
+			
+			pstmt = con.prepareStatement(selectMovieReservation.toString());
+			
+			pstmt.setInt(1, num);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				count = rs.getInt(1);
+			}
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+		
+		return count;
+	}
+	
+public int selectMovieReservationCount() throws SQLException {
+		
+		DbConnection db = DbConnection.getInstance();
+		int count = 0;
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			con = db.getDbConn();
+			
+			StringBuilder selectMovieReservationCount = new StringBuilder();
+			selectMovieReservationCount.append("	SELECT COUNT(*)	")
+			.append("	FROM MOVIE m	")
+			.append("	INNER JOIN SCHEDULE s ON m.movie_idx = s.movie_idx	")
+			.append("	INNER JOIN RESERVATION r ON s.schedule_idx = r.schedule_idx	")
+			.append("   WHERE r.canceled_date is null	");
+			
+			pstmt = con.prepareStatement(selectMovieReservationCount.toString());
+					
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				count = rs.getInt(1);
+			}
+			
+		}finally {
+			db.dbClose(rs, pstmt, con);
+		}
+		
+		return count;
+	}
+
+
+	
 	public int insertMovie(MovieDTO mDTO) throws SQLException {
 	    int movieIdx = 0;
 	    DbConnection db =  DbConnection.getInstance();
@@ -230,6 +388,8 @@ private static MovieDAO mDAO;
 	        pstmt.setInt(2, common);
 
 	        pstmt.executeUpdate();
+	        
+	        
 	    } finally {
 	        db.dbClose(null, pstmt, con);
 	    }
@@ -358,5 +518,6 @@ public int updateMovieCommonCode(int code, int num, String common) throws SQLExc
 		
 		return rowCnt;
 	}
+	
 	
 }//class

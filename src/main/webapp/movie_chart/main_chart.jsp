@@ -1,3 +1,8 @@
+<%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="kr.co.yeonflix.movie.common.CommonService"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
@@ -210,8 +215,31 @@ info="Main template page"%>
 <body>
 <%
 MovieService ms = new MovieService();
-List<MovieDTO> movieList = ms.searchMovieChart();
-request.setAttribute("movieList", movieList);
+
+
+
+
+int movieGenre = 0;
+int movieGrade = 0;
+List<MovieDTO> movieChart = ms.searchMovieChart();
+List<MovieDTO> nonMovieChart = ms.searchNonMovieChart();
+
+
+
+
+MovieCommonCodeService mccs = new MovieCommonCodeService();
+ 
+
+
+
+
+request.setAttribute("movieChart", movieChart);
+request.setAttribute("nonMovieChart", nonMovieChart);
+request.setAttribute("ms", ms);
+request.setAttribute("mccs", mccs);
+
+
+
 %>
 <header>
 <jsp:include page="../common/jsp/header.jsp" />
@@ -219,22 +247,24 @@ request.setAttribute("movieList", movieList);
 <main>
 <div id="container">
     <div class="movie-chart">
-        <c:forEach var="m" items="${movieList}" varStatus="status">
+        <c:forEach var="m" items="${movieChart}" varStatus="status">
             <div class="movie-item">
                 <div class="box-image">
-                    <a href="sub_chart.jsp?movieIdx=${m.movieIdx}">
+                    <a href="sub_chart.jsp?movieIdx=${m.movieIdx}&reservationRate=${ms.reservationRate(m.movieIdx)}">
                         <img src="/movie_prj/common/img/${m.posterPath}" alt="${m.movieName}"/> 
                     </a>
                     <strong class="rank">No.${status.index + 1}</strong>
                 </div>
                 <div class="box-contents">
                     <div class="title-with-rating">
-                        <span class="rating-icon">15</span>
+                        <span class="rating-icon">
+                        ${ mccs.searchOneGrade(m.movieIdx)}
+                        </span>
                         <strong class="title">${m.movieName}</strong>
                     </div>
 
                     <div class="score">
-                        <strong class="percent">예매율 67.8%</strong>
+                        <strong class="percent">${ms.reservationRate(m.movieIdx)}</strong>
                     </div>
 
                     <span class="txt-info">
@@ -245,6 +275,35 @@ request.setAttribute("movieList", movieList);
                 </div>
             </div>
         </c:forEach>
+        
+        <c:forEach var="nm" items="${nonMovieChart}" varStatus="status">
+            <div class="movie-item">
+                <div class="box-image">
+                    <a href="sub_chart.jsp?movieIdx=${nm.movieIdx}&reservationRate=${ms.reservationRate(nm.movieIdx)}">
+                        <img src="/movie_prj/common/img/${nm.posterPath}" alt="${nm.movieName}"/> 
+                    </a>
+                    <strong class="rank">No.${status.index + 4}</strong>
+                </div>
+                <div class="box-contents">
+                    <div class="title-with-rating">
+                        <span class="rating-icon">
+                        ${ mccs.searchOneGrade(nm.movieIdx)}
+                        </span>
+                        <strong class="title">${nm.movieName}</strong>
+                    </div>
+
+                    <div class="score">
+                        <strong class="percent">${ms.reservationRate(nm.movieIdx)}</strong>
+                    </div>
+
+                    <span class="txt-info">
+                        <fmt:formatDate value="${nm.releaseDate}" pattern="yyyy.MM.dd"/> 개봉
+                    </span>
+
+                    <a href="/ticket/?MOVIE_CD=${nm.movieIdx}" class="link-reservation">예매</a>
+                </div>
+            </div>
+        </c:forEach> 
     </div>
 </div>
 
