@@ -46,6 +46,10 @@ inquiryDAO iDAO = new inquiryDAO();
 List<inquiryDTO> inquiryList = iDAO.selectAllinquiry(String.valueOf(loginUserIdx));
 request.setAttribute("inquiryList", inquiryList);
 
+
+inquiryDAO dao = new inquiryDAO();
+inquiryDTO iDTO = dao.selectinquiry(inquiryParam);
+request.setAttribute("iDTO", iDTO);
 %>
 
  
@@ -306,7 +310,7 @@ $(document).ready(function () {
 				            <img src="/profile/${member.picture}" alt="프로필이미지"  style="width:130px; height:130px"/>
 				        </c:when>
 				        <c:otherwise>
-				            <img src="/movie_pfj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
+				            <img src="/movie_prj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
 				        </c:otherwise>
 				    </c:choose>
     <div class="profile-info">
@@ -379,10 +383,10 @@ $(document).ready(function () {
   <td>
     <c:choose>
         <c:when test="${ticket.canceledDate == null}">
-            결제 완료 
+            <span style="color: blue;">결제완료</span>
         </c:when>
         <c:otherwise>
-           예매취소
+           <span style="color: red;">예매취소</span>
         </c:otherwise>
     </c:choose>
 </td>
@@ -441,9 +445,23 @@ $(document).ready(function () {
        
   </td>
       <td>${inquiry.board_code_name}</td>
-      <td>${inquiry.inquiry_title}</td>
+      <td>
+	  	<a href="${pageContext.request.contextPath}/inquiry/inquiry_user.jsp?idx=${inquiry.inquiry_board_idx}&userIdx=${member.userIdx}">
+  <c:out value="${inquiry.inquiry_title}" />
+</a>
+	 </td>
       <td>${inquiry.created_time}</td>
-      <td>${inquiry.answer_status}</td>
+      <td>
+      
+  <c:choose>
+    <c:when test="${inquiry.answer_status == 1}">
+      답변 완료
+    </c:when>
+    <c:otherwise>
+      미답변
+    </c:otherwise>
+  </c:choose>
+</td>
       <td>${inquiry.answered_time}</td>
     </tr>
 </c:forEach>

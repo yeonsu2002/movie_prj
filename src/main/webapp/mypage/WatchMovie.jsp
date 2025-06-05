@@ -1,3 +1,6 @@
+<%@page import="java.util.HashSet"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Set"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
@@ -36,6 +39,8 @@ if (loginUser == null) {
  
     /* -------------------------------------------------------------------------------------- */
     
+    Set<Integer> DupMovie=new HashSet<>();
+    
     PurchaseHistoryService phs = new PurchaseHistoryService();
     ReservationService rs = new ReservationService();
     ScheduleService ss = new ScheduleService();
@@ -44,6 +49,7 @@ if (loginUser == null) {
     List<PurchaseHistoryDTO> purchList = phs.searchAllPurchasebyUser(loginUserIdx);
     List<MovieDTO> movieList = new ArrayList<>();
 
+    
     for (PurchaseHistoryDTO pDto : purchList) {
         int reservationIdx = pDto.getReservationIdx();
 
@@ -54,11 +60,15 @@ if (loginUser == null) {
         ScheduleDTO schDto = ss.searchOneSchedule(scheduleIdx);
         if (schDto == null) continue;
 
+        
         int movieIdx = schDto.getMovieIdx();
+        if (DupMovie.contains(movieIdx)) continue;
+        
         MovieDTO movDto = mov.searchOneMovie(movieIdx);
         if (movDto == null) continue;
 
         movieList.add(movDto); 
+        DupMovie.add(movieIdx);
     }
 
     request.setAttribute("movieList", movieList);
@@ -224,6 +234,8 @@ if (loginUser == null) {
 
 </style>
 <script type="text/javascript">
+
+
 </script>
 </head>
 <body>
