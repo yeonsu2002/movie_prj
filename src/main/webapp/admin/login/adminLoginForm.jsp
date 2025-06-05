@@ -101,7 +101,7 @@ function loginProcess(){
 				location.replace("${pageContext.request.contextPath}/admin/dashboard/dashboard.jsp");
 			} else if(response.trim() === "fail"){
 				alert("아이디와 비밀번호를 다시 한번 확인해 주세요.");
-				return;
+				return; 
 			} else if(response.trim() === "isDeleted"){
 				alert("활동이 정지된 계정입니다.");
 				return;
