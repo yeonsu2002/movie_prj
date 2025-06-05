@@ -445,6 +445,7 @@ $(document).ready(function () {
        
   </td>
       <td>${inquiry.board_code_name}</td>
+      
       <td>
 	  	<a href="${pageContext.request.contextPath}/inquiry/inquiry_user.jsp?idx=${inquiry.inquiry_board_idx}&userIdx=${member.userIdx}">
   <c:out value="${inquiry.inquiry_title}" />
