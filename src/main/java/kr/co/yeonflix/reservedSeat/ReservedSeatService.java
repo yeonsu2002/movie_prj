@@ -215,5 +215,20 @@ public class ReservedSeatService {
 		}
 		
 		return flag;
-	}
+	}//isTempSeatInTable
+	
+	/**
+	 * 모든 임시좌석 가져오기
+	 * @return
+	 */
+	public List<TempSeatDTO> searchAllTempSeat(){
+		List<TempSeatDTO> list = null;
+		ReservedSeatDAO rsDAO = ReservedSeatDAO.getInstance();
+		try {
+			list = rsDAO.selectAllTempSeat();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}//searchAllTempSeat
 }

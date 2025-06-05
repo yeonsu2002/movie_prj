@@ -14,7 +14,7 @@ public class ReviewDTO {
     private int movieId;
     private int userId;
     private String content;
-    private int rating;
+    private Double rating;
     private Date writeDate;
     
     private String userLoginId; 

@@ -24,7 +24,8 @@
 <%
 request.setCharacterEncoding("UTF-8");
 //파일 업로드 수행
-File saveDir = new File("C:/dev/workspace/movie_prj/src/main/webapp/common/img");
+//File saveDir = new File("C:/dev/workspace/movie_prj/src/main/webapp/common/img");
+File saveDir = new File("C:/dev/workspace/movie_prj/src/webapp/common/img");
 int maxSize = 1024 * 1024 * 10;
 	
 

@@ -516,7 +516,13 @@ function login(){
         	alert("탈퇴한 계정입니다. 복구관련 문의는 고객센터로 문의해 주세요.");
         	$("#txtUserId, #txtPwd1").val("");
         	refreshCaptcha();
-        } 
+        } else if (response.trim() === "success-butHasTempPwd"){
+        	if(confirm("현재 임시비밀번호를 사용중입니다. 비밀번호를 변경하시겠습니까? ")){
+        		location.href = "${pageContext.request.contextPath}/mypage/MainPage.jsp";  
+        	} else {
+        		location.href = "${pageContext.request.contextPath}/index.jsp";
+        	}
+        }
 			},
 			error:function(xhr, status, error){
 		    console.log("에러 상태 코드:", xhr.status);
@@ -600,9 +606,26 @@ function login(){
 	            </div>
 	            
 		          <div class="naver-login">
-		            <a href="javascript:getNaverLoginURL();" class="btn_loginNaver">
+		            <a href="javascript:goNaver();" class="btn_loginNaver">
 		              <img src="https://img.cgv.co.kr/image_gt/login/btn_loginNaver.jpg" alt="네이버 로그인">
 		            </a>
+		            <script type="text/javascript">
+		            	function goNaver(){
+		            		if(confirm('좋은거 보여드릴까요?')){
+			            		location.href="https://i.imgur.com/detH3kE.png";
+		            		} else {
+		            			alert("아쉽네요. 진짜 좋은건데");
+		            			alert("그냥 가기 섭섭해요. 진짜 좋은건데..");
+		            			alert("정말 싫어요?");
+		            			alert("진짜 진짜 이거 후회할텐데..");
+		            			if(confirm('마지막으로 한번 더 물어볼게요. 좋은거 보기 싫어요?')){
+			            			location.href="https://i.imgur.com/l7uVLkn.jpeg";
+		            			} else {
+			            			location.href="https://i.imgur.com/l7uVLkn.jpeg";
+		            			}
+		            		} 
+		            	}
+		            </script>
 		          </div>
 	          </fieldset>
 	        </form>

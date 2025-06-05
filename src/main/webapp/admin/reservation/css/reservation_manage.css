@@ -19,7 +19,8 @@
 
 /* 영화 정보 카드 스타일 */
 .movie-info-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #667eea;
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     border-radius: 15px;
     padding: 25px;
     margin-bottom: 30px;
@@ -145,7 +146,8 @@
 }
 
 #booking-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: #667eea;
+ /*  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
   color: white;
   font-weight: bold;
 }
@@ -181,4 +183,72 @@
     .movie-details {
         grid-template-columns: 1fr;
     }
+}
+
+.cancelReservation {
+	cursor: pointer;
+}
+
+/* 빈 상태(Empty State) 메시지 스타일 - 애니메이션 제거 및 배경 단순화 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f1f5f9; /* 단색 배경으로 변경 */
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+/* before 애니메이션 제거 */
+.empty-state::before {
+    content: none; /* 완전히 제거 */
+}
+
+/* 아이콘 애니메이션 제거 */
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+/* 타이틀 */
+.empty-state-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4a5568;
+    margin-bottom: 10px;
+}
+
+/* 메시지 */
+.empty-state-message {
+    font-size: 16px;
+    color: #718096;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* 검색 관련 빈 상태 */
+.empty-state-search {
+    background-color: #fff7ed; /* 연한 주황빛 단색 */
+}
+
+.empty-state-search .empty-state-icon {
+    color: #f59e0b;
+}
+
+.empty-state-search .empty-state-title {
+    color: #92400e;
+}
+
+/* 데이터 없음 관련 빈 상태 */
+.empty-state-no-data {
+    background-color: #eff6ff; /* 연한 파란색 단색 */
+}
+
+.empty-state-no-data .empty-state-icon {
+    color: #3b82f6;
+}
+
+.empty-state-no-data .empty-state-title {
+    color: #1e40af;
 }

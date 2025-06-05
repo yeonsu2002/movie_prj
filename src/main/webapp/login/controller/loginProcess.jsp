@@ -1,7 +1,7 @@
 <%@page import="java.util.Enumeration"%>
 <%@page import="kr.co.yeonflix.member.MemberService"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="text/plain; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
 	String memberId = request.getParameter("memberId");
@@ -10,12 +10,12 @@
 	MemberService memService = new MemberService();
 	MemberDTO loginUser = memService.loginMember(memberId, memberPwd);
 	
-	System.out.println("loginUser = " + loginUser);
+	//디버깅 
+	System.out.println("loginUser의 정보 = " + loginUser);
 	
+	//회원정보는 조회되지만, 탈퇴한 회원인 경우 
 	if(loginUser != null && "N".equals(loginUser.getIsActive())){
-		
 		try {
-			response.setContentType("text/plain;charset=UTF-8");
 			out.print("isDeleted");
 		} catch (Exception e) {
 	    e.printStackTrace();
@@ -32,10 +32,12 @@
 		session.setAttribute("loginUser", loginUser);
 	  session.setMaxInactiveInterval(1800); //30분만 주자 
 	  
-		response.setContentType("text/plain;charset=UTF-8");
+	  if("Y".equals(loginUser.getHasTempPwd())){ //임시비밀번호 발급 유저(정보수정 전)는 다른 값을 
+		  out.print("success-butHasTempPwd");
+		  return;
+	  }
 		out.print("success");
 	} else {
-	  response.setContentType("text/plain;charset=UTF-8");
 		out.print("fail");
 	}
 

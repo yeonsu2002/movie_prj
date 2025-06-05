@@ -11,12 +11,18 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
+<jsp:include page="/common/jsp/admin_header.jsp" />
 
 <%
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
-String col = request.getParameter("col");
-String key = request.getParameter("key");
+String col = request.getParameter("col"); //검색 조건
+String key = request.getParameter("key"); //검색 내용
+
+int currentPage = 1; //현재 페이지
+String currentPageParam = request.getParameter("currentPage");
+if (currentPageParam != null) {
+    currentPage = Integer.parseInt(currentPageParam);
+}
 	
 //스케줄 정보 가져오기
 ScheduleService ss = new ScheduleService();
@@ -31,13 +37,23 @@ int movieIdx = schDTO.getMovieIdx();
 MovieService ms = new MovieService();
 MovieDTO mDTO = ms.searchOneMovie(movieIdx);
 
-//예매리스트 가져오기
 ReservationService rs = new ReservationService();
-List<UserReservationDTO> urDTOList = rs.searchUserReservationListBySchedule(scheduleIdx, col, key);
 
 //페이징
+int totalCnt = 0; //총 게시물의 수
+totalCnt = rs.totalCount(scheduleIdx, col, key);
 
+int pageScale = 10; //한 화면에 보여줄 게시물의 수
 
+int totalPage = (int)Math.ceil((double)totalCnt / pageScale); //총 페이지 수
+
+int startNum = currentPage * pageScale - pageScale + 1; //시작번호
+int endNum = startNum + pageScale - 1; //끝 번호
+
+//예매리스트 가져오기
+List<UserReservationDTO> urDTOList = rs.searchUserReservationListBySchedule(scheduleIdx, startNum, endNum, col, key);
+
+//바인딩
 pageContext.setAttribute("schDTO", schDTO);
 pageContext.setAttribute("tDTO", tDTO);
 pageContext.setAttribute("mDTO", mDTO);
@@ -45,7 +61,12 @@ pageContext.setAttribute("urDTOList", urDTOList);
 pageContext.setAttribute("scheduleIdx", scheduleIdx);
 pageContext.setAttribute("col", col);
 pageContext.setAttribute("key", key);
-
+pageContext.setAttribute("totalCnt", totalCnt);
+pageContext.setAttribute("pageScale", pageScale);
+pageContext.setAttribute("totalPage", totalPage);
+pageContext.setAttribute("startNum", startNum);
+pageContext.setAttribute("endNum", endNum);
+pageContext.setAttribute("currentPage", currentPage);
 
 %>
 <!DOCTYPE html>
@@ -64,11 +85,43 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 <style type="text/css">
 
 </style>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+$(function(){
+	$(".cancelReservation").click(function(){
+		var reservationIdx = $(this).closest("tr").data("reservation-idx");
+		
+		if(confirm("정말 취소하시겠습니까?")){
+			$.ajax({
+				url:"cancel_reservation_process.jsp",
+				method:"POST",
+				data: {reservationIdx : reservationIdx},
+				success: function(response){
+					if(response.trim() == "success"){
+						alert("취소 완료");
+					} else{
+						alert("취소 실패");
+					}
+				},
+				error: function(){
+					alert("오류가 발생하였습니다. 다시 시도해주세요.");
+				}
+			});
+		}
+	});
+});
+
+function goToPage(pageNum) {
+    var form = document.getElementById('pageForm');
+    form.currentPage.value = pageNum;
+    form.submit();
+}
+</script>
 </head>
 <body>
 <div class="content-container">
 <h2 class="page-title">📋 예매 관리</h2>
-
 <!-- 영화 정보 카드 -->
 <div class="movie-info-card">
     <div class="theater-badge">🎬 ${tDTO.theaterType}</div>
@@ -131,7 +184,7 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
       <th>예매 번호</th>
       <th>예매 상태</th>
       <th>좌석 번호</th>
-      <th>예매 날짜</th>
+      <th>예매/취소 날짜</th>
       <th>회원 여부</th>
       <th>아이디</th>
       <th>전화번호</th>
@@ -139,44 +192,90 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
     </tr>
   </thead>
   <tbody>
-  <c:forEach var="urDTO" items="${urDTOList}" varStatus="i">
-  	<tr>
-  		<td>${i.count}</td>
-  		<td>${urDTO.reservationNumber}</td>
-  	<c:choose>
-  	<c:when test="${urDTO.canceledDate == null}">
-  		<td>✅ 예매 완료</td>
-  	</c:when>
-  	<c:otherwise>
-  		<td class="canceled">❌ 취소 완료</td>
-  	</c:otherwise>
-  	</c:choose>
-  		<td>${urDTO.seatsInfo}</td>
-  		<td><fmt:formatDate value="${urDTO.reservationDate}" pattern="yyy-MM-dd HH:mm"/></td>
-  	<c:choose>
-  		<c:when test="${urDTO.userType == 'MEMBER'}">
-  			<td>👤 회원</td>
-  		</c:when>
-  		<c:otherwise>
-  			<td>👥 비회원</td>
-  		</c:otherwise>
-  	</c:choose>
-  		<td>${urDTO.memberId}</td>
-  		<td>${urDTO.tel}</td>
-  		<td><fmt:formatNumber value="${urDTO.seatsCnt * tDTO.moviePrice}" type="number" groupingUsed="true"/>원</td>
-  	</tr>
-  </c:forEach>
+  <c:choose>
+    <c:when test="${totalCnt == 0}">
+      <tr>
+        <td colspan="9" style="padding: 0; border: none;">
+          <c:choose>
+            <c:when test="${not empty key}">
+              <div class="empty-state empty-state-search">
+                <div class="empty-state-title">🔍검색 결과가 없습니다</div>
+                <div class="empty-state-message">
+                  '<strong>${key}</strong>' 검색어에 해당하는 예매 정보를 찾을 수 없습니다.<br>
+                  다른 검색어로 시도해보시거나 검색 조건을 변경해보세요.
+                </div>
+              </div>
+            </c:when>
+            <c:otherwise>
+              <div class="empty-state empty-state-no-data">
+                <span class="empty-state-icon">🎫</span>
+                <div class="empty-state-title">등록된 예매 정보가 없습니다</div>
+                <div class="empty-state-message">
+                  이 상영 일정에 대한 예매가 아직 없습니다.<br>
+                  예매가 등록되면 여기에 표시됩니다.
+                </div>
+              </div>
+            </c:otherwise>
+          </c:choose>
+        </td>
+      </tr>
+    </c:when>
+    <c:otherwise>
+      <c:forEach var="urDTO" items="${urDTOList}" varStatus="i">
+        <tr data-reservation-idx="${urDTO.reservationIdx}">
+          <td>${totalCnt - (currentPage-1)*pageScale - i.index}</td>
+          <td>${urDTO.reservationNumber}</td>
+        <c:choose>
+        <c:when test="${urDTO.canceledDate == null}">
+          <td class="cancelReservation">✅ 예매 완료</td>
+        </c:when>
+        <c:otherwise>
+          <td class="canceled">❌ 취소 완료</td>
+        </c:otherwise>
+        </c:choose>
+          <td>${urDTO.seatsInfo}</td>
+        <c:choose>
+        <c:when test="${urDTO.canceledDate == null}">
+          <td><fmt:formatDate value="${urDTO.reservationDate}" pattern="yyy-MM-dd HH:mm"/></td>
+        </c:when>
+        <c:otherwise>
+          <td class="canceled"><fmt:formatDate value="${urDTO.canceledDate}" pattern="yyy-MM-dd HH:mm"/></td>
+        </c:otherwise>
+        </c:choose>
+        <c:choose>
+          <c:when test="${urDTO.userType == 'MEMBER'}">
+            <td>👤 회원</td>
+          </c:when>
+          <c:otherwise>
+            <td>👥 비회원</td>
+          </c:otherwise>
+        </c:choose>
+          <td>${urDTO.memberId}</td>
+          <td>${urDTO.tel}</td>
+          <td><fmt:formatNumber value="${urDTO.seatsCnt * tDTO.moviePrice}" type="number" groupingUsed="true"/>원</td>
+        </tr>
+      </c:forEach>
+    </c:otherwise>
+  </c:choose>
   </tbody>
 </table>
 <br>
 <div class="d-flex justify-content-center mt-3">
 <nav aria-label="Page navigation example" style="text-align:center">
-  <ul class="pagination ">
-  	<%-- <c:forEach var="i" begin="1" end="${totalPage}"> --%>
-    <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <%-- </c:forEach> --%>
+  <ul class="pagination">
+  	<c:forEach var="pageNum" begin="1" end="${totalPage}">
+    	<li class="page-item ${pageNum == currentPage ? 'active' : ''}">
+    		<a class="page-link" href="javascript:void(0)" onclick="goToPage(${pageNum})">${pageNum}</a>
+    	</li>
+    </c:forEach>
   </ul>
 </nav>
+<form id="pageForm" method="post" action="">
+  <input type="hidden" name="currentPage" />
+  <input type="hidden" name="scheduleParam" value="${scheduleIdx}" />
+  <input type="hidden" name="col" value="${col}" />
+  <input type="hidden" name="key" value="${key}" />
+</form>
 </div>
 </div>
 </body>
