@@ -30,7 +30,7 @@ MultipartRequest multi = null;
 int fileMaxSize = 10 * 1024 * 1024; // 10MB
 
 //플랫폼에 따른 savePath 설정 (내 맥북에서 하려고)
-String platform = request.getHeader("sec-ch-ua-platform");
+String platform = request.getHeader("Sec-Ch-Ua-Platform");
 if (platform != null) {
   platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
 }
