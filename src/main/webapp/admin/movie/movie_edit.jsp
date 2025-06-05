@@ -318,8 +318,8 @@
   }
   
   MovieCommonCodeService mccs = new MovieCommonCodeService();
-  List<MovieCommonCodeDTO> mccList = new ArrayList<MovieCommonCodeDTO>();
-  
+  /* List<MovieCommonCodeDTO> mccList = new ArrayList<MovieCommonCodeDTO>(); */
+  /*  
   int movieGenreCode = 0;
   int movieGradeCode = 0;
   
@@ -333,18 +333,20 @@
               movieGradeCode = code.getCodeIdx();
           }
       }
-  }
+  } */
   
-  request.setAttribute("movieGenreCode", movieGenreCode);
-  request.setAttribute("movieGradeCode", movieGradeCode);
+  /*
+	request.setAttribute("movieGenreCode", movieGenreCode);
+  request.setAttribute("movieGradeCode", movieGradeCode); */
+  
+  
+  request.setAttribute("genre", mccs.searchOneGenreIdx(movieIdxInt));
+  request.setAttribute("grade", mccs.searchOneGradeIdx(movieIdxInt));
   request.setAttribute("genreList", genreList);
   request.setAttribute("gradeList", gradeList);
   request.setAttribute("movieIdx", movieIdxInt);
   
-  System.out.println("현재 모드: " + mode);
-  System.out.println("movieIdx: " + movieIdxInt);
-  System.out.println("movieGenreCode: " + movieGenreCode);
-  System.out.println("movieGradeCode: " + movieGradeCode);
+  
   %>
 
     <div class="content">
@@ -364,7 +366,7 @@
       
       <div id="tooltip" class="tooltip">
         포스터, 영화제목, 영화설명, 트레일러URL, 감독, 주연배우(3명), 장르,<br />
-        상영등급, 제작국가, 상영시간
+        상영등급, 제작국가, 상영시간, ${ genre }, ${ grade } 
         <ul>
           <c:forEach var="g" items="${genreList}">
             <li>${g.codeIdx} - ${g.movieCodeType}</li>
@@ -406,7 +408,7 @@
                   <option value="">-- 장르를 선택하세요 --</option>
                   <c:forEach var="g" items="${genreList}">
                       <option value="${g.codeIdx}"
-                          ${g.codeIdx == movieGenreCode ? 'selected="selected"' : ''}>
+                          ${g.codeIdx == genre ? 'selected="selected"' : ''}>
                           ${g.movieCodeType}
                       </option>
                   </c:forEach>
@@ -420,7 +422,7 @@
                   <option value="">-- 등급을 선택하세요 --</option>
                   <c:forEach var="g" items="${gradeList}">
                       <option value="${g.codeIdx}" 
-                          ${g.codeIdx == movieGradeCode ? 'selected="selected"' : ''}>
+                          ${g.codeIdx == grade ? 'selected="selected"' : ''}>
                           ${g.movieCodeType}
                       </option>
                   </c:forEach>

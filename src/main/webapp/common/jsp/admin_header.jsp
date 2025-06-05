@@ -110,17 +110,15 @@ function logout(){
       <div class="menu-title">문의 관리</div>
   		<c:choose>
 	  		<c:when test="${loginAdmin.manageArea eq 'ManageInquiry' or loginAdmin.manageArea eq '전체'}">
-	        <div class="menu-item"><a href="#void"><span>▶</span>공지사항</a></div>
-	        <div class="menu-item"><a href="#void"><span>▶</span>1:1문의</a></div>
+	        <div class="menu-item"><a href="http://localhost/movie_prj/admin/notice/notice_admin_main.jsp"><span>▶</span>공지사항</a></div>
+        	<div class="menu-item"><a href="http://localhost/movie_prj/admin/inquiry/inquiry_admin_main.jsp"><span>▶</span>1:1문의</a></div>
 	  		</c:when>
 	  		<c:otherwise>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>공지사항</a></div>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>1:1문의</a></div>
 	  		</c:otherwise>
 	  	</c:choose>
-        <div class="menu-title">문의 관리</div>
-        <div class="menu-item"><a href="http://localhost/movie_prj/admin/notice/notice_admin_main.jsp"><span>▶</span>공지사항</a></div>
-        <div class="menu-item"><a href="http://localhost/movie_prj/admin/inquiry/inquiry_admin_main.jsp"><span>▶</span>1:1문의</a></div>
+       
     </div>
 </div>
  	<!-- 상단 버튼 영역  -->

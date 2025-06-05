@@ -95,4 +95,45 @@ public class MovieCommonCodeDAO {
 	    return list;
 	}
 	
+	public MovieCommonCodeDTO selectOneCommon(String common, int movieIdx) throws SQLException {
+	    MovieCommonCodeDTO mccDTO = new MovieCommonCodeDTO();
+	    DbConnection db = DbConnection.getInstance();
+	    
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+	    Connection con = null;
+	    try {
+	        con = db.getDbConn();
+	        
+	        // MOVIE_COMMON_TABLE과 조인하여 movie_code_name 정보도 가져옴
+	        StringBuilder selectMovie = new StringBuilder();
+	        selectMovie.append("	select movie_code_type, movie_code_name, mcct.code_idx ")
+	                  .append(" from MOVIE_COMMON_CODE_TABLE mcct INNER JOIN MOVIE_COMMON_TABLE mct on mcct.code_idx = mct.code_idx ")
+	                  .append("	INNER JOIN MOVIE m on m.movie_idx = mcct.movie_idx ")
+	                  .append(" WHERE MOVIE_CODE_NAME=? AND mcct.MOVIE_IDX=?");
+	        
+	        
+	        
+	        
+	        
+	        		
+	        pstmt = con.prepareStatement(selectMovie.toString());
+	        pstmt.setString(1, common);
+	        pstmt.setInt(2, movieIdx);
+	        rs = pstmt.executeQuery();
+	        
+	        while(rs.next()) {
+	        	mccDTO.setCodeName(rs.getString("movie_code_type"));
+	        	mccDTO.setCodeType(rs.getString("movie_code_name")); 
+	        	mccDTO.setCodeIdx(rs.getInt("code_idx")); 
+	            
+	        }
+	    } finally {
+	        db.dbClose(rs, pstmt, con);
+	    }
+	    return mccDTO;
+	}
+	
+	
+	
 }

@@ -26,15 +26,68 @@ public class MovieCommonCodeService {
 	    
 	    try {
 	        list = mccDAO.selectCommon(movieIdx);
-	        // 디버깅 로그
-	        System.out.println("검색된 코드 목록:");
-	        for(MovieCommonCodeDTO dto : list) {
-	            System.out.println("CodeIdx: " + dto.getCodeIdx() + 
-	                             ", Type: " + dto.getCodeType());
-	        }
+	        
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
 	    return list;
+	}
+	
+	public String searchOneGrade(int movieIdx) {
+	    MovieCommonCodeDTO mccDTO = new MovieCommonCodeDTO();
+	    MovieCommonCodeDAO mccDAO = MovieCommonCodeDAO.getInstance();
+	    String grade = "";
+	    
+	    try {
+	    	mccDTO = mccDAO.selectOneCommon("등급",movieIdx);
+	    	grade = mccDTO.getCodeName();
+	       
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return grade;
+	}
+	public String searchOneGenre(int movieIdx) {
+		MovieCommonCodeDTO mccDTO = new MovieCommonCodeDTO();
+		MovieCommonCodeDAO mccDAO = MovieCommonCodeDAO.getInstance();
+		String grade = "";
+		
+		try {
+			mccDTO = mccDAO.selectOneCommon("장르",movieIdx);
+			grade = mccDTO.getCodeName();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return grade;
+	}
+	
+	public int searchOneGradeIdx(int movieIdx) {
+	    MovieCommonCodeDTO mccDTO = new MovieCommonCodeDTO();
+	    MovieCommonCodeDAO mccDAO = MovieCommonCodeDAO.getInstance();
+	    int gradeIdx = 0;;
+	    
+	    try {
+	    	mccDTO = mccDAO.selectOneCommon("등급",movieIdx);
+	    	gradeIdx = mccDTO.getCodeIdx();
+	       
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return gradeIdx;
+	}
+	public int searchOneGenreIdx(int movieIdx) {
+		MovieCommonCodeDTO mccDTO = new MovieCommonCodeDTO();
+		MovieCommonCodeDAO mccDAO = MovieCommonCodeDAO.getInstance();
+		int genreIdx = 0;
+		
+		try {
+			mccDTO = mccDAO.selectOneCommon("장르",movieIdx);
+			genreIdx = mccDTO.getCodeIdx();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return genreIdx;
 	}
 }

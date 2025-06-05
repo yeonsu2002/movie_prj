@@ -19,82 +19,46 @@
     MovieService ms = new MovieService();
     MovieDTO mDTO = ms.searchOneMovie(movieIdx);
     MovieCommonCodeService mccs = new MovieCommonCodeService();
-    List<MovieCommonCodeDTO> commonCodeList = new ArrayList<MovieCommonCodeDTO>();
-    commonCodeList = mccs.searchCommon(movieIdx);
     
-    List<CommonDTO> genList = new ArrayList<CommonDTO>();
-    List<CommonDTO> graList = new ArrayList<CommonDTO>();
-    CommonService cs = new CommonService();
-    genList = cs.genreList();
-    graList = cs.gradeList();
-    %>
+    request.setAttribute("genre", mccs.searchOneGenre(movieIdx));
+    request.setAttribute("grade", mccs.searchOneGrade(movieIdx));
     
-<%
-	int movieGenre = 0;
-	int movieGrade = 0;
-	MovieCommonCodeDTO mccDTO2 = new MovieCommonCodeDTO();
-	for(MovieCommonCodeDTO mccDTO : commonCodeList){
-		if("장르".equals(mccDTO.getCodeType())){
-			movieGenre = mccDTO.getCodeIdx();
-		}
-		if("등급".equals(mccDTO.getCodeType())){
-			movieGrade = mccDTO.getCodeIdx();
-			
-		}
-	}
-	
-	String genre = "";
-	String grade = "";
-	for(CommonDTO cDTO : genList){
-		if(cDTO.getCodeIdx() == movieGenre){
-			
-			genre = cDTO.getMovieCodeType();
-			
-		}
-	}
-	for(CommonDTO cDTO : graList){
-		if(cDTO.getCodeIdx() == movieGrade){
-			grade = cDTO.getMovieCodeType();
-		}
-	}
-	
-	
-	
-	request.setAttribute("genre", genre);
-	request.setAttribute("grade", grade);
-	
-	
-	
+    String reservationRate = request.getParameter("reservationRate");
 %>    
     <meta charset="UTF-8">
     <jsp:include page="../common/jsp/external_file.jsp" />
     <title>CGV 무비차트 - <%=mDTO.getMovieName() %> </title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Malgun Gothic', sans-serif;
             line-height: 1.6;
-            background-color: #ffffff;
+            
             color: #333;
             margin: 0;
             padding: 0;
         }
 
+        
+
         /* 메인 컨테이너 */
         #container {
-            max-width: 1200px;
+            max-width: 980px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0;
             background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* 영화 상세 정보 컨테이너 */
+        /* 영화 정보 섹션 */
+        .movie-info-section {
+            background: #ffffff;
+            padding: 30px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
         .movie-detail-container {
             display: flex;
             gap: 30px;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
         }
 
         /* 포스터 이미지 */
@@ -103,153 +67,174 @@
         }
 
         .movie-poster img {
-            width: 250px;
-            height: 350px;
+            width: 185px;
+            height: 260px;
             object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
         }
 
         /* 영화 정보 */
         .movie-info {
             flex: 1;
-            padding-left: 20px;
+        }
+
+        .movie-title-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
         .movie-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            color: #222;
         }
 
         .age-rating {
-            background: #FB4357;
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            background: #f80;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            text-align: center;
+            line-height: 22px;
+            font-size: 11px;
             font-weight: bold;
+            border-radius: 2px;
         }
 
-        .rating-info {
+        .age-rating.all {
+            background: #00b04f;
+        }
+
+        .movie-meta {
+            margin-bottom: 20px;
+        }
+
+        .rating-container {
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .rating-percentage {
-            font-size: 16px;
-            color: #666;
-        }
-
-        .rating-star {
-            color: #FFB800;
-            font-size: 16px;
-        }
-
-        .movie-details {
-            margin-bottom: 20px;
-        }
-
-        .movie-details p {
-            margin: 8px 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .detail-label {
-            font-weight: bold;
-            color: #333;
-            min-width: 60px;
-            display: inline-block;
-        }
-
-        /* 버튼 컨테이너 */
-        .button-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-favorite {
-            background: #ffffff;
-            border: 1px solid #ddd;
-            color: #666;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
+        .reservation-rate {
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
-        .btn-favorite:hover {
-            background: #f5f5f5;
+        .reservation-rate .label {
+            font-size: 12px;
+            color: #666;
         }
 
-        .btn-reservation {
-            background: #FB4357;
+        .reservation-rate .percent {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fb4357;
+        }
+
+        .movie-details {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #666;
+        }
+
+        .movie-details div {
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            color: #333;
+            font-weight: normal;
+            display: inline-block;
+            width: 50px;
+        }
+
+        /* 버튼 영역 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-like {
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 8px 15px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-like:hover {
+            background: #f9f9f9;
+        }
+
+        .btn-reserve {
+            background: #fb4357;
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        .btn-reservation:hover {
+        .btn-reserve:hover {
             background: #e03a4e;
         }
 
         /* 탭 메뉴 */
+        .tab-navigation {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+
         .tab-menu {
             display: flex;
             list-style: none;
             padding: 0;
             margin: 0;
-            background: #FB4357;
-            border-radius: 4px;
-            overflow: hidden;
+            max-width: 980px;
+            margin: 0 auto;
         }
 
         .tab-menu li {
-            flex: 1;
-            padding: 12px 20px;
+            padding: 15px 20px;
             cursor: pointer;
-            color: white;
-            text-align: center;
-            font-weight: 500;
+            color: #666;
             font-size: 14px;
-            transition: background 0.3s ease;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
         }
 
         .tab-menu li:hover {
-            background: rgba(255, 255, 255, 0.1);
+            color: #fb4357;
         }
 
         .tab-menu li.active {
-            background: rgba(255, 255, 255, 0.2);
+            color: #fb4357;
+            border-bottom-color: #fb4357;
             font-weight: bold;
         }
 
         /* 탭 콘텐츠 */
+        .tab-content-container {
+            background: #fff;
+            min-height: 500px;
+        }
+
         .tab-content {
             display: none;
-            padding: 30px 20px;
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-top: none;
-            min-height: 400px;
-            color: #333;
-            font-size: 14px;
-            line-height: 1.6;
+            padding: 40px 30px;
+            max-width: 980px;
+            margin: 0 auto;
         }
 
         .tab-content.active {
@@ -257,125 +242,128 @@
         }
 
         .tab-content h3 {
-            color: #333;
-            margin: 0 0 20px 0;
             font-size: 18px;
+            color: #222;
+            margin: 0 0 20px 0;
             font-weight: bold;
         }
 
-        /* 트레일러 컨테이너 */
-        .trailer-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+        .movie-description {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #555;
         }
-        
+
+        /* 트레일러 섹션 */
+        .trailer-container {
+            text-align: center;
+        }
+
         .trailer-preview {
             position: relative;
             width: 100%;
-            height: 300px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            overflow: hidden;
+            max-width: 640px;
+            height: 360px;
+            margin: 0 auto;
+            background: #000;
             cursor: pointer;
-            transition: transform 0.3s ease;
-            border: 1px solid #e0e0e0;
+            overflow: hidden;
         }
-        
-        .trailer-preview:hover {
-            transform: scale(1.02);
-        }
-        
+
         .trailer-background {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             background-image: url('https://i.ytimg.com/vi/HAfCX54YmB4/maxresdefault.jpg');
             background-size: cover;
             background-position: center;
-            opacity: 0.8;
         }
-        
+
         .trailer-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         .play-button {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        
+
         .play-button:hover {
             background: rgba(255, 255, 255, 1);
             transform: scale(1.1);
         }
-        
+
         .play-button::before {
             content: '';
             width: 0;
             height: 0;
-            border-left: 16px solid #333;
-            border-top: 10px solid transparent;
-            border-bottom: 10px solid transparent;
-            margin-left: 3px;
+            border-left: 20px solid #333;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
         }
-        
+
         .trailer-iframe {
             display: none;
             width: 100%;
-            height: 450px;
+            max-width: 640px;
+            height: 360px;
             border: none;
-            border-radius: 8px;
+            margin: 0 auto;
         }
 
-        /* 반응형 디자인 */
+        /* 리뷰 섹션 */
+        .review-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 반응형 */
         @media (max-width: 768px) {
+            #container {
+                margin: 0 10px;
+            }
+
             .movie-detail-container {
                 flex-direction: column;
-                gap: 20px;
-                padding: 15px;
-            }
-            
-            .movie-poster img {
-                width: 200px;
-                height: 280px;
-                margin: 0 auto;
-                display: block;
-            }
-            
-            .movie-info {
-                padding-left: 0;
                 text-align: center;
             }
-            
-            .tab-menu {
-                flex-direction: column;
+
+            .movie-poster img {
+                width: 150px;
+                height: 210px;
+                margin: 0 auto;
             }
-            
+
+            .tab-menu {
+                flex-wrap: wrap;
+            }
+
             .tab-menu li {
-                padding: 10px 15px;
+                flex: 1;
+                text-align: center;
+                min-width: 80px;
+                padding: 12px 10px;
                 font-size: 13px;
             }
-            
-            .button-container {
-                justify-content: center;
+
+            .tab-content {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -413,77 +401,89 @@
         <jsp:include page="../common/jsp/header.jsp" />
     </header>
     
+    
+    
     <main>
         <div id="container">
-            <div class="movie-detail-container">
-                <div class="movie-poster">
-                    <img src="/movie_prj/common/img/<%=mDTO.getPosterPath() %>" alt="<%=mDTO.getMovieName() %>"/>
-                </div>
-                <div class="movie-info">
-                    <div class="movie-title">
-                        <span class="age-rating">15</span>
-                        <%=mDTO.getMovieName() %>
+            <div class="movie-info-section">
+                <div class="movie-detail-container">
+                    <div class="movie-poster">
+                        <img src="/movie_prj/common/img/<%=mDTO.getPosterPath() %>" alt="<%=mDTO.getMovieName() %>"/>
                     </div>
-                    
-                    <div class="rating-info">
-                        <span class="rating-percentage">예매율 9.1%</span>
-                        <span class="rating-star">⭐ 97%</span>
-                    </div>
-                    
-                    <div class="movie-details">
-                        <p><span class="detail-label">감독:</span> <%= mDTO.getDirectors()%></p>
-                        <p><span class="detail-label">배우:</span> <%= mDTO.getActors()%></p>
-                        <p><span class="detail-label">장르:</span> ${genre}</p>
-                        <p><span class="detail-label">기본:</span> ${grade}세이상관람가, <%= mDTO.getRunningTime() %>분, <%=mDTO.getCountry() %></p>
-                        <p><span class="detail-label">개봉:</span> <%= mDTO.getReleaseDate() %></p>
-                    </div>
-                    
-                    <div class="button-container">
-                        <button class="btn-favorite">🤍 보고싶어요</button>
-                        <button class="btn-reservation">예매하기</button>
-                    </div>
-                </div>
-            </div>
-
-            <ul class="tab-menu">
-                <li data-tab="main-info" class="active">주요정보</li>
-                <li data-tab="trailer">트레일러</li>
-                <li data-tab="review">평점/리뷰</li>
-            </ul>
-
-            <div id="main-info" class="tab-content active">
-                <h3>주요정보</h3>
-                <%= mDTO.getMovieDescription() %>
-            </div>
-
-            
-
-            <div id="trailer" class="tab-content">
-                <h3>트레일러</h3>
-                <div class="trailer-container">
-                    <div class="trailer-preview" onclick="playTrailer()">
-                        <div class="trailer-background"></div>
-                        <div class="trailer-overlay">
-                            <div class="play-button"></div>
+                    <div class="movie-info">
+                        <div class="movie-title-container">
+                            <span class="age-rating all">ALL</span>
+                            <h1 class="movie-title"><%=mDTO.getMovieName() %></h1>
+                        </div>
+                        
+                        <div class="rating-container">
+                            <div class="reservation-rate">
+                                <span class="label">예매율</span>
+                                <span class="percent"><%=reservationRate%>%</span>
+                                <span style="margin-left: 5px;">⭐</span>
+                                <span style="color: #f80; font-weight: bold;">99%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="movie-details">
+                            <div><span class="detail-label">감독</span>: <%= mDTO.getDirectors()%></div>
+                            <div><span class="detail-label">배우</span>: <%= mDTO.getActors()%></div>
+                            <div><span class="detail-label">장르</span>: ${genre}, 액션, 어드벤처, 나인 코믹스, 중국 대륙</div>
+                            <div><span class="detail-label">기본</span>: ${grade}세이상관람가, <%= mDTO.getRunningTime() %>분, <%=mDTO.getCountry() %></div>
+                            <div><span class="detail-label">개봉</span>: <%= mDTO.getReleaseDate() %></div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-like">🤍 보고싶어요</button>
+                            <button class="btn-reserve">예매하기</button>
                         </div>
                     </div>
-                    <iframe id="trailer-iframe" class="trailer-iframe"
-                      src="https://www.youtube.com/embed/HAfCX54YmB4?autoplay=1" 
-                      frameborder="0" 
-                      allowfullscreen
-                      allow="autoplay; encrypted-media">
-                    </iframe>
                 </div>
             </div>
 
-            
-
-            <div id="review" class="tab-content">
-                <h3>평점/리뷰</h3>
-                <p>관람객 평점과 리뷰가 여기에 표시됩니다.</p>
+            <div class="tab-navigation">
+                <ul class="tab-menu">
+                    <li data-tab="main-info" class="active">주요정보</li>
+                    <li data-tab="trailer">트레일러</li>
+                    <li data-tab="review">실관람평</li>
+                </ul>
             </div>
 
-            
+            <div class="tab-content-container">
+                <div id="main-info" class="tab-content active">
+                    <h3>줄거리</h3>
+                    <div class="movie-description">
+                        <%= mDTO.getMovieDescription() %>
+                    </div>
+                </div>
+
+                <div id="trailer" class="tab-content">
+                    <h3>트레일러</h3>
+                    <div class="trailer-container">
+                        <div class="trailer-preview" onclick="playTrailer()">
+                            <div class="trailer-background"></div>
+                            <div class="trailer-overlay">
+                                <div class="play-button"></div>
+                            </div>
+                        </div>
+                        <iframe id="trailer-iframe" class="trailer-iframe"
+                          src="https://www.youtube.com/embed/HAfCX54YmB4?autoplay=1" 
+                          frameborder="0" 
+                          allowfullscreen
+                          allow="encrypted-media">
+                        </iframe>
+                    </div>
+                </div>
+
+                <div id="review" class="tab-content">
+                    <h3>실관람평</h3>
+                    <div class="review-placeholder">
+                        관람객 평점과 리뷰가 여기에 표시됩니다.
+                    </div>
+                </div>
+
+                
+            </div>
         </div>
     </main>
     

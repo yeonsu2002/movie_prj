@@ -175,6 +175,7 @@ h2 {
                     <th>작성자 ID</th>
                     <th>리뷰 내용</th>
                     <th>작성일</th>
+                    <th>평점</th>
                 </tr>
             </thead>
             <tbody>
@@ -186,12 +187,13 @@ h2 {
                         <td>${review.userId}</td>
                         <td>${review.content}</td>
                         <td>${review.writeDate}</td>
+                        <td>${review.rating}</td>
                     </tr>
                 </c:forEach>
 
                 <c:if test="${empty reviewList}">
                     <tr>
-                        <td colspan="6">검색 결과가 없습니다.</td>
+                        <td colspan="7">검색 결과가 없습니다.</td>
                     </tr>
                 </c:if>
             </tbody>
