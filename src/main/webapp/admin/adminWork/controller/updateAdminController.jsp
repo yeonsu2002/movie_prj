@@ -27,7 +27,7 @@ System.out.println("platform = " + platform);
 String savePath = "";
 
 if("Windows".equals(platform)){
-	savePath = "C:\\dev\\movie\\userProfiles";
+	savePath = "C:/dev/movie/userProfiles";
 } else if ("macOS".equals(platform)){
 	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 }

@@ -6,7 +6,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <c:import url="/common/jsp/external_file.jsp"/>
 <script>
-  $(document).ready(function() {
+/*   
+												해당 script에서 이벤트리스너 등록 비추천, 오류가능성 duo. 상위요소에서 재등록하길 추천 
+ 
+	$(document).ready(function() {
     // 수정 버튼 클릭 이벤트
     $('#updateBtn').click(function() {
       if (validateForm()) {
@@ -31,6 +34,12 @@
         $('#adminName').focus();
         return false;
       }
+      
+      if (!$('#adminPwd').val().trim()) {
+        alert('비밀번호를 입력해주세요.');
+        $('#adminPwd').focus();
+        return false;
+      }
 
       if (!$('#adminEmail').val().trim()) {
         alert('이메일을 입력해주세요.');
@@ -51,7 +60,7 @@
 
       return isValid;
     }
-  });
+  }); */
 </script>
 <div id="container">
   <!-- 프로필 섹션 -->
@@ -59,7 +68,7 @@
     id="adminForm" method="post" enctype="multipart/form-data">
     
     <div class="mgr-profile-section" style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
-      <img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+      <img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg2">
       <input type="file" id="profileImageBtn" class="profile-image" name="profileImage" accept="image/*" style="display: none">
       <div class="mgr-profile-name">매니저</div>
     </div>
