@@ -231,6 +231,9 @@ function updateManager(url, adminData) {
       const modalBody = document.querySelector('.modal-body');
       modalBody.innerHTML = html; // 모달 내용 동적으로 변경
       modalOverlay.style.display = 'flex';
+      setTimeout(() => {
+    	    modalOverlay.classList.add('active');
+    	  }, 10); // 약간의 지연이 필요함
 
       // 모달이 로드된 후 이벤트 리스너 다시 등록
       setupModalEvents();
@@ -246,12 +249,18 @@ function updateManager(url, adminData) {
 
 //이벤트리스너에 쓰일 모달닫기 함수 
 function closeModal(){
-	document.querySelector('.modal-overlay').style.display = 'none';
+	const modalOverlay = document.querySelector('.modal-overlay');
+  modalOverlay.classList.remove('active');
+
+  // transition 끝난 뒤 완전히 숨기기
+  setTimeout(() => {
+    modalOverlay.style.display = 'none';
+  }, 300); // transition 시간과 동일하게
 }
+
+
 //이벤트리스너
 document.addEventListener("DOMContentLoaded", () =>{
-	
-	document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
 	
 	//배경클릭시 닫기
 	document.querySelector('.modal-overlay').addEventListener("click", (e) => {
@@ -297,20 +306,104 @@ function setupModalEvents() {
   	console.log("모달 내 요소를 찾을 수 없습니다.");
 	}
 	
-	// 수정 버튼 클릭 이벤트
+	//수정폼에 입력IP 추가 버튼 클릭 이벤트 - 수정된 버전
+	$("#saveIpBtn").on("click", function(event){
+		event.preventDefault();
+
+		let inputedIp = $("#ipInput").val().trim();
+		if (!inputedIp) {
+			alert("IP를 입력해주세요.");
+			return;
+		}
+
+		// IP 형식 검증 (선택사항)
+		const ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+		if (!ipPattern.test(inputedIp)) {
+			alert("올바른 IP 형식을 입력해주세요. (예: 192.168.1.1)");
+			return;
+		}
+
+		// 중복 IP 체크
+		let isDuplicate = false;
+		$("#allowedIpSelect option").each(function() {
+			if ($(this).val() === inputedIp && $(this).val() !== "") {
+				isDuplicate = true;
+				return false; // each문 중단
+			}
+		});
+
+		if (isDuplicate) {
+			alert("이미 등록된 IP입니다.");
+			return;
+		}
+
+		// 현재 등록된 IP 개수 체크 (빈 값이 아닌 옵션들만 카운트)
+		let optionCount = $("#allowedIpSelect option").filter(function() {
+			return $(this).val() !== "" && !$(this).prop("disabled");
+		}).length;
+
+		console.log("현재 등록된 IP 개수:", optionCount);
+
+		if (optionCount >= 3) {
+			alert("접속가능한 IP는 계정당 3개까지 허용됩니다.");
+			return;
+		}
+
+		// 빈 슬롯 찾아서 IP 추가
+		let addedSuccessfully = false;
+		for(let i = 0; i < 3; i++){
+			let option = $("#ipOption" + i);
+			
+			// 해당 옵션이 비어있다면 (값이 없거나 disabled 상태)
+			if (option.val() === "" || option.prop("disabled")) {
+				option.val(inputedIp);
+				option.text(inputedIp);
+				option.prop("disabled", false);
+				addedSuccessfully = true;
+				break;
+			}
+		}
+
+		if (addedSuccessfully) {
+			$("#ipInput").val(""); // 입력창 초기화
+			console.log("IP 추가 완료:", inputedIp);
+		} else {
+			alert("IP 추가에 실패했습니다.");
+		}
+	});
+
+	// 추가: IP 삭제 시 해당 옵션을 완전히 초기화하는 로직도 수정
+	$("#removeIpBtn").on("click", function(event){
+		event.preventDefault();
+		let selectedOption = $("#allowedIpSelect option:selected");
+		
+		if(selectedOption.length > 0){
+			selectedOption.each(function(){ 
+				// 옵션을 초기 상태로 되돌림
+				$(this).val("");
+				$(this).text("");
+				$(this).prop("disabled", true);
+				$(this).prop("selected", false); // 선택 해제
+			});
+			console.log("선택된 IP들이 삭제되었습니다.");
+		} else {
+			alert("삭제하실 IP를 선택하여주십시오.");
+			return;
+		}
+	});
+
+	// 수정폼에 수정 버튼 클릭 이벤트
 	$('#updateBtn').click(function() {
 	  if (!validateForm()) {
 		  return;
 	  } else {
-		  alert("수정 버튼 누름 ");
 	    $('#adminForm').submit();
 	  }
 	});
 	
-	// 취소 버튼 클릭 이벤트
+	// 수정폼에 취소 버튼 클릭 이벤트
 	$('#cancelBtn').click(function() {
-		  alert("취소 버튼 누름 ");
-	  $('#adminModal').modal('hide'); // 모달 닫기
+	  $('.modal-overlay').hide() ; // 모달 닫기
 	});
 	
 	// 폼 검증 함수
@@ -325,7 +418,7 @@ function setupModalEvents() {
 	  }
 	  
 	  if (!$('#adminPwd').val().trim()) {
-	    alert('비밀번호를 입력해주세요.');
+	    alert('비밀번호를 입력해주세요.ㅋ');
 	    $('#adminPwd').focus();
 	    return false;
 	  }
@@ -339,6 +432,11 @@ function setupModalEvents() {
 	  if (!$('#phone1').val() || !$('#phone2').val() || !$('#phone3').val()) {
 	    alert('연락처를 모두 입력해주세요.');
 	    return false;
+	  } else {
+		  let phone1 = $('#phone1').val();
+		  let phone2 = $('#phone2').val();
+		  let phone3 = $('#phone3').val();
+	    $('#phone').val(phone1 + '-' + phone2 + '-' + phone3);
 	  }
 	
 	  if ($('#manageArea').val() === 'none') {
@@ -346,30 +444,17 @@ function setupModalEvents() {
 	    $('#manageArea').focus();
 	    return false;
 	  }
+	  
+	  if ($('#allowedIpSelect').val() === null) {
+	    alert('접속IP를 입력해주세요.');
+	    $('#ipInput').focus();
+	    return false;
+	  }
 	
 	  return isValid;
 	}
 	
 }//setup modal evnet()
-
-
-
-/* 모달 input 예외처리 검증  */
-
-
-
-/* 모달이 동적으로 생성되기 때문에 상위에 이벤트 위임을 써, 혹은 모달창 호출 때 같이 불러 */
-//연락처 입력 시 자동으로 hidden input에 합치기
-$(document).on('input', '#phone1, #phone2, #phone3', function() {
-  let phone1 = $('#phone1').val();
-  let phone2 = $('#phone2').val();
-  let phone3 = $('#phone3').val();
-  
-  if (phone1 && phone2 && phone3) {
-    $('#phone').val(phone1 + '-' + phone2 + '-' + phone3);
-  }
-});
-
 
 //매니저 정보 수정 모달 폼에 데이터 채우기 
 function fillModalWithData(adminData) {
@@ -395,31 +480,29 @@ function fillModalWithData(adminData) {
   // 관리영역 선택
   $('#manageArea').val(adminData.manageArea);
   
-  // 프로필 이미지가 있다면
-  if (adminData.picture) {
-	  $('#mgrProfileImg2').attr('src', '/profile/' + adminData.picture); //input file값을 주는게 아님. 단순히 이미지출력임
-	  //$("#profileImageBtn").val(adminData.picture); //input file에는 자바스크립트로 값을 줄 수 없음. 보안위반 
+  // 프로필 이미지 재설정 
+  $('#mgrProfileImg2').attr('src', '${pageContext.request.contextPath}/common/img/default_img.png'); // 기본 이미지 등
+  /* if (adminData.picture) {
+	  //$('#mgrProfileImg2').attr('src', '/profile/' + adminData.picture); //input file값을 주는게 아님. 단순히 이미지출력임
+	  //$("#profileImageBtn").val(adminData.picture); //input file에는 자바스크립트로 값을 줄 수 없음. 보안위반사항이래 
 	  
-	} else {
-	  $('#mgrProfileImg2').attr('src', '/common/default_img.png'); // 기본 이미지 등
-	}
+	} */ 
+  
   //유저 idx넘기기
   if(adminData.userIdx) {
 	  $("#userIdx").val(adminData.userIdx);
   }
-   
-  // 등록일 (수정 시에는 보통 변경하지 않음)
-  if (adminData.insertDate) {
-    $('input[name="insertDate"]').val(adminData.insertDate);
-  }
-  
-
-
-  
-	//모달창 열기	
-  //updateManager("${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp");
-	//Ajax로 서버에서 모달 HTML 조각을 받아와서 모달 내용을 새로 넣어버립니다. 그래서 기존에 넣었던 데이터가 자꾸 사라지는거 .. 반대로 해야함 아오개빡치너'ㄹ'ㄴㅇ'ㄹ아ㅣㄹ
 	
+	//IP리스트 붙여넣기 
+	if(adminData.iplist.length < 4) { //iplist가 3개까지만 제한  
+		const ipList = adminData.iplist.map(item => item.ipAddress);
+		for(let i = 0; i < ipList.length; i++){
+			$("#ipOption"+[i]).text(ipList[i]);
+			$("#ipOption"+[i]).val(ipList[i]);
+			$("#ipOption"+[i]).prop("disabled", false);
+		}
+
+	}
 }// end fillModalWithData()
  
 
@@ -430,7 +513,6 @@ function fillModalWithData(adminData) {
 	<!-- 모달 구조 -->
 	<div class="modal-overlay">
 	  <div class="admin-modal-content">
-	    <span id="modalCloseBtn" class="modal-close">&times;</span>
 	    <div class="modal-body"></div>
 	  </div>
 	</div>
