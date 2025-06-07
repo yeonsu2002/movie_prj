@@ -6,11 +6,12 @@
 <%@page import="kr.co.yeonflix.reservation.ReservationDTO"%>
 <%@page import="netscape.javascript.JSObject"%>
 <%@page import="kr.co.yeonflix.reservation.ReservationService"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="application/json; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
 	String reservationParam = request.getParameter("reservationIdx");
-	String result = "fail";
+	Boolean flag = false;
+	int remainSeats = 0;
 
 	if (reservationParam != null) {
 		try {
@@ -37,12 +38,19 @@
 			schDTO.setRemainSeats(schDTO.getRemainSeats() + canceledSeats);
 			boolean seatSuccess = ss.modifySchedule(schDTO);
 			
+			remainSeats = schDTO.getRemainSeats();
+			
 			if (resSuccess && purSuccess && seatSuccess && (canceledSeats>0)) {
-				result = "success";
+				flag = true;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	out.print(result);
+	response.setContentType("application/json");
+    if (flag) {
+        out.print("{\"success\": true, \"remainSeats\": " + remainSeats + "}");
+    } else {
+        out.print("{\"success\": false}");
+    }
 %>

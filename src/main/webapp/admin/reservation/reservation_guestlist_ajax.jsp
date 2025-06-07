@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.reservation.GuestReservationDTO"%>
 <%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
 <%@page import="kr.co.yeonflix.theater.TheaterService"%>
 <%@page import="java.util.List"%>
@@ -21,16 +22,16 @@ int startNum = currentPage * pageScale - pageScale + 1;
 int endNum = startNum + pageScale - 1;
 
 ReservationService rs = new ReservationService();
-List<UserReservationDTO> urDTOList = rs.searchUserReservationListBySchedule(scheduleIdx, startNum, endNum, col, key);
-int totalCnt = rs.totalCount(scheduleIdx, col, key);
+List<GuestReservationDTO> grDTOList = rs.searchGuestReservationListBySchedule(scheduleIdx, startNum, endNum, col, key);
+int totalCnt = rs.totalGuestCount(scheduleIdx, col, key);
 int totalPage = (int)Math.ceil((double)totalCnt / pageScale); //총 페이지 수
 
-pageContext.setAttribute("urDTOList", urDTOList);
 pageContext.setAttribute("currentPage", currentPage);
 pageContext.setAttribute("totalCnt", totalCnt);
 pageContext.setAttribute("pageScale", pageScale);
 pageContext.setAttribute("totalPage", totalPage);
 pageContext.setAttribute("moviePrice", moviePrice);
+pageContext.setAttribute("grDTOList", grDTOList);
 pageContext.setAttribute("key", key);
 
 %>
@@ -46,8 +47,8 @@ pageContext.setAttribute("key", key);
 		<th>좌석 번호</th>
 		<th>예매/취소 날짜</th>
 		<th>회원 여부</th>
-		<th>아이디</th>
-		<th>전화번호</th>
+		<th>이메일</th>
+		<th>생년월일</th>
 		<th>결제금액</th>
 	</tr>
 </thead>
@@ -78,33 +79,33 @@ pageContext.setAttribute("key", key);
 			</tr>
 		</c:when>
 		<c:otherwise>
-			<c:forEach var="urDTO" items="${urDTOList}" varStatus="i">
-				<tr data-reservation-idx="${urDTO.reservationIdx}">
+			<c:forEach var="grDTO" items="${grDTOList}" varStatus="i">
+				<tr data-reservation-idx="${grDTO.reservationIdx}">
 					<td>${totalCnt - (currentPage-1)*pageScale - i.index}</td>
-					<td>${urDTO.reservationNumber}</td>
+					<td>${grDTO.reservationNumber}</td>
 					<c:choose>
-						<c:when test="${urDTO.canceledDate == null}">
+						<c:when test="${grDTO.canceledDate == null}">
 							<td class="cancelReservation">✅ 예매 완료</td>
 						</c:when>
 						<c:otherwise>
 							<td class="canceled">❌ 취소 완료</td>
 						</c:otherwise>
 					</c:choose>
-					<td>${urDTO.seatsInfo}</td>
+					<td>${grDTO.seatsInfo}</td>
 					<c:choose>
-						<c:when test="${urDTO.canceledDate == null}">
-							<td><fmt:formatDate value="${urDTO.reservationDate}"
+						<c:when test="${grDTO.canceledDate == null}">
+							<td><fmt:formatDate value="${grDTO.reservationDate}"
 									pattern="yyyy-MM-dd HH:mm" /></td>
 						</c:when>
 						<c:otherwise>
 							<td class="canceled"><fmt:formatDate
-									value="${urDTO.canceledDate}" pattern="yyyy-MM-dd HH:mm" /></td>
+									value="${grDTO.canceledDate}" pattern="yyyy-MM-dd HH:mm" /></td>
 						</c:otherwise>
 					</c:choose>
-					<td>👤 회원</td>
-					<td>${urDTO.memberId}</td>
-					<td>${urDTO.tel}</td>
-					<td><fmt:formatNumber value="${urDTO.seatsCnt * moviePrice}"
+					<td>👥 비회원</td>
+					<td>${grDTO.email}</td>
+					<td>${grDTO.birthFormatted}</td>
+					<td><fmt:formatNumber value="${grDTO.seatsCnt * moviePrice}"
 							type="number" groupingUsed="true" />원</td>
 				</tr>
 			</c:forEach>

@@ -76,25 +76,9 @@ List<String> occupiedSeats = rss.searchSeatNumberWithSchedule(scheduleIdx);
 //임시선점된 좌석 정보
 List<String> tempSeats = rss.searchTempSeatNumberWithSchedule(scheduleIdx);
 
+//영화 등급
 MovieCommonCodeService mccs = new MovieCommonCodeService();
-List<MovieCommonCodeDTO> ccList = mccs.searchCommon(movieIdx);
-CommonService cs = new CommonService();
-List<CommonDTO> graList = cs.gradeList();
-
-int gradeIdx = 0;
-for (MovieCommonCodeDTO mccDTO : ccList) {
-	
-	if ("등급".equals(mccDTO.getCodeType())) {
-		gradeIdx = mccDTO.getCodeIdx();
-	}
-}
-
-String grade = "";
-for (CommonDTO cDTO : graList) {
-	if (cDTO.getCodeIdx() == gradeIdx) {
-		grade = cDTO.getMovieCodeType();
-	}
-}
+String grade = mccs.searchOneGrade(movieIdx);
 
 
 request.setAttribute("schDTO", schDTO);
@@ -105,7 +89,6 @@ request.setAttribute("tempSeats", tempSeats);
 request.setAttribute("grade", grade);
 
 %>
-<%=guestUser %>
 <!DOCTYPE html>
 <html>
 <head>
