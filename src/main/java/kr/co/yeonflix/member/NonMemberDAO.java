@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
@@ -27,7 +29,7 @@ public class NonMemberDAO {
 //--------------------------------------------------------------------------------------------------------------------	
 
 	//비회원 생성
-	public boolean insertNonMem(String birth, String email, String pwd) throws SQLException {
+	public boolean insertNonMem(LocalDate birthDate, String email, String pwd) throws SQLException {
 	  boolean isSuccess = false;
 	  
 	  DbConnection dbCon = DbConnection.getInstance();
@@ -72,7 +74,7 @@ public class NonMemberDAO {
 	    //비회원등록 
 	    try(PreparedStatement pstmt = con.prepareStatement(insertNonMemberQuery)){
 	      pstmt.setInt(1, userIdx);
-	      pstmt.setString(2, birth);
+	      pstmt.setDate(2, java.sql.Date.valueOf(birthDate));
 	      pstmt.setString(3, email);
 	      pstmt.setString(4, pwd);
 	      pstmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
@@ -109,14 +111,14 @@ public class NonMemberDAO {
 	  return isSuccess;
 	}
 
-	//이메일로 회원정보 뽑기(유저권한x, 타입x, 필요없을듯. 예매완료하고 버릴거니까)
-  public NonMemberDTO selectNonMember(String email) throws SQLException {
+	//이메일, 이름, 생일로 회원정보 뽑기(유저권한x, 타입x, 필요없을듯. 예매완료하고 버릴거니까)
+  public NonMemberDTO selectNonMember(LocalDate birth, String email) throws SQLException {
     
     DbConnection dbCon = DbConnection.getInstance();
     Connection con = null;
     ResultSet rs = null;
     
-    String getUserIdxQuery = " SELECT * FROM non_member WHERE email = ?  ";
+    String getUserIdxQuery = " SELECT * FROM non_member WHERE email = ? AND non_member_birth = ?  ";
     
     NonMemberDTO nmDTO = null;
     
@@ -125,6 +127,7 @@ public class NonMemberDAO {
       
       try(PreparedStatement pstmt = con.prepareStatement(getUserIdxQuery)){
         pstmt.setString(1, email);
+        pstmt.setDate(2, java.sql.Date.valueOf(birth));
         rs = pstmt.executeQuery();
         
         if(rs.next()) {

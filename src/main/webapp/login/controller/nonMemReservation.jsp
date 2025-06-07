@@ -24,10 +24,12 @@
 	    System.out.println("비회원 생성 성공");
 	    
 	    try{
-		    nmDTO = nmService.getNonMem(email); //권한정보 없음
-		    nmDTO.setUserType("GUEST");
+		    nmDTO = nmService.getNonMem(birth, email); //권한정보 없음
+		    nmDTO.setUserType("GUEST"); //비회원 권한으로 딱히 접근제한 할만한 페이지는 아직 없는데.. 
 	      if(nmDTO.getUserIdx() > 0){
+	        System.out.println("nmDTO : " + nmDTO);
 					//일단 세션 깨긋하게 비우고
+					session.removeAttribute("guestUser");
 					session.invalidate();
 					// 세션 새로 꺼내
 					session = request.getSession(true); 

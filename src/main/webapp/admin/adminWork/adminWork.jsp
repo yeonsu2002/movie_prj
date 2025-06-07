@@ -354,8 +354,7 @@ function setupModalEvents() {
 		for(let i = 0; i < 3; i++){
 			let option = $("#ipOption" + i);
 			
-			// 해당 옵션이 비어있다면 (값이 없거나 disabled 상태)
-			if (option.val() === "" || option.prop("disabled")) {
+			if (option.val() === "" || option.prop("disabled")) { //비어있을때 
 				option.val(inputedIp);
 				option.text(inputedIp);
 				option.prop("disabled", false);
