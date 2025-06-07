@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -189,6 +190,17 @@ public class NonMemberDAO {
 		}
   	
   	return list;
+  }
+
+  public List<NonMemTicketDTO> selectNonMemTicketList(String birth, String email) {
+    List<NonMemTicketDTO> selectNonMemTicketList = new ArrayList<NonMemTicketDTO>();
+    DbConnection dbCon = DbConnection.getInstance();
+    Connection con = null;
+    ResultSet rs = null;
+    
+    
+    
+    return selectNonMemTicketList;
   }
 	
 }

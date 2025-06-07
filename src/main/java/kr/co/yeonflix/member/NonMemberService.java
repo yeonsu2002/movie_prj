@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
@@ -30,6 +31,11 @@ public class NonMemberService {
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
     LocalDate birthDate = LocalDate.parse(birth, dtf);
     return nmDAO.selectNonMember(birthDate, email);
+  }
+  
+  //비회원 예매내역 출력 (생일, 이메일)
+  public List<NonMemTicketDTO> getNmtDTOlist(String birth, String email){
+    return nmDAO.selectNonMemTicketList(birth, email);
   }
   
   

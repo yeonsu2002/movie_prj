@@ -591,8 +591,7 @@ function checkNonMemberTicket(){
 	    }
 		});
 		
-	
-		
+	//비회원예매확인 버튼 눌렀을 때 
 	$("#checkNonMemberTicket").on("click", function(event){
 		event.preventDefault();
 		
