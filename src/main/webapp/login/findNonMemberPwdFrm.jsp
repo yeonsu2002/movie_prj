@@ -139,12 +139,12 @@ $(function(){
 	             
 	             <form action="">
 		             <div class="pw_field_row">
-		                 <div class="pw_field_name">법정생년월일<br>(6자리)</div>
+		                 <div class="pw_field_name">법정생년월일(8자리)</div>
 		                 <div>
-		                     <input type="text" class="pw_field_input" required maxlength="6"> * * * * * * *
+		                 	<input type="text" id="birth" name="birth" maxlength="8" placeholder="예) 19900101" />
 		                 </div>
 		             </div>
-		             
+						             
 		             <div class="pw_field_row">
 		                 <div class="pw_field_name">이메일주소</div>
 		                 <div style="display: flex; align-items: center;">
