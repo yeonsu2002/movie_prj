@@ -293,7 +293,7 @@ request.setAttribute("mccs", mccs);
                     </div>
 
                     <div class="score">
-                        <strong class="percent">${ms.reservationRate(nm.movieIdx)}</strong>
+                        <strong class="percent">${ms.reservationRate(nm.movieIdx)}%</strong>
                     </div>
 
                     <span class="txt-info">
@@ -305,6 +305,7 @@ request.setAttribute("mccs", mccs);
             </div>
         </c:forEach> 
     </div>
+    
 </div>
 
 </main>

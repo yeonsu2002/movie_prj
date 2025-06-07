@@ -32,13 +32,10 @@
         body {
             font-family: 'Malgun Gothic', sans-serif;
             line-height: 1.6;
-            
             color: #333;
             margin: 0;
             padding: 0;
         }
-
-        
 
         /* 메인 컨테이너 */
         #container {
@@ -228,13 +225,14 @@
         .tab-content-container {
             background: #fff;
             min-height: 500px;
+            position: relative;
         }
 
         .tab-content {
-            display: none;
             padding: 40px 30px;
             max-width: 980px;
             margin: 0 auto;
+            display: none;
         }
 
         .tab-content.active {
@@ -252,6 +250,32 @@
             font-size: 14px;
             line-height: 1.7;
             color: #555;
+        }
+
+        /* 로딩 애니메이션 */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #fb4357;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* 트레일러 섹션 */
@@ -369,39 +393,183 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $('.tab-menu li').click(function () {
-                var tabId = $(this).data('tab');
+ // 탭 콘텐츠 캐시 (한 번만 로드)
+    const tabContentCache = {};
+    let isInitialized = false;
 
-                $('.tab-menu li').removeClass('active');
-                $('.tab-content').removeClass('active');
+    $(document).ready(function () {
+        // 페이지 로드 시 초기화
+        initializePage();
+        
+        // 탭 클릭 이벤트
+        $('.tab-menu li').click(function (e) {
+            e.preventDefault();
+            const $this = $(this);
+            const tabId = $this.data('tab');
 
-                $(this).addClass('active');
-                $('#' + tabId).addClass('active');
+            // 이미 활성화된 탭이면 return
+            if ($this.hasClass('active')) {
+                return;
+            }
 
-                window.location.hash = tabId;
-            });
+            // 탭 전환
+            switchTab(tabId);
+        });
 
-            if (window.location.hash) {
-                const hash = window.location.hash.substring(1);
-                $('[data-tab="' + hash + '"]').click();
-            } else {
-                $('.tab-menu li:first').click();
+        // 브라우저 뒤로가기/앞으로가기 처리
+        $(window).on('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && hash !== getCurrentActiveTab()) {
+                switchTab(hash, false); // 히스토리 업데이트 안함
             }
         });
+    });
+
+    function initializePage() {
+        // 초기 해시 확인
+        let initialTab = 'main-info'; // 기본 탭
         
-        function playTrailer() {
-            $('.trailer-preview').hide();
-            $('#trailer-iframe').show();
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1);
+            const $targetTab = $('[data-tab="' + hash + '"]');
+            if ($targetTab.length) {
+                initialTab = hash;
+            }
         }
+        
+        // 초기 탭 로드
+        switchTab(initialTab, false);
+        isInitialized = true;
+    }
+
+    function switchTab(tabId, updateHistory = true) {
+        const movieIdx = <%= movieIdx %>;
+        
+        // 탭 메뉴 활성화 상태 변경
+        $('.tab-menu li').removeClass('active');
+        $('[data-tab="' + tabId + '"]').addClass('active');
+
+        // 히스토리 업데이트 (중복 방지)
+        if (updateHistory && isInitialized && window.location.hash.substring(1) !== tabId) {
+            history.replaceState(null, null, '#' + tabId);
+        }
+
+        // 캐시된 콘텐츠가 있으면 바로 표시
+        if (tabContentCache[tabId]) {
+            showTabContent(tabId, tabContentCache[tabId]);
+            return;
+        }
+
+        // 로딩 표시
+        showLoading();
+
+        // AJAX로 콘텐츠 로드
+        $.ajax({
+            url: "getMovieTabContent.jsp",
+            type: "GET",
+            data: {
+                movieIdx: movieIdx,
+                tabType: tabId
+            },
+            dataType: "html",
+            timeout: 10000,
+            beforeSend: function() {
+                console.log("Loading tab:", tabId, "for movie:", movieIdx); // 디버깅용
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", xhr.status, xhr.statusText, error);
+                console.error("Response Text:", xhr.responseText); // 에러 상세 확인
+                
+                hideLoading();
+                const errorContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #e74c3c;">' +
+                    '<div style="font-size: 18px; margin-bottom: 10px;">⚠️</div>' +
+                    '<div>콘텐츠를 불러오는 중 오류가 발생했습니다.</div>' +
+                    '<div style="font-size: 12px; color: #666; margin-top: 10px;">Error: ' + xhr.status + ' - ' + error + '</div>' +
+                    '<button onclick="retryLoadTab(\'' + tabId + '\')" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">다시 시도</button>' +
+                    '</div>';
+                showTabContent(tabId, errorContent);
+            },
+            success: function(response) {
+                console.log("Tab loaded successfully:", tabId); // 디버깅용
+                console.log("Response length:", response.length); // 응답 길이 확인
+                
+                hideLoading();
+                
+                // 응답이 비어있는지 확인
+                if (!response || response.trim() === '') {
+                    const emptyContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #999;">' +
+                        '<div>콘텐츠가 없습니다.</div>' +
+                        '</div>';
+                    showTabContent(tabId, emptyContent);
+                    return;
+                }
+                
+                // 캐시에 저장
+                tabContentCache[tabId] = response;
+                showTabContent(tabId, response);
+                
+                // 트레일러 탭이면 이벤트 바인딩
+                if (tabId === 'trailer') {
+                    bindTrailerEvents();
+                }
+            }
+        });
+    }
+
+    function showTabContent(tabId, content) {
+        // 모든 기존 탭 콘텐츠 숨기기
+        $('.tab-content').removeClass('active').hide();
+        
+        // 새 콘텐츠 삽입
+        $('.tab-content-container').html(content);
+        
+        // 새 콘텐츠 활성화
+        $('.tab-content').addClass('active').show();
+    }
+
+    function getCurrentActiveTab() {
+        return $('.tab-menu li.active').data('tab');
+    }
+
+    function retryLoadTab(tabId) {
+        // 캐시 삭제 후 다시 로드
+        delete tabContentCache[tabId];
+        switchTab(tabId, false);
+    }
+
+    // 로딩 표시
+    function showLoading() {
+        $('.tab-content-container').html(
+            '<div class="loading" style="display: block;">' +
+            '<div class="loading-spinner"></div>' +
+            '<div>로딩 중...</div>' +
+            '</div>'
+        );
+    }
+
+    // 로딩 숨김
+    function hideLoading() {
+        $('.loading').hide();
+    }
+
+    // 트레일러 이벤트 바인딩
+    function bindTrailerEvents() {
+        $('.trailer-preview').off('click').on('click', function() {
+            playTrailer();
+        });
+    }
+
+    // 트레일러 재생
+    function playTrailer() {
+        $('.trailer-preview').hide();
+        $('.trailer-iframe').show();
+    }
     </script>
 </head>
 <body>
     <header>
         <jsp:include page="../common/jsp/header.jsp" />
     </header>
-    
-    
     
     <main>
         <div id="container">
@@ -443,46 +611,14 @@
 
             <div class="tab-navigation">
                 <ul class="tab-menu">
-                    <li data-tab="main-info" class="active">주요정보</li>
+                    <li data-tab="main-info">주요정보</li>
                     <li data-tab="trailer">트레일러</li>
                     <li data-tab="review">실관람평</li>
                 </ul>
             </div>
 
             <div class="tab-content-container">
-                <div id="main-info" class="tab-content active">
-                    <h3>줄거리</h3>
-                    <div class="movie-description">
-                        <%= mDTO.getMovieDescription() %>
-                    </div>
-                </div>
-
-                <div id="trailer" class="tab-content">
-                    <h3>트레일러</h3>
-                    <div class="trailer-container">
-                        <div class="trailer-preview" onclick="playTrailer()">
-                            <div class="trailer-background"></div>
-                            <div class="trailer-overlay">
-                                <div class="play-button"></div>
-                            </div>
-                        </div>
-                        <iframe id="trailer-iframe" class="trailer-iframe"
-                          src="https://www.youtube.com/embed/HAfCX54YmB4?autoplay=1" 
-                          frameborder="0" 
-                          allowfullscreen
-                          allow="encrypted-media">
-                        </iframe>
-                    </div>
-                </div>
-
-                <div id="review" class="tab-content">
-                    <h3>실관람평</h3>
-                    <div class="review-placeholder">
-                        관람객 평점과 리뷰가 여기에 표시됩니다.
-                    </div>
-                </div>
-
-                
+                <!-- 동적 로딩되는 콘텐츠 영역 -->
             </div>
         </div>
     </main>
