@@ -441,7 +441,7 @@ function nonMemberCheckReservationFrm(){
 		              <p style="color:red;">모든 항목은 필수 입력사항입니다.</p>
 		            </div>
 		            
-		            <form id="chkTicketForm" action="${pageContext.request.contextPath}/login/controller/chkNonMemTicket.sjp" method="POST"> 
+		            <form id="chkTicketForm" action="${pageContext.request.contextPath}/login/controller/chkNonMemTicket.jsp" method="POST"> 
 		            
 			            <div class="guest-form-row">
 			              <label>법정생년월일(8자리)</label>

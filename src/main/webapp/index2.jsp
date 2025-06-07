@@ -7,48 +7,27 @@
 <%
 MovieService ms = new MovieService();
 List<MovieDTO> movieList = ms.searchMovieChart();
-List<MovieDTO> nonMovieList = ms.searchNonMovieChart();
-
 request.setAttribute("movieList", movieList);
-request.setAttribute("nonMovieList", nonMovieList);
 
-String embedUrl = ""; // 기본값: 영상 없을 때 빈 문자열
-
-if (movieList != null && !movieList.isEmpty()) {
     int listSize = movieList.size();
     int randomIndex = (int)(Math.random() * listSize);
     MovieDTO randomMovie = movieList.get(randomIndex);
-
+    
     String trailerUrl = randomMovie.getTrailerUrl();
     String videoId = "";
 
-    if (trailerUrl != null) {
-        if (trailerUrl.contains("youtu.be/")) {
-            int idx = trailerUrl.lastIndexOf("/");
-            if (idx != -1) {
-                videoId = trailerUrl.substring(idx + 1);
-                int paramIdx = videoId.indexOf("?");
-                if (paramIdx != -1) {
-                    videoId = videoId.substring(0, paramIdx);
-                }
-            }
-        } else if (trailerUrl.contains("watch?v=")) {
-            int idx = trailerUrl.indexOf("v=") + 2;
-            if (idx != -1) {
-                videoId = trailerUrl.substring(idx);
-                int endIdx = videoId.indexOf("&");
-                if (endIdx == -1) endIdx = videoId.indexOf("=");
-                if (endIdx != -1) {
-                    videoId = videoId.substring(0, endIdx);
-                }
-            }
+    if(trailerUrl.contains("youtu.be/")) {
+        videoId = trailerUrl.substring(trailerUrl.lastIndexOf("/") + 1);
+    } else if (trailerUrl.contains("watch?v=")) {
+        videoId = trailerUrl.substring(trailerUrl.indexOf("v=") + 2);
+
+        int eqIdx = videoId.indexOf("=");
+        if (eqIdx != -1) {
+        	videoId = videoId.substring(0, eqIdx);
         }
     }
-
-    if (!videoId.isEmpty()) {
-        embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId;
-    }
-}
+    
+String embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId;
 %>
 
 <!DOCTYPE html>
@@ -129,7 +108,12 @@ function showTab(tabName) {
 
 <div id="trailer-wrapper">
 <div id="trailer-container">
-<iframe src="<%= embedUrl %>" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+<iframe 
+  src="<%= embedUrl %>" 
+  frameborder="0" 
+  allowfullscreen
+  allow="autoplay; encrypted-media">
+</iframe>
   <div class="trailer-overlay"></div>
 </div>
 </div>
@@ -144,69 +128,72 @@ function showTab(tabName) {
   </div>
   <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
 </div>
+<div>
 <div class="content-area">
 
-<div id="movieChart" class="tab-content active">
-	<div class="poster-marquee">
-	<div class="marquee">
-	<div class="poster-track">
-			<c:forEach var="movie" items="${movieList}" varStatus="status">
-			    <div class="movie-item">
-			        <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-			            <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-			        </a>
-			        <div class="rank">${status.index + 1}</div>
-			    </div>
-			</c:forEach>
-			<c:forEach var="movie" items="${nonMovieList}" varStatus="status">
-			    <div class="movie-item">
-			        <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-			            <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-			        </a>
-			        <div class="rank">${movieList.size() + status.index + 1}</div> <!-- 순위 이어붙이기 -->
-			    </div>
-			</c:forEach>
+	<div id="movieChart" class="tab-content active">
+		<div class="poster-marquee">
+		<div class="poster-track">
 
-	<!-- <div class="movie-item">
-	    <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
-	    <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
-	</div> -->
-</div>
-</div>
-</div>
+				<c:forEach var="movie" items="${movieList}" varStatus="status">
+				    <div class="movie-item">
+				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+				    	</a>
+				    <div class="rank">${status.index + 1}</div>
+				    </div>
+				</c:forEach>
+				<c:forEach var="movie" items="${movieList}" varStatus="status">
+				    <div class="movie-item">
+				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+				    	</a>
+				    <div class="rank">${status.index + 1}</div>
+				    </div>
+				</c:forEach>
+				<!-- <div class="movie-item">
+				    <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
+				    <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
+				</div> -->
+		</div>
+		</div>
+	</div>
 
 <div id="UpcomingMovies" class="tab-content">
 	<div class="poster-marquee">
 	<div class="poster-track">
-		<c:forEach var="movie" items="${movieList}" varStatus="status">
-			    <div class="movie-item">
-			    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-			        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-			    	</a>
-			    <div class="rank">${status.index + 1}</div>
-			    </div>
-			</c:forEach>
+	
 			<c:forEach var="movie" items="${movieList}" varStatus="status">
-			    <div class="movie-item">
-			    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-			        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-			    	</a>
-			    <div class="rank">${status.index + 1}</div>
-			    </div>
-			</c:forEach>
+				    <div class="movie-item">
+				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+				    	</a>
+				    <div class="rank">${status.index + 1}</div>
+				    </div>
+				</c:forEach>
+				<c:forEach var="movie" items="${movieList}" varStatus="status">
+				    <div class="movie-item">
+				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+				    	</a>
+				    <div class="rank">${status.index + 1}</div>
+				    </div>
+				</c:forEach>
+				
+	</div>
+	</div>
+</div>
+</div>
 
-	</div>
-	</div>
 </div>
-</div>
-</div>
-<!-- 특별관 -->
+<!-- 특별관 추가 -->
 <div class="sepecialHall_Wrap">
   <div class="contents">
       <div class="specialHall_title_wrap">
           <h2>특별관</h2>
           <a href="http://localhost/movie_prj/theater/theater_intro.jsp" class="btn_allView">전체보기 &gt;</a>
       </div>
+      
       <div class="specialHall_content">
           <div class="hall_image_section">
               <img id="hallImage" src="common/img/IMAX_main.jpg" 
@@ -216,6 +203,7 @@ function showTab(tabName) {
                   <div id="hallDesc" class="hall_description">#최고의 화질과 사운드</div>
               </div>
           </div>
+          
           <ul class="specialhall_list">
               <li data-image="common/img/IMAX_main.jpg"
                   data-name="IMAX" 
@@ -223,18 +211,21 @@ function showTab(tabName) {
                   <div class="hall_title">IMAX</div>
                   <div class="hall_tag">최고의 화질과 사운드</div>
               </li>
+              
               <li data-image="common/img/4DX_main.jpg"
                   data-name="4DX" 
                   data-desc="#모션시트 #오감체험">
                   <div class="hall_title">4DX</div>
                   <div class="hall_tag">모션시트 #오감체험</div>
               </li>
+              
               <li data-image="common/img/screenX_mian.jpg"
                   data-name="SCREENX" 
                   data-desc="#270도 다면상영">
                   <div class="hall_title">SCREENX</div>
                   <div class="hall_tag">270도 다면상영</div>
               </li>
+              
               <li data-image="common/img/Premium_main.jpg"
                   data-name="PREMIUM" 
                   data-desc="#프리미엄 좌석 #럭셔리">
