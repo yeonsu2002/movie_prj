@@ -1,6 +1,8 @@
 package kr.co.yeonflix.reservation;
 
+import java.sql.Date;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import kr.co.yeonflix.reservedSeat.ReservedSeatService;
@@ -174,5 +176,56 @@ public class ReservationService {
 		}
 		return cnt;
 	}//totalCount
+	
+	/**
+	 * 해당 스케줄 비회원의 총 레코드 수
+	 * @param scheduleIdx
+	 * @param col
+	 * @param key
+	 * @return
+	 */
+	public int totalGuestCount(int scheduleIdx, String col, String key) {
+		int cnt = 0;
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		try {
+			cnt = resDAO.selectGuestTotalCount(scheduleIdx, col, key);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cnt;
+	}//totalGuestCount
+	
+	/**
+	 * 예매리스트에 보여주기 위한 비회원의 스케줄별 예매내역
+	 * @param scheduleIdx
+	 * @param startNum
+	 * @param endNum
+	 * @param col
+	 * @param key
+	 * @return
+	 */
+	public List<GuestReservationDTO> searchGuestReservationListBySchedule(int scheduleIdx, int startNum, int endNum, String col, String key){
+		List<GuestReservationDTO> list = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd");
+		ReservationDAO resDAO = ReservationDAO.getInstance();
+		ReservedSeatService rss = new ReservedSeatService();
+		try {
+			list = resDAO.selectGuestReservationListBySchedule(scheduleIdx, startNum, endNum, col, key);
+			for(GuestReservationDTO urDTO : list) {
+				List<String> seatList = rss.searchSeatNumberWithReservation(urDTO.getReservationIdx());
+				String seatsInfo = String.join(", ", seatList);
+				urDTO.setSeatsInfo(seatsInfo);
+				urDTO.setSeatsCnt(seatList.size());
+				Date birth = urDTO.getNonMemberBirth();
+			    urDTO.setBirthFormatted(sdf.format(birth));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+		
+	}//searchGuestReservationListBySchedule
+	
 	
 }

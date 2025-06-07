@@ -277,8 +277,8 @@ public class ReservationDAO {
 	 * @return
 	 * @throws SQLException
 	 */
-	public List<UserReservationDTO> selectUserReservationListBySchedule(int scheduleIdx, int startNum, int endNum, String col, String key)
-			throws SQLException {
+	public List<UserReservationDTO> selectUserReservationListBySchedule(int scheduleIdx, int startNum, int endNum,
+			String col, String key) throws SQLException {
 		List<UserReservationDTO> list = new ArrayList<UserReservationDTO>();
 
 		DbConnection dbCon = DbConnection.getInstance();
@@ -312,13 +312,12 @@ public class ReservationDAO {
 			query.append(") ");
 			query.append("WHERE rnum BETWEEN ? AND ?");
 
-
 			pstmt = con.prepareStatement(query.toString());
 
 			int bindIdx = 1;
 
 			pstmt.setInt(bindIdx++, scheduleIdx);
-			if(col != null && !"".equals(key)) {
+			if (col != null && !"".equals(key)) {
 				pstmt.setString(bindIdx++, key);
 			}
 			pstmt.setInt(bindIdx++, startNum);
@@ -354,13 +353,13 @@ public class ReservationDAO {
 	public int selectTotalCount(int scheduleIdx, String col, String key) throws SQLException {
 		int cnt = 0;
 
-		DbConnection db = DbConnection.getInstance();
+		DbConnection dbCon = DbConnection.getInstance();
 		ResultSet rs = null;
 		PreparedStatement pstmt = null;
 		Connection con = null;
 
 		try {
-			con = db.getDbConn();
+			con = dbCon.getDbConn();
 			StringBuilder sql = new StringBuilder();
 			sql.append("    SELECT COUNT(*) AS cnt ");
 			sql.append("    FROM reservation r ");
@@ -369,7 +368,7 @@ public class ReservationDAO {
 			sql.append("    WHERE r.schedule_idx = ? ");
 
 			// 검색키워드존재
-			if (col != null && !"".equals(key)) {
+			if (col != null && key != null && !key.isEmpty()) {
 				if (col.equals("memberId")) {
 					sql.append("and instr(member_id,?) != 0");
 				} else if (col.equals("tel")) {
@@ -381,7 +380,7 @@ public class ReservationDAO {
 
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setInt(1, scheduleIdx);
-			if (col != null && !"".equals(key)) {
+			if (col != null && key != null && !key.isEmpty()) {
 				pstmt.setString(2, key);
 			}
 
@@ -391,9 +390,143 @@ public class ReservationDAO {
 			}
 
 		} finally {
-			db.dbClose(rs, pstmt, con);
+			dbCon.dbClose(rs, pstmt, con);
 		}
 
 		return cnt;
 	}// selectTotalCount
+
+	/**
+	 * 해당 스케줄 비회원 예매내역 수
+	 * 
+	 * @param scheduleIdx
+	 * @param col
+	 * @param key
+	 * @return
+	 * @throws SQLException
+	 */
+	public int selectGuestTotalCount(int scheduleIdx, String col, String key) throws SQLException {
+		int cnt = 0;
+
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+
+		try {
+			con = dbCon.getDbConn();
+			StringBuilder query = new StringBuilder();
+
+			query.append("SELECT COUNT(*) cnt ");
+			query.append("FROM reservation r ");
+			query.append("JOIN common_user c ON c.user_idx = r.user_idx ");
+			query.append("JOIN non_member m ON c.user_idx = m.user_idx ");
+			query.append("WHERE r.schedule_idx = ? ");
+
+			// 검색키워드존재
+			if (col != null && key != null && !key.isEmpty()) {
+				if (col.equals("nonMemberBirth")) {
+					query.append("and instr(non_member_birth,?) != 0");
+				} else if (col.equals("email")) {
+					query.append("and instr(email,?) != 0");
+				} else if (col.equals("reservationNumber")) {
+					query.append("and instr(reservation_number,?) != 0");
+				}
+			}
+
+			pstmt = con.prepareStatement(query.toString());
+			pstmt.setInt(1, scheduleIdx);
+			if (col != null && key != null && !key.isEmpty()) {
+				pstmt.setString(2, key);
+			}
+
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				cnt = rs.getInt("cnt");
+			}
+
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+
+		return cnt;
+	}// selectGuestTotalCount
+
+	/**
+	 *  예매리스트에 보여주기 위한 비회원의 스케줄별 예매내역
+	 * @param scheduleIdx
+	 * @param startNum
+	 * @param endNum
+	 * @param col
+	 * @param key
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<GuestReservationDTO> selectGuestReservationListBySchedule(int scheduleIdx, int startNum, int endNum,
+			String col, String key) throws SQLException {
+		List<GuestReservationDTO> list = new ArrayList<GuestReservationDTO>();
+
+		DbConnection dbCon = DbConnection.getInstance();
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+
+		try {
+			con = dbCon.getDbConn();
+			StringBuilder query = new StringBuilder();
+
+			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, ");
+			query.append("       user_idx, user_type, non_member_birth, email, rnum ");
+			query.append("FROM ( ");
+			query.append("    SELECT r.reservation_idx, r.reservation_number, r.reservation_date, r.canceled_date, ");
+			query.append("           r.user_idx, c.user_type, m.non_member_birth, m.email, ");
+			query.append("           ROW_NUMBER() OVER (ORDER BY r.reservation_date DESC) rnum ");
+			query.append("    FROM reservation r ");
+			query.append("    JOIN common_user c ON c.user_idx = r.user_idx ");
+			query.append("    JOIN non_member m ON c.user_idx = m.user_idx ");
+			query.append("    WHERE r.schedule_idx = ? ");
+			
+			// 검색키워드존재
+			if (col != null && key != null && !key.isEmpty()) {
+				if (col.equals("nonMemberBirth")) {
+					query.append("and instr(non_member_birth,?) != 0");
+				} else if (col.equals("email")) {
+					query.append("and instr(email,?) != 0");
+				} else if (col.equals("reservationNumber")) {
+					query.append("and instr(reservation_number,?) != 0");
+				}
+			}
+			query.append(") ");
+			query.append("WHERE rnum BETWEEN ? AND ?");
+
+			pstmt = con.prepareStatement(query.toString());
+
+			int bindIdx = 1;
+
+			pstmt.setInt(bindIdx++, scheduleIdx);
+			if (col != null && !"".equals(key)) {
+				pstmt.setString(bindIdx++, key);
+			}
+			pstmt.setInt(bindIdx++, startNum);
+			pstmt.setInt(bindIdx++, endNum);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				GuestReservationDTO grDTO = new GuestReservationDTO();
+				grDTO.setReservationIdx(rs.getInt("reservation_idx"));
+				grDTO.setReservationNumber(rs.getString("reservation_number"));
+				grDTO.setReservationDate(rs.getTimestamp("reservation_date"));
+				grDTO.setCanceledDate(rs.getTimestamp("canceled_date"));
+				grDTO.setUserIdx(rs.getInt("user_idx"));
+				grDTO.setUserType(rs.getString("user_type"));
+				grDTO.setEmail(rs.getString("email"));
+				grDTO.setNonMemberBirth(rs.getDate("non_member_birth"));
+
+				list.add(grDTO);
+			}
+		} finally {
+			dbCon.dbClose(rs, pstmt, con);
+		}
+		return list;
+	}// selectGuestReservationListBySchedule
 }

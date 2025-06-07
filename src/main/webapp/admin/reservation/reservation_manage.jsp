@@ -11,8 +11,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
-
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <%
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
 	
@@ -59,11 +58,42 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 	src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script>
 var currentPage = 1;
+var userType = "member";
 var col = "memberId";
 var key = null;
+var pageScale = 10;
+
+//회원/비회원에 따른 검색 옵션 정의
+var searchOptions = {
+    member: [
+        { value: 'memberId', text: '아이디' },
+        { value: 'tel', text: '전화번호' },
+        { value: 'reservationNumber', text: '예매번호' }
+    ],
+    guest: [
+        { value: 'nonMemberBirth', text: '생년월일' },
+        { value: 'email', text: '이메일' },
+        { value: 'reservationNumber', text: '예매번호' }
+    ]
+};
 
 $(function(){
 	loadReservation();
+	updateSearchOptions();
+	
+	$("#pageScaleSelect").change(function(){
+		pageScale = $(this).val();
+		currentPage = 1;
+	    loadReservation();
+		
+	});
+	
+	// 사용자 유형 변경시
+	$('#userTypeSelect').change(function() {
+	    userType = $(this).val();
+	    resetAll();
+	    
+	});
 	
 	//검색 조건 선택시
 	$('#col-select').change(function() {
@@ -76,7 +106,8 @@ $(function(){
 	    goToPage(pageNum);
 	});
 	
-	$("#key-text").keyup(function() {
+	//
+	/* $("#key-text").keyup(function() {
 		currentPage = 1;
 		var value = $(this).val();
 		if(value == "" || value.trim() == ""){
@@ -86,6 +117,26 @@ $(function(){
 		}
 		
 		loadReservation();
+	}); */
+	
+	
+	//검색버튼
+	$("#searchBtn").click(function(){
+		currentPage = 1;
+		var value = $("#key-text").val();
+		key = value;
+		loadReservation();
+	});
+	
+	$("#key-text").keypress(function(e) {
+	    if(e.which == 13) {
+	        $("#searchBtn").click();
+	    }
+	});
+	
+	//초기화버튼
+	$("#resetBtn").click(function() {
+		resetAll();
 	});
 	
 	//예매 취소
@@ -98,13 +149,14 @@ $(function(){
 				url:"cancel_reservation_process.jsp",
 				method:"POST",
 				data: {reservationIdx : reservationIdx},
-				success: function(response){
-					if(response.trim() == "success"){
-						loadReservation();
-					} else {
-						alert("취소 실패");
-					}
-				},
+				 success: function(response){
+		                if(response.success === true){
+		                    loadReservation();
+		                    $("#remainSeats").text(response.remainSeats + " / 140");
+		                } else {
+		                    alert("취소 실패");
+		                }
+		            },
 				error: function(){
 					alert("오류가 발생하였습니다. 다시 시도해주세요.");
 				}
@@ -113,31 +165,63 @@ $(function(){
 	});
 });
 
+function resetAll(){
+	$("#key-text").val("");        
+    currentPage = 1;               
+    key = null;                  
+    updateSearchOptions();          
+    loadReservation();         
+}
+
+// 검색 옵션 업데이트 함수
+function updateSearchOptions() {
+    var $colSelect = $('#col-select');
+    
+    // 기존 옵션 제거
+    $colSelect.empty();
+    
+    // 새로운 옵션 추가
+    var options = searchOptions[userType];
+    $.each(options, function(index, option) {
+        $colSelect.append($('<option></option>').attr('value', option.value).text(option.text));
+    });
+    
+    // 첫 번째 옵션으로 col 값 설정
+    col = options[0].value;
+}
+
 //페이지 버튼 클릭시
 function goToPage(pageNum) {
     currentPage = pageNum; 
     loadReservation();
 }
-
-//예매리스트 ajax로 불러오기
-function loadReservation(){
+function fetchReservation(url) {
     $.ajax({
-        url:"reservation_list_ajax.jsp",
-        method:"POST",
+        url: url,
+        method: "POST",
         data: {
-               scheduleIdx:"${scheduleIdx}", 
-               currentPage:currentPage,
-               col:col, 
-               key:key,
-               moviePrice:"${moviePrice}"
-              },
+            scheduleIdx: "${scheduleIdx}", 
+            currentPage: currentPage,
+            col: col, 
+            key: key,
+            moviePrice: "${moviePrice}",
+            pageScale: pageScale
+        },
         success: function(response){
             $("#ajax-reservation-data").html(response);
         },
-        error: function(xhr, status, error){
+        error: function(){
             alert("예매 정보를 불러오는 데 실패했습니다.");
         }
     });
+}
+
+function loadReservation() {
+    if (userType === "member") {
+        fetchReservation("reservation_list_ajax.jsp");
+    } else {
+        fetchReservation("reservation_guestlist_ajax.jsp");
+    }
 }
 </script>
 </head>
@@ -176,21 +260,30 @@ function loadReservation(){
         
         <div class="seats-status">
             <div class="detail-label">좌석 현황</div>
-            <div class="seats-count">${schDTO.remainSeats} / 140</div>
+            <div class="seats-count" id="remainSeats">${schDTO.remainSeats} / 140</div>
         </div>
     </div>
 </div>
 
 <!-- 검색 섹션 -->
 <div class="search-section">
+<select id="pageScaleSelect" name="scale" class="member-button">
+	<option value="10">10</option>
+	<option value="25">25</option>
+	<option value="50">50</option>
+	<option value="100">100</option>
+</select>
+유형:
+<select id="userTypeSelect" name="type" class="member-button">
+	<option value="member">회원</option>
+	<option value="guest">비회원</option>
+</select>
+검색 조건:
 <select id="col-select" name="col" class="member-button">
-	<option value="memberId" ${col == 'memberId' ? 'selected' : ''}>아이디</option>
-	<option value="tel"  ${col == 'tel' ? 'selected' : ''}>전화번호</option>
-	<option value="reservationNumber" ${col == 'reservationNumber' ? 'selected' : ''}>예매번호</option>
 </select>
 <input id="key-text" type="text" name="key" class="member-button" value="${key}" placeholder="검색어를 입력하세요"/>
-<input type="submit" value="🔍 검색"  class="member-button"/>
-<input type="submit" value="🔄 초기화"  class="member-button"/>
+<button type="button" id="searchBtn" class="member-button">🔍 검색</button>
+<button type="button" id="resetBtn" class="member-button">🔄 초기화</button>
 </div>
 
 <div id="ajax-reservation-data">

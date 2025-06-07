@@ -202,36 +202,16 @@ pageContext.setAttribute("scthMap", scthMap);
 						<p>* 시간을 클릭하시면 빠른 예매를 하실 수 있습니다.</p>
 					</div>
 					<br> <br>
-					<!-- Movie items -->
+					<div id="movie-items">
 					<c:forEach var="tml" items="${todayMovieList}">
 						<c:set var="selectedMovieIdx" value="${tml.movieIdx}" />
 						<%
+						
 						//각 영화별 장르와 등급 가져오기
 						int selectedMovieIdx = (Integer) pageContext.getAttribute("selectedMovieIdx");
 						MovieCommonCodeService mccs = new MovieCommonCodeService();
-						List<MovieCommonCodeDTO> ccList = mccs.searchCommon(selectedMovieIdx);
-						CommonService cs = new CommonService();
-						List<CommonDTO> graList = cs.gradeList();
-						List<CommonDTO> genList = cs.genreList();
-
-						int genreIdx = 0;
-						int gradeIdx = 0;
-						for (MovieCommonCodeDTO mccDTO : ccList) {
-							if ("장르".equals(mccDTO.getCodeType())) {
-								genreIdx = mccDTO.getCodeIdx();
-							}
-							if ("등급".equals(mccDTO.getCodeType())) {
-								gradeIdx = mccDTO.getCodeIdx();
-							}
-						}
-
-						String genre = "";
-						String grade = "";
-						for (CommonDTO cDTO : graList) {
-							if (cDTO.getCodeIdx() == gradeIdx) {
-								grade = cDTO.getMovieCodeType();
-							}
-						}
+						String genre = mccs.searchOneGenre(selectedMovieIdx);
+						String grade = mccs.searchOneGenre(selectedMovieIdx);
 
 						request.setAttribute("genre", genre);
 						request.setAttribute("grade", grade);
@@ -295,6 +275,7 @@ pageContext.setAttribute("scthMap", scthMap);
 						<br>
 						<br>
 					</c:forEach>
+					</div>
 					<br> <br>
 					<p class="info_screen">[공지]입장 지연에 따른 관람 불편을 최소화하기 위해 영화는 10분 후
 						상영이 시작됩니다.</p>
