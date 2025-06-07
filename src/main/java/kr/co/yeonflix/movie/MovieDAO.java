@@ -180,7 +180,7 @@ public List<MovieDTO> selectNonMovieChart(Date today) throws SQLException{
 			
 			pstmt=con.prepareStatement(selectMovie.toString());
 			
-			
+			 
 			  
 			pstmt.setDate(1, today);
 			rs = pstmt.executeQuery();
