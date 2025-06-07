@@ -1,3 +1,8 @@
+<%@page import="kr.co.yeonflix.inquiry.inquiryDTO"%>
+<%@page import="kr.co.yeonflix.inquiry.inquiryDAO"%>
+<%@page import="kr.co.yeonflix.member.MemberDAO"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
 <%@page import="kr.co.yeonflix.reservation.ShowReservationDTO"%>
 <%@page import="kr.co.yeonflix.reservation.ReservationDTO"%>
 <%@page import="java.util.List"%>
@@ -6,28 +11,48 @@
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
-	String reservationParam = request.getParameter("reservationIdx");
-	int reservationIdx = 0;
+    // 로그인한 사용자 userIdx 가져오기
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-	if (reservationParam != null) {
-    reservationIdx = Integer.parseInt(reservationParam);
+	if (loginUser == null) {
+    // 로그인 안된 상태 -> 로그인 페이지로 이동
+   	 	response.sendRedirect(request.getContextPath() + "/login/loginFrm.jsp");
+   		 return;
 	}
-	
-    Integer userIdxObj = (Integer) session.getAttribute("userIdx");
-    int userIdx = 8;
-    if (userIdxObj != null) {
-        userIdx = userIdxObj.intValue();
-    } // 로그인 안 했어도 그냥 0 또는 기본값으로 처리됨 (주의!)
 
-    ReservationService rs = new ReservationService();
- 	List<ShowReservationDTO> reservationList= rs.searchDetailReservationWithUser(userIdx);
- 	request.setAttribute("reservationList", reservationList); 
+	int loginUserIdx = loginUser.getUserIdx();
+
+    // 회원 정보 조회
+    MemberService ms = new MemberService();
+    MemberDAO mm=MemberDAO.getInstance();
+    MemberDTO mDTO=mm.selectOneMember(loginUserIdx);
+
+    // JSP에 member 객체 넘기기
+    request.setAttribute("member", mDTO);
+
+// 예약 리스트 조회
+ReservationService rs = new ReservationService();
+List<ShowReservationDTO> reservationList = rs.searchDetailReservationWithUser(loginUserIdx);
+request.setAttribute("reservationList", reservationList);
+
+
+String inquiryParam=request.getParameter("inquiry_board_idx");
+
+inquiryDAO iDAO = new inquiryDAO();
+List<inquiryDTO> inquiryList = iDAO.selectAllinquiry(String.valueOf(loginUserIdx));
+request.setAttribute("inquiryList", inquiryList);
+
+
+inquiryDAO dao = new inquiryDAO();
+inquiryDTO iDTO = dao.selectinquiry(inquiryParam);
+request.setAttribute("iDTO", iDTO);
 %>
 
-
-
+ 
 <!DOCTYPE html>
 <html>
 <head>
@@ -182,6 +207,8 @@ delete-r{
 	margin-bottom: 5px;
 }
 
+
+
 #container {
 	min-height: 650px;
 	margin-top: 30px;
@@ -201,7 +228,73 @@ $(document).ready(function () {
 	$('.close-btn').click(function() {
 		$('#bookingModal').fadeOut();
 	});
-});
+
+
+	$("#btnDeleteReservations").click(function() {
+	    const selected = $("input[name='reservationIdx']:checked").val();
+
+	    if (!selected) {
+	        alert("삭제할 예매를 선택하세요.");
+	        return;
+	    }
+
+	    if (!confirm("정말 삭제하시겠습니까?")) {
+	        return;
+	    }
+
+	    $.ajax({
+	        url: '/movie_prj/reservation/deleteReservation.jsp',
+	        method: 'POST',
+	        data: { reservationIdx: selected },
+	        success: function(response) {
+	            if (response.success) {
+	                alert("삭제 완료!");
+	                location.reload();
+	            } else {
+	                alert("삭제 실패했습니다.");
+	            }
+	        },
+	        error: function() {
+	            alert("서버 요청 중 오류 발생.");
+	        }
+	    });
+	});
+	
+	$("#btnInquiry").click(function () {
+	    const selected = $("input[name='choose']:checked")
+	        .map(function () {
+	            return $(this).val();
+	        }).get();
+
+	    if (selected.length === 0) {
+	        alert("삭제할 문의내역을 선택하세요.");
+	        return;
+	    }
+
+	    if (!confirm("정말 삭제하시겠습니까?")) {
+	        return;
+	    }
+
+	    $.ajax({
+	        url: '/movie_prj/inquiry/inquiry_delete.jsp',
+	        method: 'POST',
+	        traditional: true,
+	        data: { choose: selected },
+	        success: function () {
+	            alert("삭제 완료!");
+	            location.reload();
+	        },
+	        error: function () {
+	            alert("삭제 실패했습니다.");
+	        }
+	    });
+	});
+
+	
+});//ready
+
+
+
 </script>
 </head>
 <body>
@@ -211,14 +304,26 @@ $(document).ready(function () {
 <main>
 <div id="container">
 <div class="profile-container">
-  <div class="profile-header">
-    <img src="http://localhost/movie_prj/common/img/default_img.png"  class="profile-img" />
+	<div class="profile-header">
+  				 <c:choose>
+				        <c:when test="${not empty member.picture}">
+				            <img src="/profile/${member.picture}" alt="프로필이미지"  style="width:130px; height:130px"/>
+				        </c:when>
+				        <c:otherwise>
+				            <img src="/movie_prj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
+				        </c:otherwise>
+				    </c:choose>
     <div class="profile-info">
-      <h2>유연수님 <span class="user-id">아이디: yeonsu2002</span><span class="user-nick"> 닉네임:운전연수</span></h2><br>
-        <a href="http://localhost/movie_prj/mypage/loginFrm.jsp">✏️ 수정</a>
-   
-    </div>
+   		 <h2>
+         	<c:out value="${member.userName}" />
+      		<span class="user-id">아이디:<c:out value="${member.memberId}" /></span>
+      		<span class="user-nick">닉네임:<c:out value="${member.nickName}" /></span>
+   		 </h2>
+   		 <br>
+    		<a href="http://localhost/movie_prj/mypage/loginFrm.jsp">✏️ 수정</a>
   </div>
+  </div>
+
 <div class="button-row">
  <div class="wish">
     <a href="http://localhost/movie_prj/mypage/wishMovie.jsp"  >
@@ -236,9 +341,10 @@ $(document).ready(function () {
 <br><br><br>
 
 <div class="header-container">
- <h2>My 예매내역 <span class="badge bg-secondary">0건</span></h2><br>
+ <h2>My 예매내역 <span class="badge bg-secondary">${fn:length(reservationList)}건</span></h2>
+
  <div class="delete-r">
- 	<input type="button" value="예매 삭제" class="btn btn-secondary"/>
+ 	<input type="button" data-idx="8" value="예매 취소" class="btn btn-secondary" id="btnDeleteReservations"/>
  	<input type="button" value="예매 내역 출력" class="btn btn-danger" id="btnShowDetail"/>
  </div>
  </div>
@@ -248,13 +354,12 @@ $(document).ready(function () {
                <table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th scope="col" width="5%">
-        <input class="form-check-input" type="checkbox" id="checkAll">
-      </th>
+      <th scope="col" width="5%"></th>
       <th scope="col">제목</th>
       <th scope="col">상영관</th>
       <th scope="col">관람일시</th>
       <th scope="col">결과</th>
+      <th scope="col">일시</th>
     </tr>
   </thead>
   <tbody>
@@ -263,21 +368,40 @@ $(document).ready(function () {
       <td colspan="5" style="text-align:center; color:gray;">예매내역이 없습니다.</td>
     </tr>
   </c:if>
- 
+
   <c:forEach var="ticket" items="${reservationList}">
-  <tr>
-    <td>
-      <input class="form-check-input" type="checkbox"
-             value="${ticket.reservationIdx}"
-             onchange="location.href='?reservationIdx=' + this.value;"
-             <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
-    </td>
-    <td>${ticket.movieName}</td>
-    <td>${ticket.theaterName}</td>
-    <td>${ticket.screenDate}</td>
-    <td></td>
-  </tr>
-</c:forEach>
+   <tr>
+  <td>
+    <input class="form-check-input" type="checkbox" name="reservationIdx"
+           value="${ticket.reservationIdx}"
+           onchange="location.href='?reservationIdx=' + this.value;"
+           <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
+  </td>
+  <td>${ticket.movieName}</td>
+  <td>${ticket.theaterName}</td>
+  <td>${ticket.screenDate}</td>
+  <td>
+    <c:choose>
+        <c:when test="${ticket.canceledDate == null}">
+            <span style="color: blue;">결제완료</span>
+        </c:when>
+        <c:otherwise>
+           <span style="color: red;">예매취소</span>
+        </c:otherwise>
+    </c:choose>
+</td>
+  <td>
+    <c:choose>
+        <c:when test="${ticket.canceledDate == null}">
+      	  <fmt:formatDate value="${ticket.reservationDate}" pattern="yyyy-MM-dd HH:mm"/>
+        </c:when>
+        <c:otherwise>
+           <fmt:formatDate value="${ticket.canceledDate}" pattern="yyyy-MM-dd HH:mm"/>
+        </c:otherwise>
+    </c:choose>
+</td>
+</tr>
+  </c:forEach>
 </tbody>
 </table>
         </div>
@@ -287,10 +411,10 @@ $(document).ready(function () {
  <!--  -------------------------------------------------------------------------------------------------------  -->
  
  <div class="header-container">
- <h2>My 문의내역 <span class="badge bg-secondary">0건</span></h2>
+ <h2>My 문의내역 <span class="badge bg-secondary">${fn:length(inquiryList)}건</span></h2>
  <div class="delete">
- <input type="button" value="선택삭제" class="btn btn-secondary"/>
- <input type="button" value="문의하기" class="btn btn-danger"/>
+ <input type="button" id="btnInquiry" value="선택삭제" class="btn btn-secondary"/>
+ <a href="http://localhost/movie_prj/inquiry/inquiry_add.jsp" class="btn btn-danger">문의하기</a>
  </div>
  </div>
  <br>
@@ -298,31 +422,50 @@ $(document).ready(function () {
       <table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th scope="col" width="5%">
-        <input class="form-check-input" type="checkbox" id="checkAll">
-      </th>
+      <th scope="col" width="5%"></th>
       <th scope="col">유형</th>
       <th scope="col">제목</th>
       <th scope="col">등록일</th>
+      <th scope="col">상태</th>
+      <th scope="col">답변일</th>
     </tr>
   </thead>
  <tbody>
- <c:if test="${empty ticketList}">
+ <c:if test="${empty inquiryList}">
     <tr>
       <td colspan="5" style="text-align:center; color:gray;">문의내역이 없습니다.</td>
     </tr>
   </c:if>
  
   <c:forEach var="inquiry" items="${inquiryList}">
-  <c:if test="${empty ticketList}">
     <tr>
-      <td><input class="form-check-input" type="checkbox" value="${inquiry.inquiryId}"></td>
-      <td>${inquiry.category}</td>
-      <td>${inquiry.title}</td>
-      <td>${inquiry.createdDate}</td>
+     <td>
+    <input class="form-check-input" type="checkbox" name="choose"
+       value="${inquiry.inquiry_board_idx}">
+       
+  </td>
+      <td>${inquiry.board_code_name}</td>
+      
+      <td>
+	  	<a href="${pageContext.request.contextPath}/inquiry/inquiry_user.jsp?idx=${inquiry.inquiry_board_idx}&userIdx=${member.userIdx}">
+  <c:out value="${inquiry.inquiry_title}" />
+</a>
+	 </td>
+      <td>${inquiry.created_time}</td>
+      <td>
+      
+  <c:choose>
+    <c:when test="${inquiry.answer_status == 1}">
+      답변 완료
+    </c:when>
+    <c:otherwise>
+      미답변
+    </c:otherwise>
+  </c:choose>
+</td>
+      <td>${inquiry.answered_time}</td>
     </tr>
-    </c:if>
-  </c:forEach>
+</c:forEach>
 </tbody>
 </table>
     </div>
@@ -330,12 +473,15 @@ $(document).ready(function () {
 </div>
 
 </main>
+
+<c:if test="${not empty param.reservationIdx }">
+ <c:import url="/reservation/booking_modal.jsp">
+    <c:param name="reservationIdx" value="${param.reservationIdx}" />
+  </c:import>
+</c:if>
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
 </footer>
-  <c:import url="/reservation/booking_modal.jsp">
-    <c:param name="reservationIdx" value="${param.reservationIdx}" />
-  </c:import>
 
 </body>
-</html>
+</html>  

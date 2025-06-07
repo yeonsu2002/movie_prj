@@ -1,0 +1,46 @@
+/* side_menu.css에 포함시키거나 customer.css 하단에 추가 */
+
+.side-menu {
+  width: 180px; /* 너무 크지 않게 */
+  position: fixed;
+  top: 200px; /* customer-wrapper margin-top과 맞춤 */
+  left: 220px; /* 살짝 여유 주기 */
+  background: rgba(0, 0, 0, 0.7); /* 반투명 어두운 배경 */
+  border-radius: 12px;
+  padding: 20px 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  color: #eee;
+  font-size: 14px;
+  height: auto;
+}
+
+.side-menu table {
+  width: 100%;
+  color: #eee;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* 행간 띄우기 */
+}
+
+.side-menu table tr td {
+  padding: 10px 15px;
+  text-align: center;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.side-menu table tr td a {
+  color: #eee;
+  text-decoration: none;
+  font-weight: 600;
+  display: block;
+}
+
+.side-menu table tr td:hover {
+  background-color: #e50914; /* 메인 빨간색 강조 */
+  cursor: pointer;
+}
+
+.side-menu table tr td a:hover {
+  color: #eee;
+}
+

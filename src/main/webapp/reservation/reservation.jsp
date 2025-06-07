@@ -1,3 +1,10 @@
+<%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
+<%@page import="kr.co.yeonflix.movie.common.CommonService"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeDTO"%>
+<%@page import="java.time.Duration"%>
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.reservedSeat.TempSeatDTO"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleTheaterDTO"%>
@@ -18,7 +25,32 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <%
-//날짜 가공 test test
+//모든 스케줄의 선점된 좌석들 5분이 지났으면 없애기
+ReservedSeatService rss = new ReservedSeatService();
+ScheduleService ss = new ScheduleService();
+List<TempSeatDTO> tempSeatsList = rss.searchAllTempSeat();
+
+if (tempSeatsList != null) {
+	for (TempSeatDTO tempSeat : tempSeatsList) {
+		LocalDateTime holdTime = tempSeat.getClickTime().toLocalDateTime();
+		Duration d = Duration.between(holdTime, LocalDateTime.now());
+		
+		int seatIdx = tempSeat.getSeatIdx();
+		int scheduleIdx = tempSeat.getScheduleIdx();
+		
+		//현재는 테스트용으로 10초로 해놨으나 나중에 5분으로 변경
+		if (d.toSeconds() >= 10) {
+			boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
+			if (removed) {
+				ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
+				schDTO.setRemainSeats(schDTO.getRemainSeats()+1);
+				ss.modifySchedule(schDTO);
+			}
+		}
+	}
+}
+
+//날짜 가공
 List<Map<String, String>> dateList = new ArrayList<>();
 SimpleDateFormat monthSdf = new SimpleDateFormat("M월");
 SimpleDateFormat daySdf = new SimpleDateFormat("dd");
@@ -49,7 +81,6 @@ if (dateParam != null && !dateParam.isEmpty()) {
 }
 
 //해당 날짜의 상영스케줄 가져오기
-ScheduleService ss = new ScheduleService();
 List<ScheduleDTO> todayScheduleList = ss.searchAllScheduleWithDate(todayDate);
 
 //해당 날짜에 상영하는 영화 목록 가져오기
@@ -80,7 +111,7 @@ pageContext.setAttribute("scthMap", scthMap);
 </style>
 <script type="text/javascript">
 	$(function() {
-		days = $(".day_list"); 
+		days = $(".day_list");
 
 		$(".btn_prev").click(function() {
 			var days = $(".day_list");
@@ -133,7 +164,7 @@ pageContext.setAttribute("scthMap", scthMap);
 </head>
 <body>
 	<header>
-		<jsp:include page="../common/jsp/header.jsp"/>
+		<jsp:include page="../common/jsp/header.jsp" />
 	</header>
 
 	<main>
@@ -173,14 +204,46 @@ pageContext.setAttribute("scthMap", scthMap);
 					<br> <br>
 					<!-- Movie items -->
 					<c:forEach var="tml" items="${todayMovieList}">
+						<c:set var="selectedMovieIdx" value="${tml.movieIdx}" />
+						<%
+						//각 영화별 장르와 등급 가져오기
+						int selectedMovieIdx = (Integer) pageContext.getAttribute("selectedMovieIdx");
+						MovieCommonCodeService mccs = new MovieCommonCodeService();
+						List<MovieCommonCodeDTO> ccList = mccs.searchCommon(selectedMovieIdx);
+						CommonService cs = new CommonService();
+						List<CommonDTO> graList = cs.gradeList();
+						List<CommonDTO> genList = cs.genreList();
+
+						int genreIdx = 0;
+						int gradeIdx = 0;
+						for (MovieCommonCodeDTO mccDTO : ccList) {
+							if ("장르".equals(mccDTO.getCodeType())) {
+								genreIdx = mccDTO.getCodeIdx();
+							}
+							if ("등급".equals(mccDTO.getCodeType())) {
+								gradeIdx = mccDTO.getCodeIdx();
+							}
+						}
+
+						String genre = "";
+						String grade = "";
+						for (CommonDTO cDTO : graList) {
+							if (cDTO.getCodeIdx() == gradeIdx) {
+								grade = cDTO.getMovieCodeType();
+							}
+						}
+
+						request.setAttribute("genre", genre);
+						request.setAttribute("grade", grade);
+						%>
 						<div class="movie-item">
 							<div class="movie-info">
 								<div>
-									<img src="http://localhost/movie_prj/common/img/icon_15.svg" />&nbsp
+									<img src="http://localhost/movie_prj/common/img/icon_${grade}.svg" />&nbsp
 								</div>
 								<div class="movie-name">${tml.movieName}</div>
 								<div class="meta">
-									<span class="status">상영중</span> | 장르 / ${tml.runningTime}분 /
+									<span class="status">상영중</span> | ${genre} / ${tml.runningTime}분 /
 									<fmt:formatDate value="${tml.releaseDate}" pattern="yyyy.MM.dd" />
 									개봉
 								</div>
@@ -294,7 +357,7 @@ pageContext.setAttribute("scthMap", scthMap);
 						</tr>
 						<tr>
 							<td class="grade-label"><img
-								src="http://localhost/movie_prj/common/img/icon_none.svg" /></span>미정</td>
+								src="http://localhost/movie_prj/common/img/icon_none.svg" />미정</td>
 							<td>등급 미정 영화입니다.</td>
 						</tr>
 					</tbody>

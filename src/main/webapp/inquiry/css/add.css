@@ -1,0 +1,77 @@
+@charset "UTF-8";
+ .inquiry-wrapper {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f9fafb;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .inquiry-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .inquiry-wrapper td {
+    padding: 12px 10px;
+    vertical-align: top;
+  }
+
+  .inquiry-wrapper strong {
+    font-weight: bold;
+    color: #1f2937;
+    display: inline-block;
+    width: 100px;
+  }
+
+  .inquiry-wrapper input[type="text"],
+  .inquiry-wrapper textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    resize: vertical;
+  }
+
+  .inquiry-wrapper textarea {
+    min-height: 150px;
+  }
+
+  .inquiry-wrapper .radio-group td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .inquiry-wrapper .radio-group label {
+    margin-right: 20px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .inquiry-wrapper input[type="button"] {
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .inquiry-wrapper input[type="button"]:hover {
+    background-color: #1e40af;
+  }
+
+  .inquiry-wrapper input#list {
+    background-color: #6b7280;
+  }
+
+  .inquiry-wrapper input#list:hover {
+    background-color: #4b5563;
+  }

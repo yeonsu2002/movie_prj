@@ -11,7 +11,6 @@ import java.util.List;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.dao.DbConnection;
-import oracle.jdbc.driver.DBConversion;
 
 public class MemberDAO {
 
@@ -27,7 +26,7 @@ public class MemberDAO {
   }
 
   //--------------------------------------------------------------------------------------------------------------------
-  // 로그인 
+	/* 로그인 */ 
   public MemberDTO memberLogin(String memberId, String memberPwd) throws SQLException {
 
     MemberDTO memberVO = new MemberDTO();
@@ -47,7 +46,7 @@ public class MemberDAO {
     try {
       con = dbCon.getDbConn(); // 실제 DB연결 받아오는거
 
-      String getMemberQuery = " SELECT user_idx, member_id, member_pwd, user_name, nick_name, birth, email, picture FROM member WHERE member_id = ? ";
+      String getMemberQuery = " SELECT * FROM member WHERE member_id = ? ";
       getMemberPstmt = con.prepareStatement(getMemberQuery);
       getMemberPstmt.setString(1, memberId);
 
@@ -66,6 +65,8 @@ public class MemberDAO {
           memberVO.setBirth(rsMember.getDate("birth").toLocalDate());
           memberVO.setEmail(rsMember.getString("email"));
           memberVO.setPicture(rsMember.getString("picture"));
+          memberVO.setIsActive(rsMember.getString("is_active"));
+          memberVO.setHasTempPwd(rsMember.getString("has_temp_pwd"));
 
           userIdx = rsMember.getInt("user_idx");
         } 
@@ -105,7 +106,7 @@ public class MemberDAO {
     return memberVO;
   }
 
-  // 일반 회원가입
+	/* 일반 회원가입 */
   public boolean insertMember(MemberDTO memberDTO) throws SQLException {
 
     boolean isSuccess = false;
@@ -128,8 +129,8 @@ public class MemberDAO {
 
       String insertCommonUser = " INSERT INTO common_user (user_idx, user_type) VALUES (USER_IDX_SEQ.NEXTVAL, ?) ";
       String getUserIdxQuery = " SELECT USER_IDX_SEQ.CURRVAL FROM dual ";
-      String insertMember = " INSERT INTO member (USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE, PICTURE, MEMBER_IP) "
-          + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+      String insertMember = " INSERT INTO member (USER_IDX, MEMBER_ID, MEMBER_PWD, NICK_NAME, USER_NAME, BIRTH, TEL, IS_SMS_AGREED, EMAIL, IS_EMAIL_AGREED, CREATED_AT, IS_ACTIVE, PICTURE, MEMBER_IP, HAS_TEMP_PWD) "
+          + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'N') ";
       String getRoleIdxQuery = " SELECT role_idx FROM role WHERE role_name = 'ROLE_MEMBER' ";
       String insertUserRoleTable = " INSERT INTO user_role_table (user_idx, role_idx) VALUES (?, ?) ";
 
@@ -377,6 +378,52 @@ public class MemberDAO {
     }
     return flag; 
   }
+	//발급받은 임시비밀번호로 회원정보 수정
+	public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
+	   DbConnection dbCon = DbConnection.getInstance();
+	   Connection con = null;
+	   PreparedStatement pstmt = null;
+	   PreparedStatement hasTempPwdPstmt = null;
+	
+	   int result = -1;
+	
+	   try {
+	       con = dbCon.getDbConn();
+	       con.setAutoCommit(false); // 트랜잭션 처리
+	
+	       // has_temp_pwd 값을 'Y'로 업데이트
+	       String tempPwdQuery = "UPDATE member SET has_temp_pwd = 'Y' WHERE email = ?";
+	       hasTempPwdPstmt = con.prepareStatement(tempPwdQuery);
+	       hasTempPwdPstmt.setString(1, email);
+	       hasTempPwdPstmt.executeUpdate();
+	
+	       // 실제 비밀번호 업데이트
+	       String pwdUpdateQuery = "UPDATE member SET member_pwd = ? WHERE email = ?";
+	       pstmt = con.prepareStatement(pwdUpdateQuery);
+	       pstmt.setString(1, encodedTempPwd);
+	       pstmt.setString(2, email);
+	       result = pstmt.executeUpdate();
+	
+	       con.commit(); // 둘 다 성공해야  커밋함 
+	       
+	   } catch (Exception e) {
+	       if (con != null) {
+	           try {
+	               con.rollback(); // 예외 발생 -> 롤백
+	           } catch (SQLException se) {
+	               se.printStackTrace();
+	           }
+	       }
+	       e.printStackTrace();
+	   } finally {
+	       dbCon.dbClose(null, hasTempPwdPstmt, null);
+	       dbCon.dbClose(null, pstmt, con);
+	   }
+	
+	   return result > 0;
+	}
+
+
   
   /**
 	 * 입력받은 아이디를 검색하는 
@@ -434,27 +481,43 @@ public class MemberDAO {
 	    try {
 	        con = dbCon.getDbConn();
 
-	        String sql = 
-	            "SELECT * FROM ( " +
-	            "  SELECT ROWNUM rnum, a.* FROM ( " +
-	            "    SELECT * FROM member ORDER BY created_at DESC " +
-	            "  ) a " +
-	            "  WHERE ROWNUM <= ? " +  // endRow
-	            ") WHERE rnum > ?";       // startRow
+	        String searchField = validateFieldName(rDTO.getFieldName());  // ex) user_name
+	        String keyword = rDTO.getKeyword();
 
-	        pstmt = con.prepareStatement(sql);
+	        StringBuilder sql = new StringBuilder();
+	        sql.append("SELECT * FROM ( ");
+	        sql.append("  SELECT ROWNUM rnum, a.* FROM ( ");
+	        sql.append("    SELECT * FROM member ");
 
-	        // 페이지 계산
-	        int startRow = rDTO.getStartIndex();                  // 예: (page - 1) * pageSize
-	        int endRow = startRow + rDTO.getPageSize();           // 예: start + pageSize
+	        // 검색 조건 추가
+	        if (searchField != null && keyword != null && !keyword.trim().isEmpty()) {
+	            sql.append(" WHERE ").append(searchField).append(" LIKE ? ");
+	        }
 
-	        pstmt.setInt(1, endRow);
-	        pstmt.setInt(2, startRow);
+	        sql.append(" ORDER BY created_at DESC ");
+	        sql.append("  ) a WHERE ROWNUM <= ? "); // endRow
+	        sql.append(") WHERE rnum > ?");         // startRow
+
+	        pstmt = con.prepareStatement(sql.toString());
+
+	        int paramIndex = 1;
+
+	        // 검색 조건 바인딩
+	        if (searchField != null && keyword != null && !keyword.trim().isEmpty()) {
+	            pstmt.setString(paramIndex++, "%" + keyword + "%");
+	        }
+
+	        int startRow = rDTO.getStartIndex();
+	        int endRow = startRow + rDTO.getPageSize();
+
+	        pstmt.setInt(paramIndex++, endRow);
+	        pstmt.setInt(paramIndex++, startRow);
 
 	        rs = pstmt.executeQuery();
 
 	        while (rs.next()) {
 	            MemberDTO memberDTO = new MemberDTO();
+	            memberDTO.setUserIdx(rs.getInt("user_idx"));
 	            memberDTO.setMemberId(rs.getString("member_id"));
 	            memberDTO.setNickName(rs.getString("nick_name"));
 	            memberDTO.setUserName(rs.getString("user_name"));
@@ -471,7 +534,7 @@ public class MemberDAO {
 	            if (createdAtTs != null) {
 	                memberDTO.setCreatedAt(createdAtTs.toLocalDateTime());
 	            }
-	            
+
 	            memberDTO.setIsActive(rs.getString("is_active"));
 
 	            list.add(memberDTO);
@@ -483,6 +546,7 @@ public class MemberDAO {
 
 	    return list;
 	}
+
 
 
 	/**
@@ -523,15 +587,16 @@ public class MemberDAO {
 	        StringBuilder countQuery = new StringBuilder("SELECT COUNT(member_id) cnt FROM member");
 
 	        String fieldName = validateFieldName(rDTO.getFieldName());
+	        String keyword = rDTO.getKeyword();
 
-	        if (rDTO.getKeyword() != null && !rDTO.getKeyword().isEmpty() && fieldName != null) {
-	            countQuery.append(" WHERE INSTR(").append(fieldName).append(", ?) != 0");
+	        if (fieldName != null && keyword != null && !keyword.trim().isEmpty()) {
+	            countQuery.append(" WHERE ").append(fieldName).append(" LIKE ?");
 	        }
 
 	        pstmt = con.prepareStatement(countQuery.toString());
 
-	        if (rDTO.getKeyword() != null && !rDTO.getKeyword().isEmpty() && fieldName != null) {
-	            pstmt.setString(1, rDTO.getKeyword());
+	        if (fieldName != null && keyword != null && !keyword.trim().isEmpty()) {
+	            pstmt.setString(1, "%" + keyword.trim() + "%");
 	        }
 
 	        rs = pstmt.executeQuery();
@@ -546,31 +611,260 @@ public class MemberDAO {
 	    return cnt;
 	}
 
-	//발급받은 임시비밀번호로 회원정보 수정 
-  public boolean updatePwd(String email, String encodedTempPwd) throws SQLException {
-   DbConnection dbCon = DbConnection.getInstance();
-   Connection con = null;
-   PreparedStatement pstmt = null;
-   
-   int result = -1;
-   try {
-     con = dbCon.getDbConn();// 실제 DB연결 받아오는거
-     
-    String query = " UPDATE member SET member_pwd = ? WHERE email = ?  ";
-    pstmt = con.prepareStatement(query);
-    
-    pstmt.setString(1, encodedTempPwd);
-    pstmt.setString(2, email);
-    
-    result = pstmt.executeUpdate();
-    
-  } finally {
-    dbCon.dbClose(null, pstmt, con);
-  }
-    
-    return result > 0;
-  }
 
+
+
+  
+	public MemberDTO selectOneMember(int user_idx) throws SQLException {
+	    MemberDTO mDTO = null;
+
+	    DbConnection db = DbConnection.getInstance();
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+	    Connection con = null;
+
+	    try {
+	        con = db.getDbConn();
+
+	        StringBuilder sql = new StringBuilder();
+	        sql.append("SELECT * FROM member ")
+	           .append("WHERE user_idx = ?");
+
+	        pstmt = con.prepareStatement(sql.toString());
+	        pstmt.setInt(1, user_idx);
+
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            mDTO = new MemberDTO();
+	            mDTO.setUserIdx(rs.getInt("user_idx")); 
+	            mDTO.setMemberId(rs.getString("member_id"));
+	            mDTO.setNickName(rs.getString("nick_name"));
+	            mDTO.setUserName(rs.getString("user_name"));
+	            
+	            Date birthDate = rs.getDate("birth");
+	            if (birthDate != null) {
+	                mDTO.setBirth(birthDate.toLocalDate());
+	            }
+	            
+	            mDTO.setTel(rs.getString("tel"));
+	            mDTO.setEmail(rs.getString("email"));
+	            
+	            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
+	            if (createdTimestamp != null) {
+	                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
+	            }
+	            mDTO.setPicture(rs.getString("picture"));
+	        }
+	    } finally {
+	        db.dbClose(rs, pstmt, con);
+	    }
+
+	    return mDTO;
+	}//selectOneMember
+	
+		
+	public boolean updateMember(MemberDTO memberVO) throws SQLException {
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    boolean result = false;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        // 1. 기존 회원 정보 가져오기
+	        MemberDTO existing = getMemberByUserIdx(memberVO.getUserIdx());
+	        
+	      
+	        // 2. 비밀번호가 null 또는 빈 값이면 기존 비밀번호 유지
+	        String password = memberVO.getMemberPwd();
+	        if (password == null || password.trim().isEmpty()) {
+	            password = existing.getMemberPwd();
+	        }
+
+	        // 2. 닉네임이 변경되었을 경우 중복 검사
+	        if (!memberVO.getNickName().equals(existing.getNickName())) {
+	            if (isNicknameDuplicate(memberVO.getNickName(), con)) {
+	                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+	            }
+	        }
+	        
+	        String email = memberVO.getEmail();
+	        if (email == null || email.trim().isEmpty()) {
+	            // 입력값이 없으면 기존 이메일 유지
+	            email = existing.getEmail();
+	        } else {
+	            // 입력값이 있으면 그대로 업데이트 (즉, 수정)
+	            // 여기에 추가 검증 로직 넣어도 됨
+	        }
+	        
+	        String picture = memberVO.getPicture();
+	        if (picture == null || picture.trim().isEmpty()) {
+	            picture = existing.getPicture();
+	        }
+
+
+	       
+	        String tel = memberVO.getTel();
+	        if (tel == null || tel.trim().isEmpty()) {
+	            tel = existing.getTel(); 
+	        }
+
+	        // 4. UPDATE 수행
+	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ?, has_temp_pwd = 'N' WHERE user_idx = ?";
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, password);
+	        pstmt.setString(2, memberVO.getNickName());
+	        pstmt.setString(3, tel);
+	        pstmt.setString(4, memberVO.getIsSmsAgreed());
+	        pstmt.setString(5, email);
+	        pstmt.setString(6, memberVO.getIsEmailAgreed());
+	        pstmt.setString(7, picture);
+	        pstmt.setInt(8, memberVO.getUserIdx());
+
+	        int cnt = pstmt.executeUpdate();
+	        result = cnt > 0;
+
+	    } finally {
+	        dbCon.dbClose(null, pstmt, con);
+	    }
+
+	    return result;
+	}
+
+	
+	public boolean updateIsActive(int userIdx, String isActive) throws SQLException{
+		DbConnection dbCon = DbConnection.getInstance();
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		boolean result=false;
+		
+		
+		try {
+			con = dbCon.getDbConn();
+
+			String query = "UPDATE member SET is_active = ? WHERE user_idx = ?";
+			
+			pstmt = con.prepareStatement(query);
+			pstmt.setString(1, isActive);
+		    pstmt.setInt(2, userIdx);
+			
+			int cnt = pstmt.executeUpdate();
+			
+			if (cnt > 0) {
+				result = true;
+			}
+			
+			
+		}finally {
+			dbCon.dbClose(null, pstmt, con);
+		}
+			
+			
+		if (!"Y".equals(isActive) && !"N".equals(isActive)) {
+	        isActive = "N"; 
+	    }
+			
+		
+		return result;
+		
+	}
+	
+	private MemberDTO getMemberByUserIdx(int userIdx) throws SQLException {
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        String sql = "SELECT member_pwd, nick_name, tel, is_sms_agreed, email, is_email_agreed, picture FROM member WHERE user_idx = ?";
+	        pstmt = con.prepareStatement(sql);
+	        pstmt.setInt(1, userIdx);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            MemberDTO dto = new MemberDTO();
+	            dto.setMemberPwd(rs.getString("member_pwd"));
+	            dto.setNickName(rs.getString("nick_name"));
+	            dto.setTel(rs.getString("tel"));
+	            dto.setIsSmsAgreed(rs.getString("is_sms_agreed"));
+	            dto.setEmail(rs.getString("email"));
+	            dto.setIsEmailAgreed(rs.getString("is_email_agreed"));
+	            dto.setPicture(rs.getString("picture"));
+	            dto.setUserIdx(userIdx);
+	            return dto;
+	        }
+	        return null;
+
+	    } finally {
+	        dbCon.dbClose(rs, pstmt, con);
+	    }
+	}
+
+	// 닉네임 중복 확인
+	private boolean isNicknameDuplicate(String nickName, Connection con) throws SQLException {
+	    String sql = "SELECT COUNT(*) FROM member WHERE nick_name = ?";
+	    try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+	        pstmt.setString(1, nickName);
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            return rs.next() && rs.getInt(1) > 0;
+	        }
+	    }
+	}
+
+	//이메일로 회원정보 조회
+  public MemberDTO selectMemberByEmail(String email) throws SQLException {
+    
+    MemberDTO mDTO = null;
+
+    DbConnection db = DbConnection.getInstance();
+    ResultSet rs = null;
+    PreparedStatement pstmt = null;
+    Connection con = null;
+
+    try {
+        con = db.getDbConn();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM member ")
+           .append("WHERE email = ?");
+
+        pstmt = con.prepareStatement(sql.toString());
+        pstmt.setString(1, email);
+
+        rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            mDTO = new MemberDTO();
+            mDTO.setUserIdx(rs.getInt("user_idx")); 
+            mDTO.setMemberId(rs.getString("member_id"));
+            mDTO.setNickName(rs.getString("nick_name"));
+            mDTO.setUserName(rs.getString("user_name"));
+            mDTO.setIsActive(rs.getString("is_active"));
+            
+            Date birthDate = rs.getDate("birth");
+            if (birthDate != null) {
+                mDTO.setBirth(birthDate.toLocalDate());
+            }
+            
+            mDTO.setTel(rs.getString("tel"));
+            mDTO.setEmail(rs.getString("email"));
+            
+            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
+            if (createdTimestamp != null) {
+                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
+            }
+            mDTO.setPicture(rs.getString("picture"));
+        }
+    } finally {
+        db.dbClose(rs, pstmt, con);
+    }
+
+    return mDTO;
+  }
 
 
 }

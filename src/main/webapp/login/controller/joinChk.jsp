@@ -1,10 +1,11 @@
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="java.sql.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="kr.co.yeonflix.member.MemberService"%>
 <%@page import="java.util.Random"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
+  
 <%
   String name = request.getParameter("name");
   String email = request.getParameter("email");
@@ -21,6 +22,16 @@
   //이메일중복확인
   boolean isEmailDupl = mService.checkEmailDuplicate(email);
   
+  //탈퇴여부 확인(null인경우엔? )
+  String isActive = "Y";
+  try {
+	  MemberDTO memberDTO = mService.getOneMember(email);
+	  if(memberDTO != null){
+	    isActive = memberDTO.getIsActive();
+	  }
+  } catch (Exception e){
+    e.printStackTrace();
+  }
   
   if(memberId != null && !memberId.isBlank()){ //가입정보가 이미 존재함 
     request.setAttribute("name", name);
@@ -34,7 +45,14 @@
       alert("이미 가입된 이메일입니다.");
       location.href = "<%= request.getContextPath() %>/login/isMemberChk.jsp";
   </script>
-<%     
+<%
+  } else if ("N".equals(isActive)){
+%>    
+   <script type="text/javascript">
+       alert("이미 탈퇴한 이메일입니다. 관련문의는 고객센터로 문의해 주세요.");
+       location.href = "<%= request.getContextPath() %>/login/isMemberChk.jsp";
+   </script>
+<%  	
   } else { //가입된 정보 없음 
     
   	//넘기기 = 세션 or request객체

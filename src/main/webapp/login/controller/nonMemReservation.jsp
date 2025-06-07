@@ -1,12 +1,56 @@
+<%@page import="java.time.format.DateTimeFormatter"%>
+<%@page import="java.time.LocalDate"%>
+<%@page import="kr.co.yeonflix.member.NonMemberService"%>
+<%@page import="java.util.Date"%>
+<%@page import="java.time.LocalDateTime"%>
+<%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
-//비회원 예매하기 
-//이메일 인증번호 맞는지 확인 후, 예매사이트로 이동.
+	//비회원 예매하기 
+	String email = request.getParameter("email");
+	String birth = request.getParameter("birth");
+	String password = request.getParameter("pw");
+	
+	NonMemberDTO nmDTO = new NonMemberDTO();
+  NonMemberService nmService = new NonMemberService();
+  
+	try{
+	  boolean success = nmService.saveNonMem(birth, email, password);
+	  if(!success){
+	    System.out.println("비회원 생성 실패");
+	    return;
+	  } else if (success){
+	    System.out.println("비회원 생성 성공");
+	    
+	    try{
+		    nmDTO = nmService.getNonMem(email); //권한정보 없음
+		    nmDTO.setUserType("GUEST");
+	      if(nmDTO.getUserIdx() > 0){
+					//일단 세션 깨긋하게 비우고
+					session.invalidate();
+					// 세션 새로 꺼내
+					session = request.getSession(true); 
+					//새 세션에 비회원 정보 저장 
+					session.setAttribute("guestUser", nmDTO);
+					//세션객체 30분 유지, 단 마지막 통신으로부터 30분동안 아무 통신도 없을때를 의미(session.setAttribute()한 모든 내용을)
+					session.setMaxInactiveInterval(1800);;
+	      }
+	    } catch (Exception e){
+	      e.printStackTrace();
+	    }
+	  }
+	  
+	} catch (Exception e){
+	  e.printStackTrace();
+	}
+	  
+	//디버깅용
+	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("guestUser");
+	System.out.println("세션에 저장된 guestUser : " + sessionNMDTO);
+	
+	response.sendRedirect(request.getContextPath()+ "/reservation/reservation.jsp"); //예매로 이동혀 
 
-//이때 비회원 정보를 세션에 올려놔야 예매를 '완료'한 후에 비회원 정보를 테이블에 insert가능
-//테이블 insert완료되고 난 후, 세션에서 삭제해야 함 
 
-String desc = "비회원 예매하기 컨트롤러 (미완)";
+
 %>
-<%= desc %>

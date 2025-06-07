@@ -1050,26 +1050,26 @@ function aJaxSubmit() {
     <form id="join3Form" class="join3_form-section" action="${pageContext.request.contextPath}/login/controller/joinComplete.jsp" method="post" enctype="multipart/form-data">
         <!-- 프로필 이미지 업로드 영역 추가 -->
         <div class="join3_profile-upload">
-            <div class="join3_profile-preview">
-                <svg id="profileImagePlaceholder" xmlns="http://www.w3.org/2000/svg" width="48" height="48"
-                    viewBox="0 0 24 24" fill="none" stroke="#adb5bd"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <img id="profileImagePreview" style="display: none;" src="#" alt="프로필 미리보기">
-                <div class="join3_profile-upload-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="17 8 12 3 7 8"></polyline>
-                      <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                </div>
+          <div class="join3_profile-preview">
+            <svg id="profileImagePlaceholder" xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+              viewBox="0 0 24 24" fill="none" stroke="#adb5bd"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+	            <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <img id="profileImagePreview" style="display: none;" src="#" alt="프로필 미리보기">
+            <div class="join3_profile-upload-icon">
+	            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+	              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+	              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+	              <polyline points="17 8 12 3 7 8"></polyline>
+	              <line x1="12" y1="3" x2="12" y2="15"></line>
+	            </svg>
             </div>
-            <p class="join3_profile-upload-text">프로필 이미지를 업로드해주세요</p>
-            <input type="file" id="profileImageInput" name="profileImage" class="join3_profile-upload-input" accept="image/*">
+          </div>
+          <p class="join3_profile-upload-text">프로필 이미지를 업로드해주세요</p>
+          <input type="file" id="profileImageInput" name="profileImage" class="join3_profile-upload-input" accept="image/*">
         </div>
 
         <div class="join3_form-group">
@@ -1083,19 +1083,19 @@ function aJaxSubmit() {
 				</div>
 
         <div class="join3_form-group">
-            <label for="password" class="join3_form-label">비밀번호</label>
-            <input type="password" id="password" name="password" class="join3_form-input" placeholder="비밀번호를 입력해주세요" required>
-            <div class="join3_password-strength">
-                <div class="join3_password-strength-meter"></div>
-            </div>
-            <div id="passwordValidation" class="join3_validation-message"></div>
-            <div class="join3_help-text">영문, 숫자, 특수문자 조합 8자 이상</div>
+          <label for="password" class="join3_form-label">비밀번호</label>
+          <input type="password" id="password" name="password" class="join3_form-input" placeholder="비밀번호를 입력해주세요" required>
+          <div class="join3_password-strength">
+            <div class="join3_password-strength-meter"></div>
+          </div>
+          <div id="passwordValidation" class="join3_validation-message"></div>
+          <div class="join3_help-text">영문, 숫자, 특수문자 조합 8자 이상</div>
         </div>
 
         <div class="join3_form-group">
-            <label for="confirmPassword" class="join3_form-label">비밀번호 확인</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" class="join3_form-input" placeholder="비밀번호를 다시 입력해주세요" required>
-            <div id="confirmPasswordValidation" class="join3_validation-message"></div>
+          <label for="confirmPassword" class="join3_form-label">비밀번호 확인</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" class="join3_form-input" placeholder="비밀번호를 다시 입력해주세요" required>
+          <div id="confirmPasswordValidation" class="join3_validation-message"></div>
         </div>
 
         <div class="join3_form-group">
@@ -1117,23 +1117,23 @@ function aJaxSubmit() {
         </div>
         
         <div class="join3_form-group">
-            <label for="userName" class="join3_form-label">이름</label>
-            <input type="text" id="userName" name="userName" class="join3_form-input" placeholder="이름을 입력해주세요" required>
+          <label for="userName" class="join3_form-label">이름</label>
+          <input type="text" id="userName" name="userName" class="join3_form-input" placeholder="이름을 입력해주세요" required>
         </div>
 
         <div class="join3_form-group">
-            <label for="email" class="join3_form-label">이메일</label>
-            <c:set var="email" value="${sessionScope.email }" />
-            <input type="email" id="email" name="email" class="join3_form-input" value="<c:out value='${email}' />" required readonly>
-            <div id="emailValidation" class="join3_validation-message"></div>
+          <label for="email" class="join3_form-label">이메일</label>
+          <c:set var="email" value="${sessionScope.email }" />
+          <input type="email" id="email" name="email" class="join3_form-input" value="<c:out value='${email}' />" required readonly>
+          <div id="emailValidation" class="join3_validation-message"></div>
         </div>
 
         <!-- 이메일 수신여부 추가 -->
         <div class="join3_form-group">
-            <div class="join3_checkbox-group">
-                <input type="checkbox" id="emailConsent" name="emailConsent" value="Y">
-                <label for="emailConsent" class="join3_checkbox-label">이메일 수신 동의 (할인 및 이벤트 정보를 받아보실 수 있습니다)</label>
-            </div>
+          <div class="join3_checkbox-group">
+            <input type="checkbox" id="emailConsent" name="emailConsent" value="Y">
+            <label for="emailConsent" class="join3_checkbox-label">이메일 수신 동의 (할인 및 이벤트 정보를 받아보실 수 있습니다)</label>
+          </div>
         </div>
 
         <div class="join3_form-group">
@@ -1152,15 +1152,15 @@ function aJaxSubmit() {
  
         <!-- 전화번호 수신여부 추가 -->
         <div class="join3_form-group">
-            <div class="join3_checkbox-group">
-                <input type="checkbox" id="smsConsent" name="smsConsent" value="Y"> <!-- null은 "N"로 받을거 -->
-                <label for="smsConsent" class="join3_checkbox-label">SMS 수신 동의 (할인 및 이벤트 정보를 받아보실 수 있습니다)</label>
-            </div>
+	        <div class="join3_checkbox-group">
+	          <input type="checkbox" id="smsConsent" name="smsConsent" value="Y"> <!-- null은 "N"로 받을거 -->
+	          <label for="smsConsent" class="join3_checkbox-label">SMS 수신 동의 (할인 및 이벤트 정보를 받아보실 수 있습니다)</label>
+	        </div>
         </div>
 
         <div class="join3_button-group">
-            <button type="button" class="join3_button join3_btn-back" id="backBtn">이전</button>
-            <button type="button" class="join3_button join3_btn-primary" id="nextBtn" disabled>다음</button>
+          <button type="button" class="join3_button join3_btn-back" id="backBtn">이전</button>
+          <button type="button" class="join3_button join3_btn-primary" id="nextBtn" disabled>다음</button>
         </div>
     </form>
 </div>

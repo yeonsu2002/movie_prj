@@ -17,7 +17,7 @@ public class LoginService {
             flag = mDTO != null;
 
             if (flag) {
-                session.setAttribute("userData", mDTO);
+                session.setAttribute("loginUser", mDTO);
             }
 
         } catch (SQLException e) {
@@ -27,12 +27,5 @@ public class LoginService {
         return flag;
     }
 
-    
-    
-	/*
-	 * // 회원 정보 id로 조회 메서드 추가 public MemberDTO getMemberById(String id) { MemberDTO
-	 * member = null; LoginDAO lDAO = LoginDAO.getInstance(); try { member =
-	 * lDAO.selectMemberById(id); } catch (SQLException e) { e.printStackTrace(); }
-	 * return member; }
-	 */
+
 }

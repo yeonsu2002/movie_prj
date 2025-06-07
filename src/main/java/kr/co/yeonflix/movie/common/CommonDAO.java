@@ -93,9 +93,6 @@ public class CommonDAO {
 		return list;
 	}//selectGenre
 	
-	
-	
-	
 //	public void insertCommon(CommonDTO cDTO) throws SQLException{
 //		
 //		DbConnection db = DbConnection.getInstance();

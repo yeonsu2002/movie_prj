@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@page import="java.text.NumberFormat"%>
 <%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
 <%@page import="kr.co.yeonflix.theater.TheaterService"%>
@@ -25,7 +26,8 @@ ReservationDTO resDTO = rs.searchOneSchedule(reservationIdx);
 
 //영화 객체 가져오기
 int movieIdx = schDTO.getMovieIdx();
-MovieDTO mDTO = ss.searchOneMovie(movieIdx);
+MovieService ms = new MovieService();
+MovieDTO mDTO = ms.searchOneMovie(movieIdx);
 
 //극장 객체 가져오기
 int theaterIdx = schDTO.getTheaterIdx();
@@ -91,7 +93,8 @@ pageContext.setAttribute("reservationIdx", reservationIdx);
 				<h1>예매가 완료되었습니다.</h1>
 
 				<div class="booking-info">
-					<img src="resources/images/sundebolt_poster.jpg" alt="썬더볼츠 포스터"
+				
+					<img src="/movie_prj/common/img/${mDTO.posterPath}" alt="썬더볼츠 포스터"
 						class="poster">
 
 					<div class="details">

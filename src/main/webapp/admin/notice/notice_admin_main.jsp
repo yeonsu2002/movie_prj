@@ -1,159 +1,106 @@
+<%@page import="kr.co.yeonflix.notice.noticeDTO"%>
+<%@page import="kr.co.yeonflix.notice.noticeDAO"%>
+<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>공지/뉴스 관리</title>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
+<jsp:include page="/common/jsp/admin_header.jsp" />
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
-
-<style>
-.notice-table-wrapper {
-    position: relative;
-    margin-left: 300px;
-    margin-top: 80px;
-    width: calc(100% - 300px);
-    height: calc(100vh - 80px);
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-}
-.notice-table-wrapper #all {
-    width: 100%;
-    height: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-}
-
-.notice-table-wrapper #all th, .notice-table-wrapper #all td {
-	padding: 12px;
-	text-align: center;
-	border-bottom: 1px solid #e0e0e0;
-	font-size: 14px;
-}
-
-.notice-table-wrapper #all th {
-	background-color: #4a90e2;
-	color: #ffffff;
-	font-weight: bold;
-}
-
-
-.notice-table-wrapper input[type="checkbox"] {
-	transform: scale(1.1);
-}
-
-.notice-table-wrapper input[type="button"] {
-	padding: 8px 16px;
-	font-size: 14px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	margin: 4px;
-}
-
-.notice-table-wrapper #add {
-	background-color: #4CAF50;
-	color: white;
-}
-
-.notice-table-wrapper #delete {
-	background-color: #f44336;
-	color: white;
-}
-
-.notice-table-wrapper .button-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 20px;
-}
-
-.notice-table-wrapper .page-buttons {
-	flex: 1;
-	text-align: center;
-}
-
-.notice-table-wrapper .action-buttons {
-	text-align: right;
-	white-space: nowrap;
-}
-.notice-table-wrapper #mid {
-    width: 100%;
-    height:100%;
-}
-</style>
+	
+<link rel="stylesheet"
+	href="http://localhost/movie_prj/admin/notice/css/admin_main.css">
 </head>
 <body>
-	<div class="notice-table-wrapper">
-		<table id="all">
-			<tr>
-				<th>공지/뉴스 관리</th>
-			</tr>
-			<tr>
-				<td>
-					<table id="mid">
+<%
+	int first = 1;
+	int size = 10;
+
+	if (request.getParameter("page") != null) {
+		first = Integer.parseInt(request.getParameter("page"));
+	}
+	noticeDAO ndao = new noticeDAO();
+	int total = ndao.getNoticeCount("전체");
+	int totalPages = (int) Math.ceil(total / (double) size);
+
+	List<noticeDTO> notices = ndao.selectPaged(first, size);
+	request.setAttribute("notices", notices);
+	request.setAttribute("currentPage", first);
+	request.setAttribute("totalPages", totalPages);
+	%>
+	<%--
+				List<noticeDTO> notices = dao.selectAllNotice();
+				request.setAttribute("notices", notices);
+				--%>
+	<div class="notice-list-container">
+		<%!noticeDAO dao = new noticeDAO();%>
+		<h1>공지/뉴스 관리</h1>
+		<form action="notice_delete.jsp" id="notice_delete">
+			<table class="notice-table">
+				<thead>
+					<tr>
+						<th>선택</th>
+						<th>번호</th>
+						<th>구분</th>
+						<th>제목</th>
+						<th>조회수</th>
+						<th>등록일</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="notice" items="${notices}" varStatus="count">
 						<tr>
-							<th>선택</th>
-							<th>번호</th>
-							<th>구분</th>
-							<th>제목</th>
-							<th>조회수</th>
-							<th>등록일</th>
+							<td><input type="checkbox" name="choose"
+								value="${notice.notice_board_idx }" /></td>
+							<td>${notice.notice_board_idx}</td>
+							<td>${notice.board_code_name}</td>
+							<td><a
+								href="http://localhost/movie_prj/admin/notice/notice_admin.jsp?idx=${notice.notice_board_idx}">${notice.notice_title}</a></td>
+							<td>${notice.view_count }</td>
+							<td>${notice.created_time }</td>
 						</tr>
-						<%
-						for (int i = 0; i < 5; i++) {
-						%>
-						<tr>
-							<td><input type="checkbox" id="choose" /></td>
-							<td>번호</td>
-							<td>구분</td>
-							<td><a href="http://localhost/movie_prj/admin/notice/notice_admin.jsp">제목</a></td>
-							<td>조회수</td>
-							<td>등록일</td>
-						</tr>
-						<%
-						}
-						%>
-						<tr>
-							<td colspan="6">
-								<div class="button-row">
-									<div class="page-buttons">
-										<input type="button" class="nav-btn" value="«" />
-										<%for (int i = 1; i <= 5; i++) {%>
-										<input type="button" id="pageNum" value="<%=i%>" />
-										<%}%>
-										<input type="button" class="nav-btn" value="»" />
+					</c:forEach>
+				</tbody>
+			</table>
+			<div class="notice-actions">
+			<div class="page-buttons">
+										<c:if test="${currentPage > 1}">
+											<a href="notice_admin_main.jsp?page=${currentPage - 1}">«</a>
+										</c:if>
+
+										<c:forEach begin="1" end="${totalPages}" var="i">
+											<a href="notice_admin_main.jsp?page=${i}"
+												style="font-weight: ${i == currentPage ? 'bold' : 'normal'}">
+												${i} </a>
+										</c:forEach>
+
+										<c:if test="${currentPage < totalPages}">
+											<a href="notice_admin_main.jsp?page=${currentPage + 1}">»</a>
+										</c:if>
 									</div>
-									<div class="action-buttons">
-										<input type="button" id="add" value="새 공지 작성" /> <input
-											type="button" id="delete" value="삭제" />
-									</div>
-								</div>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
+				<div class="action-buttons">
+					<input type="button" id="add" value="새 공지 작성" /> <input
+						type="button" id="delete" value="삭제" />
+				</div>
+			</div>
+		</form>
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script type="text/javascript">
 		$(function() {
-			$("#add").click(
-				function() {
-					location.href = "http://localhost/movie_prj/admin/notice/notice_add.jsp";
-				});
+			$("#add")
+					.click(
+							function() {
+								location.href = "http://localhost/movie_prj/admin/notice/notice_add.jsp";
+							});
 			$("#delete").click(function() {
+				$("#notice_delete").submit();
 			});
 		});
 	</script>

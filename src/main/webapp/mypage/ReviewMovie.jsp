@@ -1,7 +1,31 @@
+<%@page import="kr.co.yeonflix.member.MemberDAO"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%
+    // 로그인한 사용자 userIdx 가져오기
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+
+	if (loginUser == null) {
+    // 로그인 안된 상태 -> 로그인 페이지로 이동
+   	 	response.sendRedirect(request.getContextPath() + "/login/loginFrm.jsp");
+   		 return;
+	}
+
+	int loginUserIdx = loginUser.getUserIdx();
+
+    // 회원 정보 조회
+    MemberService ms = new MemberService();
+    MemberDAO mm=MemberDAO.getInstance();
+    MemberDTO mDTO=mm.selectOneMember(loginUserIdx);
+
+    // JSP에 member 객체 넘기기
+    request.setAttribute("member", mDTO);
+ %>
 
 <!DOCTYPE html>
 <html>
@@ -89,7 +113,7 @@
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="../common/jsp/header.jsp"/>
 </header>
 <main>
 <div id="container">
@@ -99,30 +123,19 @@
         <!-- 프로필 이미지 또는 아이콘 -->
         <img src="http://localhost/movie_prj/common/img/default_img.png"  class="profile-img" />
       <div class="profile-info">
-        <h2>유연수님 </h2>
-        <span class="profile-id">아이디: yeonsu2002</span>
-        <span class="profile-id">닉네임: 운전연수</span>
+        <h2><c:out value="${member.userName}" /></h2>
+        <span class="profile-id">아이디: <c:out value="${member.memberId}" /></span>
+        <span class="profile-id">닉네임: <c:out value="${member.nickName}" /></span>
       </div>
     </div>
     <br><br>
    <a href="http://localhost/movie_prj/mypage/wishMovie.jsp" class="btn btn-light" style="width:230px; height:50px">기대되는 영화</a>
 <a href="http://localhost/movie_prj/mypage/WatchMovie.jsp" class="btn btn-light" style="width:230px; height:50px">내가 본 영화</a>
 <a href="http://localhost/movie_prj/mypage/ReviewMovie.jsp" class="btn btn-danger" style="width:230px; height:50px">내가 쓴 평점</a>
+<a href="http://localhost/movie_prj/mypage/MainPage.jsp" class="btn btn-secondary" style="width:230px; height:40px;  margin-top: 280px;">뒤로</a>
   </div>
   
-  <div class="content-area">
-    <div class="section-header">
-      <h3 class="section-title">내가 쓴 평점 <span class="count-badge">0</span></h3>
-    </div>
-    
-    <div class="empty-content">
-      <p>내가 쓴 평점이 없습니다.</p>
-      <a href="http://localhost/movie_prj/mypage/WatchMovie.jsp" class="btn btn-danger mt-3">내가 본 영화</a>
-    </div>
-
-  </div>
-</div>
-
+ </div>
 </main>
 <footer>
 <c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>

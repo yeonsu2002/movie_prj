@@ -29,8 +29,21 @@ MemberDTO memberVO = new MemberDTO();
 MultipartRequest multi = null;
 int fileMaxSize = 10 * 1024 * 1024; // 10MB
 
-// 그냥 이게 제일 낫다.server
-String savePath = "C:\\dev\\movie\\userProfiles"; //고정시켜버려, server.xml에 설정중 
+//플랫폼에 따른 savePath 설정 (내 맥북에서 하려고)
+String platform = request.getHeader("Sec-Ch-Ua-Platform");
+if (platform != null) {
+  platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
+}
+System.out.println("platform = " + platform);
+String savePath = "";
+
+if("Windows".equals(platform)){
+	savePath = "C:\\dev\\movie\\userProfiles";
+} else if ("macOS".equals(platform)){
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
+}
+System.out.println("savePath = " + savePath);
 
 File saveDir = new File(savePath);
 
