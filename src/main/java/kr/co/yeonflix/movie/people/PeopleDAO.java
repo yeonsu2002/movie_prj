@@ -111,12 +111,11 @@ public class PeopleDAO {
 //			
 //			StringBuilder insertPeople = new StringBuilder();
 //			insertPeople.append("insert into movie_people_common_table(people_code_idx,	people_code_type, people_name)")
-//			.append("values (?,?,?)");
+//			.append("values (people_code_idx_seq.nextval,?,?)");
 //			
 //			pstmt = con.prepareStatement(insertPeople.toString());
-//			pstmt.setInt(1, pDTO.getPeopleCodeIdx());
-//			pstmt.setString(2, pDTO.getPeopleCodeType());
-//			pstmt.setString(3, pDTO.getPeopleName());
+//			pstmt.setString(1, pDTO.getPeopleCodeType());
+//			pstmt.setString(2, pDTO.getPeopleName());
 //			
 //			pstmt.executeQuery();
 //			

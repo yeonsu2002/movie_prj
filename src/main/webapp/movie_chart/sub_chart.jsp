@@ -1,3 +1,6 @@
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
+<%@page import="kr.co.yeonflix.movie.MovieDTO"%>
+<%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
@@ -13,7 +16,7 @@
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
-            color: #fff;
+            
         }
 
   
@@ -123,19 +126,31 @@
         <%@ include file="../common/jsp/header.jsp" %>
     </header>
     <main>
+    <%
+    int movieIdx = Integer.parseInt(request.getParameter("movieIdx"));
+    MovieService ms = new MovieService();
+    MovieDTO mDTO = ms.searchOneMovie(movieIdx);
+    MovieCommonCodeService mccs = new MovieCommonCodeService();
+    mccs.searchCommon(movieIdx);
+    %>
         <div id="container">
             <div class="movie-detail-container">
                 <div class="movie-poster">
-                    <img src="http://localhost/team_prj/common/img/chart17.jpg"> 
+                    <img src="http://localhost/team_prj/common/img/chart17.jpg">
+                    
+                    <img src="<%= mDTO != null && mDTO.getPosterPath() != null ? 
+                            ("../../common/img/" + mDTO.getPosterPath()) : 
+                            "http://localhost/movie_prj/common/img/default_poster.png" %>" 
+                   class="poster-image" id="img" /> 
                 </div>
                 <div class="movie-info">
-                    <h2>썬더볼츠</h2>
+                    <h2><%=mDTO.getMovieName() %></h2>
                     <p><span class="highlight">예매율:</span> 29.6%</p>
-                    <p><span class="highlight">감독:</span> 제이크 슈라이어</p>
-                    <p><span class="highlight">배우:</span> 플로렌스 퓨, 세바스찬 스탠, 와이엇 러셀, 율카 쿠렐렌코 외</p>
-                    <p><span class="highlight">장르:</span> 액션</p>
-                    <p><span class="highlight">기본 정보:</span> 12세이상관람가, 127분, 미국</p>
-                    <p><span class="highlight">개봉:</span> 2025.04.30</p>
+                    <p><span class="highlight">감독:</span><%= mDTO.getActors()%></p>
+                    <p><span class="highlight">배우:</span><%= mDTO.getDirectors()%></p>
+                    <p><span class="highlight">장르:</span></p>
+                    <p><span class="highlight">기본 정보:</span> 12세이상관람가, <%= mDTO.getRunningTime() %>분, <%=mDTO.getCountry() %></p>
+                    <p><span class="highlight">개봉:</span> <%= mDTO.getReleaseDate() %></p>
                     <button class="btn">예매하기</button>
                     <button class="btn interest-btn">❤ 관심 1004</button>
                 </div>
@@ -150,14 +165,7 @@
 
             <div id="main-info" class="tab-content">
                 <h3>주요정보</h3>
-                <p>초능력 없음, 히어로 없음, 포기도 없음!<br>
-                4월, 마블 역사를 새로 쓸 빌런 놈들의 예측불가 팀업이 폭발한다!</p>
-                <p>예벳예쓰가 사라진 세상, CIA 국장 ‘발렌티나’는 새로운 팀을 꾸릴 계획을 세운다.<br>
-                그녀가 설계한 위험한 작전에 빠진 '옐레나', '윈터 솔져', '레드 가디언', '존 워커', '고스트', '태스크마스터'.</p>
-                <p>빌런 놈들만 모인 이들은 이깟 일 쯤이야 한 팀이 되고,<br>
-                자신들의 어두운 과거와 맞서야 하는 위험한 임무에 투입된다.<br>
-                서로를 믿지 못하는 상황에서 스스로의 생존과 세상의 구원을 위해<br>
-                이들은 전쟁과 음모로 가득한 마침표 없는 미션을 시작하는데…!</p>
+                <%= mDTO.getMovieDescription() %>
             </div>
 
             <div id="trailer" class="tab-content">
