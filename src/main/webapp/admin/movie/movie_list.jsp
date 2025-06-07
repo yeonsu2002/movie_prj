@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.util.MovieListUtil"%>
+<%@page import="kr.co.yeonflix.util.PaginationDTO"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="java.util.List"%>
@@ -6,6 +8,8 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<jsp:useBean id="rDTO" class="kr.co.yeonflix.util.RangeDTO" scope="page"/>
+<jsp:setProperty name="rDTO" property="*"/>
 <jsp:include page="/common/jsp/admin_header.jsp" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -28,9 +32,9 @@
 	}
     .content { flex: 1; padding-left: 20px; }
     .content h2 { margin-bottom: 20px; }
-    table.movie-list { width: 100%; border-collapse: collapse; }
+    table.movie-list { width: 100%; border-collapse: collapse; background-color: white;}
     table.movie-list th, table.movie-list td {
-      border: 1px solid #ddd; padding: 8px; text-align: left;
+      border: 1px solid #ddd; padding: 8px; text-align: left; height: 70px; font-size: 20px; 
     }
     table.movie-list th { background: #f5f5f5; }
     .pagination { margin-top: 20px; text-align: center; }
@@ -42,8 +46,7 @@
   
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script>
-    
-
+$(function(){
 	$('#dAddBtn').click(function() {
 	    var left = window.screenX + 200;
 	    var top  = window.screenY + 150;
@@ -55,6 +58,20 @@
 	      const tooltip = document.getElementById("tooltip");
 	      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
 	    }
+	
+
+    $("#btnSearch").click(function(){
+        var keyword = $("#keyword").val();
+     
+        if(keyword == ""){
+           alert("검색 키워드는 필수 입력");
+           return;
+        }
+        $("#searchFrm").submit();
+    })
+})    
+
+	
   </script>
   
 </head>
@@ -62,14 +79,46 @@
   <div class="content-container">
  <%
 MovieService ms = new MovieService();
-List<MovieDTO> list = new ArrayList<MovieDTO>();
-list = ms.searchMovieList();
-request.setAttribute("movieList", list);
+int totalCount = 0;
+totalCount = ms.totalCount(rDTO);
 
+int pageScale = 0;
+pageScale = ms.pageScale();
+
+int totalPage = 0;
+totalPage = ms.totalPage(totalCount, pageScale);
+
+int startNum = 1;
+startNum = ms.startNum(pageScale, rDTO);
+
+int endNum = 0;
+endNum = ms.endNum(pageScale, rDTO);
+ 
+ 
+List<MovieDTO> list = new ArrayList<MovieDTO>();
+list = ms.searchMovieList(rDTO);
+
+pageContext.setAttribute("totalCount", totalCount);
+pageContext.setAttribute("pageScale", pageScale);
+pageContext.setAttribute("totalPage", totalPage);
+pageContext.setAttribute("startNum", rDTO.getStartNum());
+pageContext.setAttribute("endNum", rDTO.getEndNum());
+pageContext.setAttribute("fieldText", rDTO.getFieldText());
+pageContext.setAttribute("movieList", list);
 %>
     <!-- 컨텐츠 -->
     <div class="content">
       <h2>영화 리스트</h2>
+      <div id="searchDiv" style="text-align : center;">
+
+		<form action="movie_list.jsp" method="get" id="searchFrm">
+		<input type="text" name="keyword" id="keyword"/>
+		<input type="text" style="display: none"/>
+		<input type="button" value=" 검색 " id="btnSearch" class="btn btn-success btn-sm"/>
+		
+		</form>
+		
+	  </div>
       <table class="movie-list">
         <thead>
           <tr>
@@ -106,6 +155,13 @@ request.setAttribute("movieList", list);
         </c:forEach>
       </div>
     </div>
+    
+    <div id="paginationDiv" style="text-align: center;">
+<%
+PaginationDTO pDTO = new PaginationDTO(3, rDTO.getCurrentPage(), totalPage, "movie_list.jsp",rDTO.getField(), rDTO.getKeyword());
+%>
+<%= MovieListUtil.pagination(pDTO) %>
+</div>
   </div>
 
 </body>

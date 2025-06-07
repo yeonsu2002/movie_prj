@@ -1,17 +1,97 @@
 package kr.co.yeonflix.movie;
 
 import java.sql.Date;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.yeonflix.movie.people.PeopleService;
+import kr.co.yeonflix.util.RangeDTO;
 
 
 
 public class MovieService {
+	
+	/**
+	 * 1. 총 레코드의 수
+	 * @param rDTO
+	 * @return 레코드의 수
+	 */
+	public int totalCount(RangeDTO rDTO) {
+		
+		int cnt = 0;
+		MovieDAO mDAO = MovieDAO.getInstance();
+		try {
+			cnt = mDAO.selectTotalCount(rDTO);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return cnt;
+	}//totalCount
+	
+	/**
+	 * 한 화면에 보여줄 게시물의 수
+	 * @return한 화면에 보여줄 게시물의 수
+	 */
+	public int pageScale() {
+		
+		int pageScale=10;
+		
+		return pageScale;
+		
+	}//pageScale
+	
+	/**
+	 * 총 페이지 수
+	 * @param totalCount 총 게시물의 수
+	 * @param pageScale 한 화면에 보여줄 게시글의 수
+	 * @return
+	 */
+	public int totalPage(int totalCount, int pageScale) {
+		
+		int totalPage = 0;
+		totalPage=(int)Math.ceil((double)totalCount/pageScale);
+		
+		return totalPage;
+		
+	}//totalPage
+	
+	/**
+	 * pagination 을 클릭했을 때의 번호를 사용하여 해당 페이지의 시작 번호를 구하기
+	 * 예 1 - 1, 2 - 11, 3 - 21, 4 - 31, 5 - 41
+	 * @param pageScale
+	 * @param rDTO
+	 * @return
+	 */
+	public int startNum(int pageScale, RangeDTO rDTO) {
+		
+		int startNum = 1;
+		
+		startNum = rDTO.getCurrentPage() * pageScale - pageScale + 1;
+		rDTO.setStartNum(startNum);
+		
+		return startNum;
+		
+	}//startNum
+	
+	/**
+	 * pagination 을 클릭했을 때의 번호를 사용하여 해당 페이지의 끝 번호를 구하기
+	 * @param pageScale
+	 * @param rDTO
+	 * @return
+	 */
+	public int endNum(int pageScale, RangeDTO rDTO) {
+		
+		int endNum = 0;
+		
+		endNum = rDTO.getStartNum() + pageScale - 1;
+		rDTO.setEndNum(endNum);
+		
+		return endNum;
+		
+	}//endNum
+	
 	
 	public List<MovieDTO> searchMovieChart(){
 		List<MovieDTO> list = new ArrayList<MovieDTO>();
@@ -43,12 +123,12 @@ public class MovieService {
 		return list;
 	}//searchMovieChart
 	
-	public List<MovieDTO> searchMovieList(){
+	public List<MovieDTO> searchMovieList(RangeDTO rDTO){
 		List<MovieDTO> list = new ArrayList<MovieDTO>();
 		MovieDAO mDAO = MovieDAO.getInstance();
 		
 		try {
-			list = mDAO.selectMovieList();
+			list = mDAO.selectMovieList(rDTO);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}//catch

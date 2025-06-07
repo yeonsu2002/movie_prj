@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
+import kr.co.yeonflix.util.RangeDTO;
 
 
 
@@ -27,7 +28,62 @@ private static MovieDAO mDAO;
 		return mDAO;
 	}
 	
-	public List<MovieDTO> selectMovieList() throws SQLException{
+	public int selectTotalCount(RangeDTO rDTO) throws SQLException{
+		int cnt = 0;
+		
+		DbConnection db = DbConnection.getInstance();
+		
+		ResultSet rs = null;
+		PreparedStatement pstmt = null;
+		Connection con = null;
+		try {
+		//1. JNDI 사용객체 생성
+		//2. DBCP에서 연결객체얻기(DataSource)
+		//3. Connection 얻기
+			con = db.getDbConn();
+		//4. 쿼리문 생성객체 얻기
+			StringBuilder selectIdQuery = new StringBuilder();
+			selectIdQuery
+			.append("	select	count(movie_idx) cnt			")
+			.append("	from	movie	");
+			//검색 키워드가 존재
+			if(rDTO.getKeyword() != null && !"".equals(rDTO.getKeyword())){
+				selectIdQuery.append("where	instr(").append(rDTO.getFieldName()).append(",?) != 0");
+			}//end if
+			
+			pstmt=con.prepareStatement(selectIdQuery.toString());
+		//5. 바인드변수에 값 할당
+//			pstmt.setString(1, id);
+			
+			if(rDTO.getKeyword() != null && !"".equals(rDTO.getKeyword())){
+				pstmt.setString(1, rDTO.getKeyword());
+			}//end if
+		//6. 쿼리문 수행 후 결과 얻기
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				cnt=rs.getInt("cnt");
+			}//end if
+			
+		}finally{
+		//7. 연결 끊기
+			db.dbClose(rs, pstmt, con);
+		}
+		return cnt;
+	}//selectId
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public List<MovieDTO> selectMovieList(RangeDTO rDTO) throws SQLException{
 		
 		List<MovieDTO> list = new ArrayList<MovieDTO>();
 		
@@ -40,22 +96,34 @@ private static MovieDAO mDAO;
 			con = db.getDbConn();
 			
 			StringBuilder selectMovieList = new StringBuilder();
-			selectMovieList.append(" SELECT movie_idx,movie_name,poster_path,release_date,country,running_time,end_date,movie_description,trailer_url, actors, directors, ")
-		    .append("        CASE screening_status ")
-		    .append("            WHEN 0 THEN '상영예정' ")
-		    .append("            WHEN 1 THEN '상영중' ")
-		    .append("            WHEN 2 THEN '상영종료' ")
-		    .append("        END as status_name ")
-		    .append(" FROM movie ")
-		    .append(" ORDER BY ")
-		    .append("     CASE screening_status ")
-		    .append("         WHEN 1 THEN 1 ")  // 상영중을 첫 번째
-		    .append("         WHEN 0 THEN 2 ")  // 상영예정을 두 번째
-		    .append("         WHEN 2 THEN 3 ")  // 상영종료를 세 번째
-		    .append("     END, release_date DESC, end_date DESC");
+			selectMovieList.append(" SELECT movie_idx, movie_name, poster_path, release_date, country, running_time, ")
+            .append(" end_date, movie_description, trailer_url, actors, directors, ")
+            .append(" CASE screening_status ")
+            .append("     WHEN 0 THEN '상영예정' ")
+            .append("     WHEN 1 THEN '상영중' ")
+            .append("     WHEN 2 THEN '상영종료' ")
+            .append(" END AS status_name ")
+            .append(" FROM ( ")
+            .append("     SELECT movie_idx, movie_name, poster_path, release_date, country, running_time, ")
+            .append("            end_date, movie_description, trailer_url, actors, directors, ")
+            .append("            screening_status, ")
+            .append("            ROW_NUMBER() OVER (ORDER BY screening_status DESC, release_date DESC, end_date DESC) AS rnum ")
+            .append("     FROM movie ");
 		
+			
+			if(rDTO.getKeyword() != null && !"".equals(rDTO.getKeyword())){
+				selectMovieList.append("where	instr(").append(rDTO.getFieldName()).append(",?) != 0");
+			}//end if
+			selectMovieList.append("	)where rnum between ? and ?");
+			
 			pstmt=con.prepareStatement(selectMovieList.toString());
-				
+
+			int bindInd = 1;
+			if(rDTO.getKeyword() != null && !"".equals(rDTO.getKeyword())){
+				pstmt.setString(bindInd++, rDTO.getKeyword());
+			}
+			pstmt.setInt(bindInd++, rDTO.getStartNum());
+			pstmt.setInt(bindInd++, rDTO.getEndNum());
 				
 
 			rs = pstmt.executeQuery();

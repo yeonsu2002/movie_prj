@@ -16,7 +16,6 @@ public class MovieListUtil {
 	    * @return
 	    */
 	   public static String pagination(PaginationDTO pDTO) {
-	      String result="";
 	      
 	      StringBuilder searchQueryString=new StringBuilder();
 	      if( pDTO.getKeyword() !=null && !pDTO.getKeyword().isEmpty()){
@@ -46,7 +45,6 @@ public class MovieListUtil {
 	           .append("' class='prevMark'>&lt;&lt;</a>]");
 	      }//end if
 	      
-	      prevMark.append(" ... ");
 	      
 	      //6.시작페이지 번호부터 끝 페이지 번호까지 화면에 출력
 	      movePage=startPage;
@@ -55,14 +53,13 @@ public class MovieListUtil {
 	         if(movePage == pDTO.getCurrentPage()){//현재 페이지는 링크를 설정하지 않음.
 	            pageLink.append("[ <span class='pagiCurrent'>").append(pDTO.getCurrentPage()).append("]");
 	         }else{
-	            pageLink.append("[<a href='board_list.jsp?currentPage=")
+	            pageLink.append("[<a href='movie_list.jsp?currentPage=")
 	            .append(movePage).append(searchQueryString.toString())
-	              .append("' class='pagiNotCuttent'>").append(movePage).append("</a> ]");
+	              .append("' class='pagiNotCurrent'>").append(movePage).append("</a> ]");
 	         }//end else
 	            movePage++;
 	      }//end while
 	      
-	      prevMark.append(" ... ");
 	      
 	         
 	      //7.뒤에 페이지가 더 있는 경우

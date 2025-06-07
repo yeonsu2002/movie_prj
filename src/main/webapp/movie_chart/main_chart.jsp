@@ -305,6 +305,7 @@ request.setAttribute("mccs", mccs);
             </div>
         </c:forEach> 
     </div>
+    
 </div>
 
 </main>
