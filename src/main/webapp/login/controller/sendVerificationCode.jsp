@@ -10,8 +10,6 @@
 	
 	//인증번호 6자리생성
  	String verificationCode = String.valueOf((int)(Math.random() * 900000 + 100000)); // 6자리 숫자
-	System.out.println("인증번호 6자리 : " + verificationCode);
- 	
  	
 	//요청이 비밀번호 찾기의 인증(findMemberPwdFrm.jsp)
 	if("findPwd".equals(action)){

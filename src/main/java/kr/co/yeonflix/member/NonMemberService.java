@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.text.DateFormatter;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class NonMemberService {
@@ -34,8 +36,11 @@ public class NonMemberService {
   }
   
   //비회원 예매내역 출력 (생일, 이메일)
-  public List<NonMemTicketDTO> getNmtDTOlist(String birth, String email){
-    return nmDAO.selectNonMemTicketList(birth, email);
+  public List<NonMemTicketDTO> getNmtDTOlist(String birth, String email, String password) throws SQLException{
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
+    LocalDate birthDate = LocalDate.parse(birth, dtf);
+    //String encodedPwd = BCrypt.withDefaults().hashToString(12, password.toCharArray());
+    return nmDAO.selectNonMemTicketList(birthDate, email, password);
   }
   
   
