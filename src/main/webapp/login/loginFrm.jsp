@@ -376,7 +376,7 @@ function nonMemberLoginFrm() {
               </select>
               <input type="hidden" id="hiddenEmail" name="email" value="">
               <button type="button" class="btn_sub" style="width: 112px" id="getVerificationBtn" onclick="getVerification()">인증번호받기</button>
-              <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">5:00</span>
+              <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">05:00</span>
             </div>
           </div>
 

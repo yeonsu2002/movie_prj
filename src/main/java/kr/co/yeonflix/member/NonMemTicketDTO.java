@@ -16,7 +16,10 @@ public class NonMemTicketDTO {
   private String ticketNumber;
   private List<String> seats;
   private Date date;
-  private String theater;
   private int totalPrice;
+  private String moviePoster;
+  private String movieName;
+  private String theaterName;
+  
   
 }
