@@ -24,6 +24,7 @@
     request.setAttribute("grade", mccs.searchOneGrade(movieIdx));
     
     String reservationRate = request.getParameter("reservationRate");
+    
 %>    
     <meta charset="UTF-8">
     <jsp:include page="../common/jsp/external_file.jsp" />
@@ -167,10 +168,20 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: all 0.3s ease;
         }
 
         .btn-like:hover {
             background: #f9f9f9;
+        }
+
+        /* 하트 아이콘 애니메이션 */
+        .btn-like .heart-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .btn-like.active .heart-icon {
+            transform: scale(1.2);
         }
 
         .btn-reserve {
@@ -393,177 +404,360 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
- // 탭 콘텐츠 캐시 (한 번만 로드)
-    const tabContentCache = {};
-    let isInitialized = false;
+        // 탭 콘텐츠 캐시 (한 번만 로드)
+        const tabContentCache = {};
+        let isInitialized = false;
 
-    $(document).ready(function () {
-        // 페이지 로드 시 초기화
-        initializePage();
-        
-        // 탭 클릭 이벤트
-        $('.tab-menu li').click(function (e) {
-            e.preventDefault();
-            const $this = $(this);
-            const tabId = $this.data('tab');
+        $(document).ready(function () {
+            // 페이지 로드 시 초기화
+            initializePage();
+            
+            // DOM이 완전히 준비된 후 위시리스트 상태 확인
+            setTimeout(function() {
+                checkWishlistStatus(<%= movieIdx %>);
+            }, 200); // 약간의 지연을 주어 DOM 로딩 완료 보장
+            
+            // 탭 클릭 이벤트
+            $('.tab-menu li').click(function (e) {
+                e.preventDefault();
+                const $this = $(this);
+                const tabId = $this.data('tab');
 
-            // 이미 활성화된 탭이면 return
-            if ($this.hasClass('active')) {
+                // 이미 활성화된 탭이면 return
+                if ($this.hasClass('active')) {
+                    return;
+                }
+
+                // 탭 전환
+                switchTab(tabId);
+            });
+
+            // 브라우저 뒤로가기/앞으로가기 처리
+            $(window).on('hashchange', function() {
+                const hash = window.location.hash.substring(1);
+                if (hash && hash !== getCurrentActiveTab()) {
+                    switchTab(hash, false); // 히스토리 업데이트 안함
+                }
+            });
+        });
+
+        function initializePage() {
+            // 초기 해시 확인
+            let initialTab = 'main-info'; // 기본 탭
+            
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const $targetTab = $('[data-tab="' + hash + '"]');
+                if ($targetTab.length) {
+                    initialTab = hash;
+                }
+            }
+            
+            // 초기 탭 로드
+            switchTab(initialTab, false);
+            isInitialized = true;
+        }
+
+        function switchTab(tabId, updateHistory = true) {
+            const movieIdx = <%= movieIdx %>;
+            
+            // 탭 메뉴 활성화 상태 변경
+            $('.tab-menu li').removeClass('active');
+            $('[data-tab="' + tabId + '"]').addClass('active');
+
+            // 히스토리 업데이트 (중복 방지)
+            if (updateHistory && isInitialized && window.location.hash.substring(1) !== tabId) {
+                history.replaceState(null, null, '#' + tabId);
+            }
+
+            // 캐시된 콘텐츠가 있으면 바로 표시
+            if (tabContentCache[tabId]) {
+                showTabContent(tabId, tabContentCache[tabId]);
                 return;
             }
 
-            // 탭 전환
-            switchTab(tabId);
-        });
+            // 로딩 표시
+            showLoading();
 
-        // 브라우저 뒤로가기/앞으로가기 처리
-        $(window).on('hashchange', function() {
-            const hash = window.location.hash.substring(1);
-            if (hash && hash !== getCurrentActiveTab()) {
-                switchTab(hash, false); // 히스토리 업데이트 안함
-            }
-        });
-    });
-
-    function initializePage() {
-        // 초기 해시 확인
-        let initialTab = 'main-info'; // 기본 탭
-        
-        if (window.location.hash) {
-            const hash = window.location.hash.substring(1);
-            const $targetTab = $('[data-tab="' + hash + '"]');
-            if ($targetTab.length) {
-                initialTab = hash;
-            }
+            // AJAX로 콘텐츠 로드
+            $.ajax({
+                url: "getMovieTabContent.jsp",
+                type: "GET",
+                data: {
+                    movieIdx: movieIdx,
+                    tabType: tabId
+                },
+                dataType: "html",
+                timeout: 10000,
+                beforeSend: function() {
+                    console.log("Loading tab:", tabId, "for movie:", movieIdx); // 디버깅용
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", xhr.status, xhr.statusText, error);
+                    console.error("Response Text:", xhr.responseText); // 에러 상세 확인
+                    
+                    hideLoading();
+                    const errorContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #e74c3c;">' +
+                        '<div style="font-size: 18px; margin-bottom: 10px;">⚠️</div>' +
+                        '<div>콘텐츠를 불러오는 중 오류가 발생했습니다.</div>' +
+                        '<div style="font-size: 12px; color: #666; margin-top: 10px;">Error: ' + xhr.status + ' - ' + error + '</div>' +
+                        '<button onclick="retryLoadTab(\'' + tabId + '\')" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">다시 시도</button>' +
+                        '</div>';
+                    showTabContent(tabId, errorContent);
+                },
+                success: function(response) {
+                    console.log("Tab loaded successfully:", tabId); // 디버깅용
+                    console.log("Response length:", response.length); // 응답 길이 확인
+                    
+                    hideLoading();
+                    
+                    // 응답이 비어있는지 확인
+                    if (!response || response.trim() === '') {
+                        const emptyContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #999;">' +
+                            '<div>콘텐츠가 없습니다.</div>' +
+                            '</div>';
+                        showTabContent(tabId, emptyContent);
+                        return;
+                    }
+                    
+                    // 캐시에 저장
+                    tabContentCache[tabId] = response;
+                    showTabContent(tabId, response);
+                    
+                    // 트레일러 탭이면 이벤트 바인딩
+                    if (tabId === 'trailer') {
+                        bindTrailerEvents();
+                    }
+                }
+            });
         }
-        
-        // 초기 탭 로드
-        switchTab(initialTab, false);
-        isInitialized = true;
-    }
 
-    function switchTab(tabId, updateHistory = true) {
-        const movieIdx = <%= movieIdx %>;
-        
-        // 탭 메뉴 활성화 상태 변경
-        $('.tab-menu li').removeClass('active');
-        $('[data-tab="' + tabId + '"]').addClass('active');
-
-        // 히스토리 업데이트 (중복 방지)
-        if (updateHistory && isInitialized && window.location.hash.substring(1) !== tabId) {
-            history.replaceState(null, null, '#' + tabId);
+        function showTabContent(tabId, content) {
+            // 모든 기존 탭 콘텐츠 숨기기
+            $('.tab-content').removeClass('active').hide();
+            
+            // 새 콘텐츠 삽입
+            $('.tab-content-container').html(content);
+            
+            // 새 콘텐츠 활성화
+            $('.tab-content').addClass('active').show();
         }
 
-        // 캐시된 콘텐츠가 있으면 바로 표시
-        if (tabContentCache[tabId]) {
-            showTabContent(tabId, tabContentCache[tabId]);
-            return;
+        function getCurrentActiveTab() {
+            return $('.tab-menu li.active').data('tab');
+        }
+
+        function retryLoadTab(tabId) {
+            // 캐시 삭제 후 다시 로드
+            delete tabContentCache[tabId];
+            switchTab(tabId, false);
         }
 
         // 로딩 표시
-        showLoading();
+        function showLoading() {
+            $('.tab-content-container').html(
+                '<div class="loading" style="display: block;">' +
+                '<div class="loading-spinner"></div>' +
+                '<div>로딩 중...</div>' +
+                '</div>'
+            );
+        }
 
-        // AJAX로 콘텐츠 로드
-        $.ajax({
-            url: "getMovieTabContent.jsp",
-            type: "GET",
-            data: {
-                movieIdx: movieIdx,
-                tabType: tabId
-            },
-            dataType: "html",
-            timeout: 10000,
-            beforeSend: function() {
-                console.log("Loading tab:", tabId, "for movie:", movieIdx); // 디버깅용
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Error:", xhr.status, xhr.statusText, error);
-                console.error("Response Text:", xhr.responseText); // 에러 상세 확인
-                
-                hideLoading();
-                const errorContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #e74c3c;">' +
-                    '<div style="font-size: 18px; margin-bottom: 10px;">⚠️</div>' +
-                    '<div>콘텐츠를 불러오는 중 오류가 발생했습니다.</div>' +
-                    '<div style="font-size: 12px; color: #666; margin-top: 10px;">Error: ' + xhr.status + ' - ' + error + '</div>' +
-                    '<button onclick="retryLoadTab(\'' + tabId + '\')" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; cursor: pointer; border-radius: 4px;">다시 시도</button>' +
-                    '</div>';
-                showTabContent(tabId, errorContent);
-            },
-            success: function(response) {
-                console.log("Tab loaded successfully:", tabId); // 디버깅용
-                console.log("Response length:", response.length); // 응답 길이 확인
-                
-                hideLoading();
-                
-                // 응답이 비어있는지 확인
-                if (!response || response.trim() === '') {
-                    const emptyContent = '<div class="tab-content active" style="text-align: center; padding: 60px 20px; color: #999;">' +
-                        '<div>콘텐츠가 없습니다.</div>' +
-                        '</div>';
-                    showTabContent(tabId, emptyContent);
-                    return;
+        // 로딩 숨김
+        function hideLoading() {
+            $('.loading').hide();
+        }
+
+        // 트레일러 이벤트 바인딩
+        function bindTrailerEvents() {
+            $('.trailer-preview').off('click').on('click', function() {
+                playTrailer();
+            });
+        }
+
+        // 트레일러 재생
+        function playTrailer() {
+            $('.trailer-preview').hide();
+            $('.trailer-iframe').show();
+        }
+        
+        // 위시리스트 상태 확인 함수 (수정된 버전)
+        function checkWishlistStatus(movieIdx) {
+            console.log('위시리스트 상태 확인 시작:', movieIdx); // 디버깅용
+            
+            $.ajax({
+                url: 'check_wish_list_status.jsp',
+                type: 'GET',
+                data: { movieIdx: movieIdx },
+                dataType: 'json',
+                timeout: 5000, // 5초 타임아웃 추가
+                success: function(response) {
+                    console.log('위시리스트 상태 응답:', response);
+                    
+                    // 응답 데이터 검증
+                    if (response && typeof response.isWishlisted !== 'undefined') {
+                        const $btnLike = $('.btn-like');
+                        const $heartIcon = $btnLike.find('.heart-icon');
+                        const $btnText = $btnLike.find('.btn-text');
+                        
+                        if (response.isWishlisted === true || response.isWishlisted === 'true') {
+                            // 위시리스트에 있는 경우
+                            $btnLike.addClass('active');
+                            $heartIcon.text('❤️');
+                            $btnText.text('보고싶어요');
+                            console.log('위시리스트 상태: 활성화됨');
+                        } else {
+                            // 위시리스트에 없는 경우
+                            $btnLike.removeClass('active');
+                            $heartIcon.text('🤍');
+                            $btnText.text('보고싶어요');
+                            console.log('위시리스트 상태: 비활성화됨');
+                        }
+                    } else {
+                        console.log('유효하지 않은 응답:', response);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('위시리스트 상태 확인 실패:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+                    
+                    // 에러 발생 시 기본값으로 설정
+                    $('.btn-like')
+                        .removeClass('active')
+                        .find('.heart-icon').text('🤍')
+                        .end()
+                        .find('.btn-text').text('보고싶어요');
                 }
-                
-                // 캐시에 저장
-                tabContentCache[tabId] = response;
-                showTabContent(tabId, response);
-                
-                // 트레일러 탭이면 이벤트 바인딩
-                if (tabId === 'trailer') {
-                    bindTrailerEvents();
-                }
+            });
+        }
+
+        // 보고싶어요 버튼 토글 함수 (수정된 버전)
+        function toggleWishlist(button) {
+            const $button = $(button);
+            const $heartIcon = $button.find('.heart-icon');
+            const $btnText = $button.find('.btn-text');
+            
+            // 이미 처리 중인지 확인
+            if ($button.prop('disabled')) {
+                console.log('이미 처리 중입니다.');
+                return;
             }
-        });
-    }
+            
+            // 현재 상태 확인
+            const isActive = $button.hasClass('active');
+            const movieIdx = <%= movieIdx %>;
+            
+            console.log('toggleWishlist 시작:', {
+                movieIdx: movieIdx,
+                isActive: isActive,
+                currentHeartIcon: $heartIcon.text()
+            });
+            
+            // 버튼 비활성화 (중복 클릭 방지)
+            $button.prop('disabled', true);
+            
+            if (isActive) {
+                // 활성화 상태 -> 비활성화 (위시리스트에서 제거)
+                removeFromWishlist(movieIdx, function(success) {
+                    if (success) {
+                        $button.removeClass('active');
+                        $heartIcon.text('🤍');
+                        $btnText.text('보고싶어요');
+                        console.log('보고싶어요 취소 완료');
+                    } else {
+                        console.log('보고싶어요 취소 실패');
+                        alert('보고싶어요 취소에 실패했습니다.');
+                    }
+                    $button.prop('disabled', false);
+                });
+            } else {
+                // 비활성화 상태 -> 활성화 (위시리스트에 추가)
+                addToWishlist(movieIdx, function(success) {
+                    if (success) {
+                        $button.addClass('active');
+                        $heartIcon.text('❤️');
+                        $btnText.text('보고싶어요');
+                        
+                        // 애니메이션 효과
+                        $heartIcon.css('transform', 'scale(1.4)');
+                        setTimeout(() => {
+                            $heartIcon.css('transform', 'scale(1.2)');
+                        });
+                        
+                        console.log('보고싶어요 추가 완료');
+                    } else {
+                        console.log('보고싶어요 추가 실패');
+                        alert('보고싶어요 추가에 실패했습니다.');
+                    }
+                    $button.prop('disabled', false);
+                });
+            }
+        }
 
-    function showTabContent(tabId, content) {
-        // 모든 기존 탭 콘텐츠 숨기기
-        $('.tab-content').removeClass('active').hide();
-        
-        // 새 콘텐츠 삽입
-        $('.tab-content-container').html(content);
-        
-        // 새 콘텐츠 활성화
-        $('.tab-content').addClass('active').show();
-    }
+        // 위시리스트에 추가하는 함수 (수정된 버전)
+        function addToWishlist(movieIdx, callback) {
+            $.ajax({
+                url: 'add_wish_list.jsp',
+                type: 'POST',
+                data: { movieIdx: movieIdx },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('서버 응답:', response);
+                    if (response.result === 'success') {
+                        console.log('서버에 보고싶어요 추가 완료');
+                        callback(true);
+                    } else {
+                        console.log('서버 에러:', response.message);
+                        callback(false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX 에러:', xhr.status, xhr.responseText);
+                    
+                    // 401 Unauthorized (로그인 필요)
+                    if (xhr.status === 401) {
+                        alert('로그인이 필요합니다.');
+                    } else {
+                        console.log('보고싶어요 추가 실패');
+                    }
+                    callback(false);
+                }
+            });
+        }
 
-    function getCurrentActiveTab() {
-        return $('.tab-menu li.active').data('tab');
-    }
-
-    function retryLoadTab(tabId) {
-        // 캐시 삭제 후 다시 로드
-        delete tabContentCache[tabId];
-        switchTab(tabId, false);
-    }
-
-    // 로딩 표시
-    function showLoading() {
-        $('.tab-content-container').html(
-            '<div class="loading" style="display: block;">' +
-            '<div class="loading-spinner"></div>' +
-            '<div>로딩 중...</div>' +
-            '</div>'
-        );
-    }
-
-    // 로딩 숨김
-    function hideLoading() {
-        $('.loading').hide();
-    }
-
-    // 트레일러 이벤트 바인딩
-    function bindTrailerEvents() {
-        $('.trailer-preview').off('click').on('click', function() {
-            playTrailer();
-        });
-    }
-
-    // 트레일러 재생
-    function playTrailer() {
-        $('.trailer-preview').hide();
-        $('.trailer-iframe').show();
-    }
+        // 위시리스트에서 제거하는 함수 (수정된 버전)
+        function removeFromWishlist(movieIdx, callback) {
+            $.ajax({
+                url: 'remove_wish_list.jsp',
+                type: 'POST',
+                data: { movieIdx: movieIdx },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('서버 응답:', response);
+                    if (response.result === 'success') {
+                        console.log('서버에서 보고싶어요 제거 완료');
+                        callback(true);
+                    } else {
+                        console.log('서버 에러:', response.message);
+                        callback(false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX 에러:', xhr.status, xhr.responseText);
+                    
+                    if (xhr.status === 401) {
+                        alert('로그인이 필요합니다.');
+                    } else {
+                        console.log('보고싶어요 제거 실패');
+                    }
+                    callback(false);
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -596,13 +790,16 @@
                         <div class="movie-details">
                             <div><span class="detail-label">감독</span>: <%= mDTO.getDirectors()%></div>
                             <div><span class="detail-label">배우</span>: <%= mDTO.getActors()%></div>
-                            <div><span class="detail-label">장르</span>: ${genre}, 액션, 어드벤처, 나인 코믹스, 중국 대륙</div>
+                            <div><span class="detail-label">장르</span>: ${genre}</div>
                             <div><span class="detail-label">기본</span>: ${grade}세이상관람가, <%= mDTO.getRunningTime() %>분, <%=mDTO.getCountry() %></div>
                             <div><span class="detail-label">개봉</span>: <%= mDTO.getReleaseDate() %></div>
                         </div>
                         
                         <div class="action-buttons">
-                            <button class="btn-like">🤍 보고싶어요</button>
+                             <button class="btn-like" onclick="toggleWishlist(this)">
+                                <span class="heart-icon">🤍</span>
+                                <span class="btn-text">보고싶어요</span>
+                            </button>
                             <button class="btn-reserve">예매하기</button>
                         </div>
                     </div>

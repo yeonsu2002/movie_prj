@@ -5,7 +5,7 @@
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8" info="Main template page"%>
+   pageEncoding="UTF-8" info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"  %>
 
@@ -87,7 +87,7 @@ request.setAttribute("upcomingMovieList", upcomingMovieList);
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener("scroll", function() {
-    	var buttonWrap = document.querySelector(".fixedBtn_wrap");
+       var buttonWrap = document.querySelector(".fixedBtn_wrap");
         if (window.scrollY > 100) {
             if (buttonWrap) {
                 buttonWrap.classList.add("visible");
@@ -120,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showTab(tabName) {
-	var contents = document.querySelectorAll(".tab-content");
-	var buttons = document.querySelectorAll(".tab-button");
+   var contents = document.querySelectorAll(".tab-content");
+   var buttons = document.querySelectorAll(".tab-button");
     contents.forEach(c => c.classList.remove("active"));
     buttons.forEach(b => b.classList.remove("active"));
     
@@ -191,6 +191,11 @@ function showTab(tabName) {
               <div class="rank">${movieList.size() + status.index + 1}</div>
             </div>
           </c:forEach>
+                      <!-- <div class="movie-item">
+                <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
+                <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
+                 <img src="/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
+            </div> -->
     </div>
     </div>
     </div>
@@ -266,4 +271,4 @@ function showTab(tabName) {
 <jsp:include page="/common/jsp/footer.jsp" />
 </footer>
 </body>
-</html>
+</html> 

@@ -138,6 +138,54 @@
       padding: 12px 32px;
       font-size: 14px;
     }
+    
+    /* 기존 .actions .btn 스타일 아래에 추가 */
+
+/* 버튼 기본 스타일 */
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* 등록/수정 버튼 - 파란색 */
+.btn-primary, 
+input[value="등록"], 
+input[value="수정"] {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover, 
+input[value="등록"]:hover, 
+input[value="수정"]:hover {
+  background-color: #0056b3;
+}
+
+/* 삭제 버튼 - 빨간색 */
+.btn-danger, 
+input[value="삭제"] {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover, 
+input[value="삭제"]:hover {
+  background-color: #c82333;
+}
+
+/* 취소 버튼 - 회색 */
+.btn-secondary, 
+input[value="취소"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover, 
+input[value="취소"]:hover {
+  background-color: #545b62;
+}
 
     .tooltip-button {
       margin-left: 10px;
