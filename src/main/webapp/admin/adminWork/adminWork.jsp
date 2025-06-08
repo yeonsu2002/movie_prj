@@ -288,7 +288,7 @@ function setupModalEvents() {
 		profileImg.addEventListener('click', function() {
 	    fileInput.click(); //이미지클릭 => 파일버튼 클릭 
 		});
-	    
+	     
 		// 파일 변경 이벤트
 		fileInput.addEventListener('change', function(e) {
     	const file = e.target.files[0];

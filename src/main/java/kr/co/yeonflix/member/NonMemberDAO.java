@@ -14,7 +14,7 @@ import java.util.List;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.dao.DbConnection;
 import oracle.jdbc.driver.DBConversion;
- 
+  
 public class NonMemberDAO {
 
 	public static NonMemberDAO nmDAO;
