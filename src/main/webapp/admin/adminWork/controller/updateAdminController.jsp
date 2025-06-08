@@ -125,7 +125,7 @@ if(profileFile != null && profileFile.exists() && originalFileName != null && !o
 if(!adminDTO.getPicture().equals("default_img.png")) {
 	File finalFile = new File(savePath + "/" + adminDTO.getPicture());
 }
-
+ 
 //서비스 호출
 AdminService adminService = new AdminService();
 boolean result = false;
