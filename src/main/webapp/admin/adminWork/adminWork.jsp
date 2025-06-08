@@ -214,6 +214,7 @@ function addManager(url){ //fetch(url)로 서버에서 HTML 조각(fragment) 을
 			
 			// 모달이 로드된 후 이벤트 리스너 다시 등록, 동적생성이므로?
       setupModalEvents();
+			validateForm();
 			/*	1.	모달창 HTML 조각을 동적으로 불러옴 (fetch + innerHTML)
 					2.	그 안에는 버튼이나 input 등 여러 요소들이 있음
 					3.	이 요소들에 이벤트 리스너를 걸어야 함
@@ -405,6 +406,17 @@ function setupModalEvents() {
 	  }
 	});
 	
+	// 추가폼에 등록 버튼 클릭 이벤트
+	$('#submitBtn').click(function() {
+	  if (!validateForm()) {
+		  return;
+	  } else {
+	    $('#insertAdminForm').submit();
+	  }
+	});
+	
+	
+	
 	// 수정폼에 취소 버튼 클릭 이벤트
 	$('#cancelBtn').click(function() {
 	  $('.modal-overlay').hide() ; // 모달 닫기
@@ -448,9 +460,21 @@ function setupModalEvents() {
 	    $('#manageArea').focus();
 	    return false;
 	  }
+
 	  
-	  if ($('#allowedIpSelect').val() === null) {
-	    alert('접속IP를 입력해주세요.');
+	  //이것도 체크해돠 
+		let selectedOption = $("#allowedIpSelect option:selected");
+	  //or
+	 	const select = document.getElementById('allowedIpSelect');
+		const options = select.options;
+		let count = 0;
+		for(let i = 0; i < options.length; i++){
+			if(!options[i].disabled){
+				count++;
+			}
+		}
+	  if (count < 1) {
+	    alert('접속IP를 하나 이상 입력해주세요.');
 	    $('#ipInput').focus();
 	    return false;
 	  }
@@ -462,9 +486,8 @@ function setupModalEvents() {
 
 //매니저 정보 수정 모달 폼에 데이터 채우기 
 function fillModalWithData(adminData) {
-	console.log("fillModalWithData() 실행 : " + adminData.adminId);
+	console.log(adminData);
   // 기본 정보 채우기
-  
   $('#adminId').val(adminData.adminId);
   //$('#adminPwd').val(adminData.adminPwd);
   $('#adminName').val(adminData.adminName);

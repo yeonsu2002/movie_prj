@@ -88,15 +88,6 @@
 					  <option id="ipOption1" value="" disabled></option>
 					  <option id="ipOption2" value="" disabled></option>
 					</select>
-					<script type="text/javascript">
-						function getSelectedIps(){
-							const select = document.getElementById("addlowedIpSelect");
-							const selected = Array.from(select.seletedOptions).map(option => option.value); 
-							//Array.from(...): HTMLCollection을 진짜 배열로 바꿈/ .map :  각 <option> 객체에서 .value 값만 꺼내서 새로운 배열을 만듬 
-							//예시: [1, 2, 3].map(x => x * 2); // 결과: [2, 4, 6]
-							console.log("선택된 IP목록: " + selected);
-						}
-					</script>
 					<div class="ip-input" style="display: flex">
 						<input id="ipInput" class="ipInput" placeholder="IP를 입력해주세요." style="height: 55.19px;">
 						<button id="saveIpBtn" class="btn btn-primary btn-sm">입력 IP 추가</button>

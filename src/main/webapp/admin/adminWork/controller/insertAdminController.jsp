@@ -70,6 +70,8 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	String isActive = "Y";
 	String managerIp = request.getRemoteAddr();
 	
+	System.out.println("string tel : " + tel);
+	
 	adminDTO.setAdminId(adminId);
 	adminDTO.setAdminLevel(adminLevel);
 	adminDTO.setAdminPwd(adminPwd);
