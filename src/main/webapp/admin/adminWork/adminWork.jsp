@@ -10,7 +10,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>매니저 관리</title>
+<title>매니저 관리</title>  
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/adminWork.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminModal.css">
@@ -206,6 +206,11 @@ function addManager(url){ //fetch(url)로 서버에서 HTML 조각(fragment) 을
 			const modalBody = document.querySelector('.modal-body');
 			modalBody.innerHTML = html;
 			modalOverlay.style.display = 'flex';
+			
+			// 이 부분을 추가!
+      setTimeout(() => {
+        modalOverlay.classList.add('active');
+      }, 10);
 			
 			// 모달이 로드된 후 이벤트 리스너 다시 등록, 동적생성이므로?
       setupModalEvents();

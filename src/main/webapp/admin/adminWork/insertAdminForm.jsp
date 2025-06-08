@@ -4,12 +4,12 @@
     info=""%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<c:import url="/common/jsp/external_file.jsp"/>
+<%-- <jsp:include page="/common/jsp/admin_header.jsp" />   --%>
 <div id="container">
 	<!-- 프로필 섹션 -->
 	<form action="${pageContext.request.contextPath }/admin/adminWork/controller/insertAdminController.jsp" id="adminForm" method="post" enctype="multipart/form-data">
 		<div class="mgr-profile-section" style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
-			<img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+			<img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg2">
 			<input type="file" id="profileImageBtn" class="profile-image" name="profileImage" accept="image/*" style="display: none">
 			<div class="mgr-profile-name">매니저</div>
 		</div>
