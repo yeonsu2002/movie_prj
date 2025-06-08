@@ -15,6 +15,27 @@
     backdrop-filter: blur(2px);
 }
 
+/* 실제 모달 본체 */
+.modal-body {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  transform: translateY(-30px);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+/* 활성화 시 추가될 클래스 */
+.modal-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.modal-overlay.active .modal-body {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 /* 모달 창 */
 .admin-modal-content {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);

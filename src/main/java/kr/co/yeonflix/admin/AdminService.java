@@ -42,6 +42,7 @@ public class AdminService {
   
   //정보수정시 해당 매니저의 정보를 호출
   public AdminDTO getAdminInfo(String adminId) throws SQLException {
+    System.out.println("서비스 getAdminInfo() : " + adDAO.selectAdminInfo(adminId));
     return adDAO.selectAdminInfo(adminId);
   }
   
@@ -51,7 +52,7 @@ public class AdminService {
   }
   
   //매니저 수정 작업
-  public boolean updateAdmin(AdminDTO adminDTO) {
+  public boolean updateAdmin(AdminDTO adminDTO) throws SQLException {
 	System.out.println("서비스 updateAdmin _ adminDTO() : " + adminDTO);
 	return false;
 	//return adDAO.updateAdmin(adminDTO);

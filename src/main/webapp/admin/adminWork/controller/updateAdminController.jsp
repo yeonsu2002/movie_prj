@@ -27,9 +27,9 @@ System.out.println("platform = " + platform);
 String savePath = "";
 
 if("Windows".equals(platform)){
-	savePath = "C:\\dev\\movie\\userProfiles";
+	savePath = "C:/dev/movie/userProfiles";
 } else if ("macOS".equals(platform)){
-	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 }
 System.out.println("savePath = " + savePath);
 
@@ -51,6 +51,7 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 		return; //에러발생 -> 처리중단
 	}
 
+//수정시 DB에 던질값: idx, id, level, pwd, name, email, phone, manageArea, isActive, ipList 
 	int userIdx = Integer.parseInt( multi.getParameter("userIdx"));
 	String adminId = multi.getParameter("adminId");
 	String adminLevel = "MANAGER"; //고정값 
@@ -59,13 +60,10 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	String adminEmail = multi.getParameter("adminEmail");
 	String tel = multi.getParameter("phone");
 	String manageArea = multi.getParameter("manageArea");
-	//LocalDateTime lastLoginDate = LocalDateTime.now(); 이건 빼야돼 
 	String isActive = multi.getParameter("accountStatus");
-	//String managerIp = request.getRemoteAddr();
 	
-	
+	//ip list
 	List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
-	
 	String[] allowedIps = multi.getParameterValues("allowedIp");
 	
 	if (allowedIps != null) {
@@ -85,9 +83,7 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	 	
 		list.add(managerIpVO);
 	}
-	
 	adminDTO.setIPList(list);
-	
 	adminDTO.setUserIdx(userIdx);
 	adminDTO.setAdminId(adminId);
 	adminDTO.setAdminLevel(adminLevel);
@@ -96,7 +92,6 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	adminDTO.setAdminEmail(adminEmail);
 	adminDTO.setTel(tel);
 	adminDTO.setManageArea(manageArea);
-	//adminDTO.setLastLoginDate(lastLoginDate);
 	adminDTO.setIsActive(isActive);
 	
 	adminDTO.setRole(Role.ROLE_MANAGER);
@@ -145,7 +140,12 @@ if(!adminDTO.getPicture().equals("default_img.png")) {
 
 //서비스 호출
 AdminService adminService = new AdminService();
-boolean result = adminService.updateAdmin(adminDTO);
+boolean result = false;
+try{
+	result = adminService.updateAdmin(adminDTO);
+}catch(Exception e){
+  e.printStackTrace();
+}
 
 if(result){
 	out.println("<script>alert('매니저 수정작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");

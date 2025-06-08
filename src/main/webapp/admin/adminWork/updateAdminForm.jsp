@@ -6,62 +6,18 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <c:import url="/common/jsp/external_file.jsp"/>
 <script>
-  $(document).ready(function() {
-    // 수정 버튼 클릭 이벤트
-    $('#updateBtn').click(function() {
-      if (validateForm()) {
-    	  alert("수정 버튼 누름 ");
-        $('#adminForm').submit();
-      }
-    });
-
-    // 취소 버튼 클릭 이벤트
-    $('#cancelBtn').click(function() {
-    	  alert("취소 버튼 누름 ");
-      $('#adminModal').modal('hide'); // 모달 닫기
-    });
-
-    // 폼 검증 함수
-    function validateForm() {
-      let isValid = true;
-
-      // 필수 필드 검증
-      if (!$('#adminName').val().trim()) {
-        alert('이름을 입력해주세요.');
-        $('#adminName').focus();
-        return false;
-      }
-
-      if (!$('#adminEmail').val().trim()) {
-        alert('이메일을 입력해주세요.');
-        $('#adminEmail').focus();
-        return false;
-      }
-
-      if (!$('#phone1').val() || !$('#phone2').val() || !$('#phone3').val()) {
-        alert('연락처를 모두 입력해주세요.');
-        return false;
-      }
-
-      if ($('#manageArea').val() === 'none') {
-        alert('관리영역을 선택해주세요.');
-        $('#manageArea').focus();
-        return false;
-      }
-
-      return isValid;
-    }
-  });
+	/* 해당 script에서 이벤트리스너 등록 비추천, 오류가능성 duo. 상위요소에서 재등록하길 추천  */
 </script>
+
 <div id="container">
   <!-- 프로필 섹션 -->
   <form action="${pageContext.request.contextPath}/admin/adminWork/controller/updateAdminController.jsp" 
     id="adminForm" method="post" enctype="multipart/form-data">
     
     <div class="mgr-profile-section" style="display:flex; justify-content: center; align-items: center; flex-direction: column;">
-      <img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+      <img src="http://localhost/movie_prj/common/img/default_img.png" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg2">
       <input type="file" id="profileImageBtn" class="profile-image" name="profileImage" accept="image/*" style="display: none">
-      <div class="mgr-profile-name">매니저</div>
+      <div class="mgr-profile-name">프로필 사진을 선택해주세요.</div>
     </div>
     
     <table class="mgr-detail-table">
@@ -69,7 +25,6 @@
         <th>매니저 ID</th>
         <td id="mgrDetailId">
           <input id="adminId" name="adminId" class="input-info" type="text" readonly>
-          <div class="error-message id" style="display:none;">중복된 ID입니다.</div>
         </td>
       </tr>
       <tr>
@@ -127,11 +82,21 @@
       </tr>
       <tr>
         <th>접속 IP관리</th>
-        <td id="mgrDetailStatus">
-        	<select id="allowedIpSelect" name="allowedIp" multiple size="5" style="height: 100px;">
-					  <option value="192.168.0.1">192.168.0.1</option>
-					  <option value="10.0.0.5">10.0.0.5</option>
+        <td id="mgrDetailIP">
+        	<select id="allowedIpSelect" name="allowedIp" multiple size="3" style="height: 100px;">
+					  <option id="ipOption0" value="" disabled></option>
+					  <option id="ipOption1" value="" disabled></option>
+					  <option id="ipOption2" value="" disabled></option>
 					</select>
+					<script type="text/javascript">
+						function getSelectedIps(){
+							const select = document.getElementById("addlowedIpSelect");
+							const selected = Array.from(select.seletedOptions).map(option => option.value); 
+							//Array.from(...): HTMLCollection을 진짜 배열로 바꿈/ .map :  각 <option> 객체에서 .value 값만 꺼내서 새로운 배열을 만듬 
+							//예시: [1, 2, 3].map(x => x * 2); // 결과: [2, 4, 6]
+							console.log("선택된 IP목록: " + selected);
+						}
+					</script>
 					<div class="ip-input" style="display: flex">
 						<input id="ipInput" class="ipInput" placeholder="IP를 입력해주세요." style="height: 55.19px;">
 						<button id="saveIpBtn" class="btn btn-primary btn-sm">입력 IP 추가</button>
@@ -139,20 +104,11 @@
 					</div>
         </td>
       </tr>
-<%--       <tr>
-        <th>등록일 : 기능미구현  </th> 
-        <fmt:formatDate var="today" value="<%=new Date() %>" pattern="yyyy-MM-dd"/>
-        <td id="mgrDetailRegDate">
-          <input class="input-info" type="text" value="${today}" style="text-align: center;" name="insertDate" readonly>
-        </td>
-      </tr> --%>
     </table>
-    
-    <input type="hidden" id="userIdx" name="userIdx" value="">
-    
     <div class="btn-group-right">
       <button type="button" id="cancelBtn" class="btn btn-secondary">취소</button>
       <button type="button" id="updateBtn" class="btn btn-primary">수정</button>
+	    <input type="hidden" id="userIdx" name="userIdx" value="">
     </div>
   </form>
 </div>

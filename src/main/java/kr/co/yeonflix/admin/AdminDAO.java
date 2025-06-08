@@ -369,7 +369,7 @@ public class AdminDAO {
 				pstmt.setString(1, adminId);
 				ResultSet rs = pstmt.executeQuery();
 
-				if (rs.next()) {
+				while (rs.next()) {
 					AllowedIPDTO ipDTO = new AllowedIPDTO();
 					ipDTO.setAdminId(rs.getString("admin_id"));
 					ipDTO.setAllowedIpIdx(rs.getInt("allowed_ip_idx"));

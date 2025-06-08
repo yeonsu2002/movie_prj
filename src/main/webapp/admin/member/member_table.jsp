@@ -10,7 +10,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
 <jsp:include page="/common/jsp/admin_header.jsp" />
 
 <jsp:useBean id="rDTO" class="kr.co.yeonflix.member.RangeDTO" scope="page"/>
