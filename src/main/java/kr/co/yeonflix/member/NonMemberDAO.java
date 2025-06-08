@@ -206,7 +206,9 @@ public class NonMemberDAO {
    String getTicketInfo = " SELECT r.reservation_idx,\r\n"
      + " mv.poster_path,\r\n"
      + " r.reservation_number,\r\n"
-     + " r.reservation_date,\r\n"
+     + " s.screen_date,\r\n"
+     + " s.start_time,\r\n"
+     + " s.end_time,\r\n"
      + " r.total_price,\r\n"
      + " t.theater_name,\r\n"
      + " mv.movie_name\r\n"
@@ -253,7 +255,9 @@ public class NonMemberDAO {
                NonMemTicketDTO nmtVo = new NonMemTicketDTO();
                nmtVo.setMoviePoster(rs.getString("poster_path"));
                nmtVo.setMovieName(rs.getString("movie_name"));
-               nmtVo.setDate(rs.getDate("reservation_date"));
+               nmtVo.setDate(rs.getDate("screen_date"));
+               nmtVo.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+               nmtVo.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
                nmtVo.setTheaterName(rs.getString("theater_name"));
                nmtVo.setTicketNumber(rs.getString("reservation_number"));
                nmtVo.setTotalPrice(rs.getInt("total_price"));

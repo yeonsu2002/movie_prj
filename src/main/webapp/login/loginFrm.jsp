@@ -486,7 +486,8 @@ function nonMemberCheckReservationFrm(){
 	            <div class="guest-divider"></div>
 	            
 	            <div class="guest-text-center" style="margin-top: 30px;">
-	              <button class="guest-btn guest-btn-outline"><a href="http://localhost/movie_prj/login/findNonMemberPwdFrm.jsp"> 이메일로 인증번호 받기</a></button>
+	              <!-- <button class="guest-btn guest-btn-outline"><a href="http://localhost/movie_prj/login/findNonMemberPwdFrm.jsp"> 이메일로 인증번호 받기</a></button> -->
+	              <button class="guest-btn guest-btn-outline"><a href="javascript:alert('현재 유지보수 진행중입니다. 고객센터에 문의해주세요.')"> 이메일로 인증번호 받기</a></button>
 	            </div>
 	          </div>
 	        </div>

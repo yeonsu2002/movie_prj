@@ -48,14 +48,15 @@ public class AdminService {
   
   //매니저 강제 탈퇴(삭제)
   public boolean deleteAdmin(String adminId) throws SQLException {
-	return adDAO.deleteAdmin(adminId);
+    return adDAO.deleteAdmin(adminId);
   }
   
   //매니저 수정 작업
   public boolean updateAdmin(AdminDTO adminDTO) throws SQLException {
-	System.out.println("서비스 updateAdmin _ adminDTO() : " + adminDTO);
-	return false;
-	//return adDAO.updateAdmin(adminDTO);
+  	//암호화
+  	String encodedPwd = BCrypt.withDefaults().hashToString(12, adminDTO.getAdminPwd().toCharArray());
+  	adminDTO.setAdminPwd(encodedPwd);
+  	return adDAO.updateAdmin(adminDTO);
   }
   
   

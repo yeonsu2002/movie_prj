@@ -37,7 +37,6 @@
       <div class="nomem-subtitle">
         티켓발매기에서 예매번호를 입력하면 티켓을 발급받을 수 있습니다.
       </div>
-
 			<c:choose>
 				<c:when test="${not empty nmtDTOList}">
 					<c:forEach var="ticket" items="${nmtDTOList }">
@@ -47,12 +46,12 @@
 			          <div class="nomem-booking-number">
 			            예매번호 <span class="nomem-number"><c:out value="${ticket.ticketNumber }" /> </span>
 			          </div>
-			          <div class="nomem-booking-price"><c:out value="" /></div>
+			          <div class="nomem-booking-price">가격 : <c:out value="${ticket.totalPrice }" />원</div>
 			        </div>
 			
 			        <div class="nomem-booking-content">
 			          <div class="nomem-movie-poster"> 
-			            <c:out value="${ticket.moviePoster }" /><!-- 영화포스터  -->
+			          	<img alt="영화포스터" src="${pageContext.request.contextPath }/common/img/${ticket.moviePoster }">
 			          </div>
 			
 			          <div class="nomem-movie-info">
@@ -62,9 +61,18 @@
 			            </div>
 			
 			            <div class="nomem-info-row">
-			              <span class="nomem-info-label">관람일시</span>
-			              <span class="nomem-info-value"><fmt:formatDate value="${ticket.date }" pattern="yyyy-MM-dd [a] hh:mm"/> </span>
+			              <span class="nomem-info-label">관람일</span>
+			              <span class="nomem-info-value"><fmt:formatDate value="${ticket.date }" pattern="yyyy-MM-dd"/> </span>
 			            </div>
+			           
+			            <div class="nomem-info-row">
+			              <span class="nomem-info-label">상영시간</span>
+			              <c:set var="startTimeStr" value="${ticket.startTime}" />
+			              <span class="nomem-info-value"><c:out value="${fn:substring(startTimeStr, 11, 16)}" /></span>
+			              ~
+			              <c:set var="endTimeStr" value="${ticket.endTime}" />
+			              <span class="nomem-info-value"><c:out value="${fn:substring(endTimeStr, 11, 16)}" /></span>
+			            </div> 
 			
 			            <div class="nomem-info-row">
 			              <span class="nomem-info-label">관람좌석</span>

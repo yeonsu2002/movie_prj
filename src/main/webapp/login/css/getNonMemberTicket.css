@@ -126,6 +126,15 @@
       color: white;
       font-size: 14px;
       text-align: center;
+      overflow: hidden;
+  		position: relative;
+    }
+    
+    .nomem-movie-poster > img {
+      width: 100%;
+		  height: 100%;
+		  object-fit: cover;  /* 중요: 비율을 유지하면서 꽉 채움 */
+		  display: block;     /* img 아래 여백 방지 */
     }
 
     .nomem-movie-info {

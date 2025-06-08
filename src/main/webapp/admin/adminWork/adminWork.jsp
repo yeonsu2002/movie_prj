@@ -41,13 +41,13 @@ $(function() {
 		let managerPhone = $(this).find('.mgr-phone').text().trim();
 		let managerStatus = $(this).find('.mgr-status').text().trim();
 		let managerRole = $(this).find('.mgr-role').text().trim();
-		let maangerPicture = $(this).find('.mgr-picture img').attr('src');
+		let managerPicture = $(this).find('.mgr-picture img').attr('src');
 		let managerIpList = $(this).find('.mgr-ipList').text().trim();
 		let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
 		let userIdx = $("#userIdx").val();
 		
 		// 상세정보 영역 업데이트
-		updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, maangerPicture, managerIpList, managerLastLogin, userIdx);
+		updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, managerPicture, managerIpList, managerLastLogin, userIdx);
 	
 	}); // end 매니저 행 클릭시 상세정보 표시 
 	
@@ -292,12 +292,22 @@ function setupModalEvents() {
 		// 파일 변경 이벤트
 		fileInput.addEventListener('change', function(e) {
     	const file = e.target.files[0];
+    	
+    	const lastDotIndex = file.name.lastIndexOf(".");
+    	const fileName = file.name.substring(0, lastDotIndex); //파일이름에서 확장자 뺴고
+    	 
+    	const validNameRegex = /^[a-zA-Z0-9가-힣\-_]{1,20}$/; //정규식: 숫자,한글,영어 10자제한
+    	if(!validNameRegex.test(fileName)){
+    		alert("파일 이름은 숫자, 영문, 한글, -, _로만 이루어져야 하며, 20자 이하만 가능합니다.");
+    		$(this).val('');//파일입력 초기화
+    		return false;
+    	}
 		    
 	    if (file && file.size > (1024 * 1024 * 10)) {
 		    alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
 		    fileInput.value = ''; //선택한 파일값 다시 비우고 
 		    profileImg.src = "http://localhost/movie_prj/common/img/default_img.png"; //프로필 미리보기 주소를 기본값으로 변경 
-		    return;
+		    return false;
 	    }
 		    
 	    if (file) {
@@ -358,11 +368,13 @@ function setupModalEvents() {
 		// 빈 슬롯 찾아서 IP 추가
 		let addedSuccessfully = false;
 		for(let i = 0; i < 3; i++){
-			let option = $("#ipOption" + i);
+			let option = $("#ipOption"+i);
+			let realIpTag = $("#ipHidden"+i);
 			
-			if (option.val() === "" || option.prop("disabled")) { //비어있을때 
+			if (option.val() === "none" || option.prop("disabled")) { //비어있을때 
 				option.val(inputedIp);
 				option.text(inputedIp);
+				realIpTag.val(inputedIp);//히든창에 넘기기 
 				option.prop("disabled", false);
 				addedSuccessfully = true;
 				break;
@@ -384,11 +396,20 @@ function setupModalEvents() {
 		
 		if(selectedOption.length > 0){
 			selectedOption.each(function(){ 
-				// 옵션을 초기 상태로 되돌림
+				
+				//ID에서 index추출 -> ipOption1 에서 1추출
+				let optionId = $(this).attr("id");
+				let index = optionId.replace("ipOption", ""); //빼낸 id에서ipOpion글자 삭제 
+				
+				// 옵션을 초기화 
 				$(this).val("");
 				$(this).text("");
 				$(this).prop("disabled", true);
 				$(this).prop("selected", false); // 선택 해제
+				
+				//input타입 hidden도  초기화
+				$("#ipHidden" + index).val("");
+				
 			});
 			console.log("선택된 IP들이 삭제되었습니다.");
 		} else {
@@ -452,7 +473,16 @@ function setupModalEvents() {
 		  let phone1 = $('#phone1').val();
 		  let phone2 = $('#phone2').val();
 		  let phone3 = $('#phone3').val();
-	    $('#phone').val(phone1 + '-' + phone2 + '-' + phone3);
+		  let fullPhone = phone1 + '-' + phone2 + '-' + phone3;
+		  
+	    let phoneRegex = /^[0-9\-]+$/;
+
+	    if (!phoneRegex.test(fullPhone)) {
+        alert('연락처에는 숫자만 입력할 수 있습니다.');
+        return false;
+      }
+	    
+	    $('#phone').val(fullPhone);
 	  }
 	
 	  if ($('#manageArea').val() === 'none') {
@@ -654,7 +684,7 @@ function fillModalWithData(adminData) {
 
 				<!-- 프로필 섹션 -->
 				<div class="mgr-profile-section">
-					<img src="/profiles/${manager.picture }" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+					<img src="/profile/${manager.picture }" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
 					<div class="mgr-profile-name">매니저명</div>
 					<div class="mgr-profile-position">직책</div>
 				</div>

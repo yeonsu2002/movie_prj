@@ -1,3 +1,6 @@
+<%@page import="java.util.Set"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.admin.AdminDTO"%>
 <%@page import="kr.co.yeonflix.admin.AdminService"%>
 <%@ page language="java" contentType="text/plain; charset=UTF-8"
@@ -17,8 +20,24 @@
 	//관리자계정 조회는 되지만, 비활동 계정인 경우 
 	if(loginAdmin != null && "N".equals(loginAdmin.getIsActive())){
 		out.print("isDeleted");
-		return;
+		return false;
 	}
+	
+	//접속한 IP주소가 해당 관리자의 허용된 IP리스트에 속하지 않을 때
+	String connectedIP = request.getRemoteAddr();
+	Set<String> superAdminIPs = Set.of("127.0.0.1", "0:0:0:0:0:0:0:1", "::1" ); // "::1" -> IPv6 주소를 축약 표기, 이건몰랐네 
+	int addrCount = loginAdmin.getIPList().size();
+	List<String> addrList = new ArrayList<String>();
+	for(int i = 0; i < addrCount; i++){
+	  String addr = loginAdmin.getIPList().get(i).getAllowedIpIdx();
+	  addrList.add(addr);
+	}
+	if(!addrList.contains(connectedIP) && !superAdminIPs.contains(connectedIP)){
+	  out.print("deniedIP")
+	  return false;
+	}
+	
+	
 	
 	//정상적인 관리자 계정일 때 
 	if(loginAdmin != null && loginAdmin.getUserIdx() > 0){

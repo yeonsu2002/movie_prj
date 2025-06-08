@@ -105,6 +105,9 @@ function loginProcess(){
 			} else if(response.trim() === "isDeleted"){
 				alert("활동이 정지된 계정입니다.");
 				return;
+			} else if(response.trim() === "deniedIP"){
+				alert("등록되지 않은 IP 주소에서의 접속은 제한됩니다.");
+				return;
 			}
 		},
 		error:function(xhr, status, error){
@@ -161,7 +164,6 @@ function loginProcess(){
             				},
             				success: function(response){
             					if(response.trim() === "success"){
-            						alert("총관리자님 할일이 많습니다. ");
             						location.replace("http://localhost/movie_prj/admin/dashboard/dashboard.jsp");
             					} else {
 	            					alert("비밀번호가 옳지 않습니다.");	

@@ -1,6 +1,7 @@
 package kr.co.yeonflix.member;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +21,8 @@ public class NonMemTicketDTO {
   private String moviePoster;
   private String movieName;
   private String theaterName;
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
   
   
 }

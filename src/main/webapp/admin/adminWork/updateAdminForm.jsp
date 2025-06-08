@@ -84,10 +84,14 @@
         <th>접속 IP관리</th>
         <td id="mgrDetailIP">
         	<select id="allowedIpSelect" name="allowedIp" multiple size="3" style="height: 100px;">
-					  <option id="ipOption0" value="" disabled></option>
-					  <option id="ipOption1" value="" disabled></option>
-					  <option id="ipOption2" value="" disabled></option>
+					  <option id="ipOption0" value="none" disabled></option>
+					  <option id="ipOption1" value="none" disabled></option>
+					  <option id="ipOption2" value="none" disabled></option>
 					</select>
+					  <input type="hidden" name="ipOption0" id="ipHidden0">
+					  <input type="hidden" name="ipOption1" id="ipHidden1">
+					  <input type="hidden" name="ipOption2" id="ipHidden2">
+					<!-- 와,, option태그는 name을 무시하는지 몰랐네  -->
 					<div class="ip-input" style="display: flex">
 						<input id="ipInput" class="ipInput" placeholder="IP를 입력해주세요." style="height: 55.19px;">
 						<button id="saveIpBtn" class="btn btn-primary btn-sm">입력 IP 추가</button>

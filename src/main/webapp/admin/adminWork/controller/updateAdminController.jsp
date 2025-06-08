@@ -23,7 +23,6 @@ String platform = request.getHeader("sec-ch-ua-platform");
 if (platform != null) {
   platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
 }
-System.out.println("platform = " + platform);
 String savePath = "";
 
 if("Windows".equals(platform)){
@@ -31,20 +30,17 @@ if("Windows".equals(platform)){
 } else if ("macOS".equals(platform)){
 	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 }
-System.out.println("savePath = " + savePath);
 
 File saveDir = new File(savePath);
 
 if (!saveDir.exists()) {
   boolean created = saveDir.mkdirs(); // 디렉토리 생성
-  System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
 }
 
 if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	
 	try{
 		multi = new MultipartRequest(request, savePath, fileMaxSize,  "UTF-8", new DefaultFileRenamePolicy());
-		System.out.println("MultipartRequest 생성 완료, 저장 경로: " + savePath);
 	} catch (Exception e) {
 		e.printStackTrace();
 		out.println("<script>alert('form처리중 오류 발생'); history.back(); </script>");
@@ -61,29 +57,24 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	String tel = multi.getParameter("phone");
 	String manageArea = multi.getParameter("manageArea");
 	String isActive = multi.getParameter("accountStatus");
-	
 	//ip list
 	List<AllowedIPDTO> list = new ArrayList<AllowedIPDTO>();
-	String[] allowedIps = multi.getParameterValues("allowedIp");
 	
-	if (allowedIps != null) {
-	  for (String ip : allowedIps) {
-  		AllowedIPDTO managerIpVO = new AllowedIPDTO();
+	for(int i = 0; i < 3; i++){
+	  String ip = multi.getParameter("ipOption"+i);
+	  if(!ip.isBlank() && ip != null){
+	    AllowedIPDTO managerIpVO = new AllowedIPDTO();
 	  	managerIpVO.setAdminId(adminId);
 	  	managerIpVO.setIpAddress(ip);
 	  	managerIpVO.setCreatedAt(LocalDateTime.now());
 	  	
 			list.add(managerIpVO);
-	  }
-	} else {
-		AllowedIPDTO managerIpVO = new AllowedIPDTO();
-	 	managerIpVO.setAdminId(adminId);
-	 	managerIpVO.setIpAddress(request.getRemoteAddr());
-	 	managerIpVO.setCreatedAt(LocalDateTime.now());
-	 	
-		list.add(managerIpVO);
+			//System.out.println("추가된 ipDTO : " + managerIpVO);
+	  } 
 	}
+	
 	adminDTO.setIPList(list);
+	
 	adminDTO.setUserIdx(userIdx);
 	adminDTO.setAdminId(adminId);
 	adminDTO.setAdminLevel(adminLevel);

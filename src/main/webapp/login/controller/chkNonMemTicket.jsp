@@ -28,6 +28,7 @@
         </script>
 <%		    
 		  } else {
+		    
 			  request.setAttribute("nmtDTOList", nmtDTOList);
 				RequestDispatcher dispatcher = request.getRequestDispatcher("/login/getNonMemberTicket.jsp");
 	    	dispatcher.forward(request, response);

@@ -34,7 +34,7 @@ String savePath = "";
 if("Windows".equals(platform)){
 	savePath = "C:\\dev\\movie\\userProfiles";
 } else if ("macOS".equals(platform)){
-	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
 }
 System.out.println("savePath = " + savePath);
@@ -44,7 +44,7 @@ File saveDir = new File(savePath);
 
 if (!saveDir.exists()) {
   boolean created = saveDir.mkdirs(); // 디렉토리 생성
-  System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
+  //System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
 }
 
 if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
@@ -107,7 +107,7 @@ String savedFileName = multi.getFilesystemName("profileImage");
 
 
 if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
-	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
+	//System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
 	
 	String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
 	
@@ -141,7 +141,6 @@ boolean result = adminService.joinAdmin(adminDTO);
 
 if(result){
 	out.println("<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");
-  //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
 } else {
 	out.println("<script>alert('매니저 가입에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
 }
