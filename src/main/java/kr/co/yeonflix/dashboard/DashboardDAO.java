@@ -157,24 +157,36 @@ public class DashboardDAO {
 	    Connection con = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-
 	    String sql =
-	    	    "WITH dates AS ( " +
-	    	    "    SELECT TO_CHAR(SYSDATE - LEVEL + 1, 'YYYY-MM-DD') res_date FROM dual CONNECT BY LEVEL <= 7 " +
-	    	    "), types AS ( " +
-	    	    "    SELECT '회원' type FROM dual UNION ALL SELECT '비회원' FROM dual " +
-	    	    "), combo AS ( " +
-	    	    "    SELECT d.res_date, t.type FROM dates d CROSS JOIN types t " +
-	    	    ") " +
-	    	    "SELECT c.res_date, c.type AS member_type, " +
-	    	    "       COUNT(r.reservation_idx) AS reservation_count " +
-	    	    "FROM combo c " +
-	    	    "LEFT JOIN reservation r ON TO_CHAR(r.reservation_date, 'YYYY-MM-DD') = c.res_date " +
-	    	    "  AND r.canceled_date IS NULL " +
-	    	    "  AND ( (c.type = '회원' AND r.user_idx IS NOT NULL) OR (c.type = '비회원' AND r.user_idx IS NULL) ) " +
-	    	    "GROUP BY c.res_date, c.type " +
-	    	    "ORDER BY c.res_date, c.type";
-
+	            "WITH dates AS ( " +
+	            "    SELECT TO_CHAR(TRUNC(SYSDATE) - 6 + LEVEL - 1, 'YYYY-MM-DD') res_date " +
+	            "    FROM dual CONNECT BY LEVEL <= 7 " +
+	            "), types AS ( " +
+	            "    SELECT '회원' AS type FROM dual " +
+	            "    UNION ALL " +
+	            "    SELECT '비회원' AS type FROM dual " +
+	            "), combo AS ( " +
+	            "    SELECT d.res_date, t.type FROM dates d CROSS JOIN types t " +
+	            "), reservations AS ( " +
+	            "    SELECT TO_CHAR(r.reservation_date, 'YYYY-MM-DD') AS res_date, " +
+	            "           CASE " +
+	            "               WHEN m.user_idx IS NOT NULL THEN '회원' " +
+	            "               WHEN nm.user_idx IS NOT NULL THEN '비회원' " +
+	            "               ELSE '기타' " +
+	            "           END AS type " +
+	            "    FROM reservation r " +
+	            "    LEFT JOIN member m ON r.user_idx = m.user_idx " +
+	            "    LEFT JOIN non_member nm ON r.user_idx = nm.user_idx " +
+	            "    WHERE r.canceled_date IS NULL " +
+	            "      AND r.reservation_date >= TRUNC(SYSDATE) - 6 " +
+	            "      AND r.reservation_date < TRUNC(SYSDATE) + 1 " +
+	            ") " +
+	            "SELECT c.res_date, c.type AS member_type, " +
+	            "       COUNT(r.type) AS reservation_count " +
+	            "FROM combo c " +
+	            "LEFT JOIN reservations r ON c.res_date = r.res_date AND c.type = r.type " +
+	            "GROUP BY c.res_date, c.type " +
+	            "ORDER BY c.res_date, c.type";
 	    try {
 	        con = dbCon.getDbConn();
 	        pstmt = con.prepareStatement(sql);
