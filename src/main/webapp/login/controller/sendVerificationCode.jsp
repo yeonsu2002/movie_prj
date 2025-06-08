@@ -20,7 +20,6 @@
 	 	  //인증번호생성 성공 -> 이메일 전송
 	 	  ServletContext context = application; 
 	 	  session.setAttribute("verificationCode", verificationCode);
-			System.out.println("비번찾기 세션 인증번호 : " + session.getAttribute("verificationCode"));
 			try {
 			  	String mailType = "authCode";
 			    MailUtil.sendEmail(context ,email, verificationCode, mailType);
@@ -42,7 +41,6 @@
 	  	String mailType = "authCode";
 			MailUtil.sendEmail(context, email, verificationCode, mailType);
 			session.setAttribute("verificationCode", verificationCode); //세션에 인증번호 저장 
-			System.out.println("(회원,비회원)회가입 세션 인증번호 : " + session.getAttribute("verificationCode"));
 			
 			out.print("success");
 		} catch( Exception e){

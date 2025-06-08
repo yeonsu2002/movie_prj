@@ -42,7 +42,7 @@ $(function() {
 		let managerStatus = $(this).find('.mgr-status').text().trim();
 		let managerRole = $(this).find('.mgr-role').text().trim();
 		let managerPicture = $(this).find('.mgr-picture img').attr('src');
-		let managerIpList = $(this).find('.mgr-ipList').text().trim();
+		let managerIpList = $(this).find('.mgr-ipList').html();
 		let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
 		let userIdx = $("#userIdx").val();
 		
@@ -106,9 +106,7 @@ function updateManagerDetail(id, name, email, phone, status, role, picture, IpLi
     $('#mgrDetailStatus').text(status);
     $('#mgrDetailArea').text(role);
     $('#mgrProfileImg').attr('src',  picture );
-    console.log('프로필 이미지 DOM:', $('#mgrProfileImg'));
-    console.log('이미지 경로:', picture);
-    $('#mgrDetailIp').text(IpList);
+    $('#mgrDetailIp').html(IpList);
     $('#mgrDetailLastLogin').text(lastLoginDate);
     $("#userIdx").val(userIdx);
     
@@ -554,9 +552,10 @@ function fillModalWithData(adminData) {
 	if(adminData.iplist.length < 4) { //iplist가 3개까지만 제한  
 		const ipList = adminData.iplist.map(item => item.ipAddress);
 		for(let i = 0; i < ipList.length; i++){
-			$("#ipOption"+[i]).text(ipList[i]);
-			$("#ipOption"+[i]).val(ipList[i]);
-			$("#ipOption"+[i]).prop("disabled", false);
+			$("#ipOption"+i).text(ipList[i]);
+			$("#ipOption"+i).val(ipList[i]);
+			$("#ipHidden"+i).val(ipList[i]);
+			$("#ipOption"+i).prop("disabled", false);
 		}
 
 	}
@@ -646,7 +645,7 @@ function fillModalWithData(adminData) {
 								<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
 								<td class="mgr-ipList" style="display: none">
 									<c:forEach var="ip" items="${manager.IPList}">
-										<div>${ip.ipAddress} [생성일: ${ip.formattedCreatedAt}]</div>
+									  ${ip.ipAddress}<br>
 									</c:forEach>
 								</td>
 								<td style="display: none" id="userIdx" class="mgr-userIdx">${manager.userIdx }</td>
@@ -724,7 +723,7 @@ function fillModalWithData(adminData) {
 						<td id="mgrDetailArea">1관, 2관, 3관</td>
 					</tr>
 					<tr>
-						<th>접속 허용된 IP</th>
+						<th>접속 허용 IP</th>
 						<td id="mgrDetailIp"></td>
 					</tr>
 				</table>

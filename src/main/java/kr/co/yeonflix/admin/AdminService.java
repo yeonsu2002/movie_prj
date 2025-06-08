@@ -42,7 +42,6 @@ public class AdminService {
   
   //정보수정시 해당 매니저의 정보를 호출
   public AdminDTO getAdminInfo(String adminId) throws SQLException {
-    System.out.println("서비스 getAdminInfo() : " + adDAO.selectAdminInfo(adminId));
     return adDAO.selectAdminInfo(adminId);
   }
   

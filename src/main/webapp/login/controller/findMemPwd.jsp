@@ -28,8 +28,6 @@
 		String pwd2 = getRandomLetters(5); //무작위 5자리 
 		String tempPwd = pwd1 + pwd2;
 		
-		System.out.println("임시 비밀번호 : " + tempPwd);
-		
 		try {
 		    MemberService mService = new MemberService();
 		    boolean isChanged = mService.changePwd(email, tempPwd);
@@ -53,8 +51,6 @@
 		            }
 		        }
 							
-		        System.out.println("이메일보내기 성공 이제 페이지 넘겨라");
-		        
 		        request.setAttribute("userId", userId);
 		        request.setAttribute("email", maskedEmail);
 		        RequestDispatcher dispatcher = request.getRequestDispatcher("/login/temporarily.jsp");

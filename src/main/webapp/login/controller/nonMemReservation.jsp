@@ -21,13 +21,11 @@
 	    System.out.println("비회원 생성 실패");
 	    return;
 	  } else if (success){
-	    System.out.println("비회원 생성 성공");
 	    
 	    try{
 		    nmDTO = nmService.getNonMem(birth, email); //권한정보 없음
 		    nmDTO.setUserType("GUEST"); //비회원 권한으로 딱히 접근제한 할만한 페이지는 아직 없는데.. 
 	      if(nmDTO.getUserIdx() > 0){
-	        System.out.println("nmDTO : " + nmDTO);
 					//일단 세션 깨긋하게 비우고
 					session.removeAttribute("guestUser");
 					session.invalidate();
@@ -49,7 +47,6 @@
 	  
 	//디버깅용
 	NonMemberDTO sessionNMDTO = (NonMemberDTO) session.getAttribute("guestUser");
-	System.out.println("세션에 저장된 guestUser : " + sessionNMDTO);
 	
 	response.sendRedirect(request.getContextPath()+ "/reservation/reservation.jsp"); //예매로 이동혀 
 

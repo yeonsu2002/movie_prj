@@ -43,13 +43,11 @@ if("Windows".equals(platform)){
 	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
 }
-System.out.println("savePath = " + savePath);
 
 File saveDir = new File(savePath);
 
 if (!saveDir.exists()) {
     boolean created = saveDir.mkdirs(); // 디렉토리 생성
-    System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
 }
 
 if (ServletFileUpload.isMultipartContent(request)) { //multipart 요청이냐?
@@ -57,7 +55,6 @@ if (ServletFileUpload.isMultipartContent(request)) { //multipart 요청이냐?
 	
 	try{
 		multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
-		System.out.println("MultipartRequest 생성 완료, 저장 경로: " + savePath);
 	} catch (Exception e){
 		e.printStackTrace();
 		out.println("<script>alert('처리 중 오류발생'); history.back();</script>");
@@ -95,13 +92,7 @@ if (ServletFileUpload.isMultipartContent(request)) { //multipart 요청이냐?
 	String originalFileName = multi.getOriginalFileName("profileImage");
 	String savedFileName = multi.getFilesystemName("profileImage");
 	
-	System.out.println("원본 파일명: " + originalFileName);
-	System.out.println("저장된 파일명: " + savedFileName);
-	System.out.println("프로필 파일 객체: " + profileFile);
-	
 	if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
-		System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
-		System.out.println("파일 크기: " + profileFile.length() + " bytes");
 		
 		String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
 		System.out.println("파일 확장자: " + ext);

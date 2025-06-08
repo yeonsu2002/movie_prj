@@ -12,7 +12,6 @@
 	 request.setCharacterEncoding("UTF-8"); // 요청 파라미터 한글 처리
 	
 	 String managerId = request.getParameter("managerId");
-	 System.out.println("managerId : " + managerId); 
 	
 	 AdminService adService = new AdminService();
 	 AdminDTO adminDTO = null; 

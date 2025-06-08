@@ -130,7 +130,7 @@ function loginProcess(){
 <body>
 
     <div class="login-container">
-	    <img src="http://localhost/movie_prj/common/img/logo.png" class="logo" />
+	    <img src="${pageContext.request.contextPath }/common/img/logo.png" class="logo" />
         <h2>관리자 로그인</h2>
         
         <form action="#void" method="post">
@@ -149,7 +149,7 @@ function loginProcess(){
 			          }
             	 request.setAttribute("yourIP", yourIP); 
             %>
-            <input type="text" value="${yourIP }"> 
+            접속 IP : <c:out value="${yourIP }"/>
             <c:if test="${yourIP == '127.0.0.1' }">
             	<button type="button" id="superLogin">총관리자 로그인</button> <!-- 이거 테스트 해봐야겠는데 다른데서 -->
             	<script type="text/javascript">

@@ -9,8 +9,6 @@
 	String email = request.getParameter("email");
 	String password = request.getParameter("password");
 	
-	//디버깅
-	System.out.println(birth + " / " + email + " / " + password);
 	 
 	//이메일과 생일로 좌석 가져오기
 	if (birth != null && email != null && password != null){

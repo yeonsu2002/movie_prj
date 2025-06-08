@@ -98,7 +98,6 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 File profileFile = multi.getFile("profileImage");
 String originalFileName = multi.getOriginalFileName("profileImage");
 String savedFileName = multi.getFilesystemName("profileImage");
-System.out.println("originalFileName : " + originalFileName);
 
 if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
 	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());

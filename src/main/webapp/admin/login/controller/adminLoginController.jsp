@@ -15,12 +15,12 @@
 	AdminDTO loginAdmin = adService.adminLogin(adminId, adminPwd);
 	
 	//디버깅	
-	System.out.println("loginAdmin 정보 : " + loginAdmin);
+	//System.out.println("loginAdmin 정보 : " + loginAdmin);
 
 	//관리자계정 조회는 되지만, 비활동 계정인 경우 
 	if(loginAdmin != null && "N".equals(loginAdmin.getIsActive())){
 		out.print("isDeleted");
-		return false;
+		return;
 	}
 	
 	//접속한 IP주소가 해당 관리자의 허용된 IP리스트에 속하지 않을 때
@@ -29,12 +29,12 @@
 	int addrCount = loginAdmin.getIPList().size();
 	List<String> addrList = new ArrayList<String>();
 	for(int i = 0; i < addrCount; i++){
-	  String addr = loginAdmin.getIPList().get(i).getAllowedIpIdx();
+	  String addr = (String) loginAdmin.getIPList().get(i).getIpAddress();
 	  addrList.add(addr);
 	}
 	if(!addrList.contains(connectedIP) && !superAdminIPs.contains(connectedIP)){
-	  out.print("deniedIP")
-	  return false;
+	  out.print("deniedIP");
+	  return;
 	}
 	
 	

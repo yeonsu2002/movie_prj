@@ -327,8 +327,6 @@ public class MemberDAO {
       pstmt.setDate(2, birth);
       pstmt.setString(3, email);
       
-      System.out.println(name +" - " + birth + " - " + email);
-      
       rs = pstmt.executeQuery();
       
       if(rs.next()) {
@@ -337,7 +335,6 @@ public class MemberDAO {
     } finally {
       dbCon.dbClose(rs, pstmt, con);
     }
-    System.out.println(memberId);
     return memberId;
   }
   
