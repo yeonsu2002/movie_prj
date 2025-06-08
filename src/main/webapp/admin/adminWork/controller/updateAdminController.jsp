@@ -100,7 +100,6 @@ String originalFileName = multi.getOriginalFileName("profileImage");
 String savedFileName = multi.getFilesystemName("profileImage");
 
 if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
-	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
 	
 	String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
 	
@@ -109,7 +108,6 @@ if(profileFile != null && profileFile.exists() && originalFileName != null && !o
 		if(savedFileName != null) {
 			// URL 인코딩은 필요시에만 적용 (보통 DB 저장시에는 원본명 사용)
 			adminDTO.setPicture(savedFileName);
-			System.out.println("DB에 저장할 파일명: " + savedFileName);
 		} else {
 		  adminDTO.setPicture("default_img.png");
 			System.out.println("파일 저장 실패, 기본 이미지 사용");
