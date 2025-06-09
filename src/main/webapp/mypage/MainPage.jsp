@@ -37,18 +37,21 @@
 // 예약 리스트 조회
 ReservationService rs = new ReservationService();
 List<ShowReservationDTO> reservationList = rs.searchDetailReservationWithUser(loginUserIdx);
+
+//에매내역 최신순으로
+reservationList.sort((r1, r2) -> r2.getReservationDate().compareTo(r1.getReservationDate()));
+
+
 request.setAttribute("reservationList", reservationList);
 
-
+//문의내역
 String inquiryParam=request.getParameter("inquiry_board_idx");
 
 inquiryDAO iDAO = new inquiryDAO();
 List<inquiryDTO> inquiryList = iDAO.selectAllinquiry(String.valueOf(loginUserIdx));
 request.setAttribute("inquiryList", inquiryList);
 
-
-inquiryDAO dao = new inquiryDAO();
-inquiryDTO iDTO = dao.selectinquiry(inquiryParam);
+inquiryDTO iDTO = iDAO.selectinquiry(inquiryParam);
 request.setAttribute("iDTO", iDTO);
 %>
 
@@ -71,6 +74,7 @@ request.setAttribute("iDTO", iDTO);
 	display: flex;
 	align-items: center;
 	border-bottom: 1px solid #eee;
+	gap: 40px;
 	padding-bottom: 20px;
 	margin-bottom: 20px;
 }
@@ -80,11 +84,11 @@ request.setAttribute("iDTO", iDTO);
 	height: 120px;
 	border-radius: 100%;
 	background-color: #ddd;
-	margin-right: 30px;
+	margin-right: 40px;
 }
 
 .profile-info h2 {
-	margin: 0;
+	margin: 10;
 	font-size: 24px;
 	color: #222;
 }
@@ -92,17 +96,17 @@ request.setAttribute("iDTO", iDTO);
 .user-id {
 	font-size: 14px;
 	color: #888;
-	margin-left: 10px;
+	margin-left: 15px;
 }
 
 .user-nick {
 	font-size: 14px;
 	color: #888;
-	margin-left: 10px;
+	margin-left: 15px;
 }
 
 .edit-btn {
-	margin-left: 10px;
+	margin-left: 15px;
 	font-size: 12px;
 	padding: 5px 8px;
 	cursor: pointer;
@@ -218,27 +222,90 @@ delete-r{
 </style>
 <script type="text/javascript">
 $(document).ready(function () {
-    $("#btnShowDetail").click(function (){
-		$('#bookingModal').fadeIn();
-    });
-	$('#closeModalBtn').click(function() {
-		$('#bookingModal').fadeOut();
+	
+	$(document).on('change', 'input[name="reservationIdx"]', function() {
+	    // 다른 체크박스들 모두 해제 (하나만 선택 가능)
+	    $('input[name="reservationIdx"]').not(this).prop('checked', false);
+	    
+	    // 사용자가 방금 클릭한 체크박스의 value를 저장
+	    var selectedValue = $(this).val();
+	    // 그 체크박스가 현재 체크됐는지 여부를 저장
+	    var isChecked = $(this).is(':checked');
+	    
+	    if (isChecked) {
+	    	
+	        $.ajax({
+	            url: '/movie_prj/reservation/booking_modal.jsp',
+	            method: 'GET',
+	            data: { reservationIdx: selectedValue },
+	            success: function(response) {
+	                // 기존 모달이 있다면 제거
+	                $('#bookingModal').remove();
+	                
+	                // 새로운 모달을 body에 추가
+	                $('body').append(response);
+	                
+	                console.log('예매내역 데이터 로드 완료:', selectedValue);
+	            },
+	            error: function() {
+	                alert('예매내역을 불러오는데 실패했습니다.');
+	                $(this).prop('checked', false);
+	            }
+	        });
+	    } else {
+	        // 체크박스가 해제된 경우 모달 제거
+	        $('#bookingModal').remove();
+	    }
 	});
 
-	$('.close-btn').click(function() {
-		$('#bookingModal').fadeOut();
-	});
+	// 예매내역 출력 버튼 클릭 시
+	$("#btnShowDetail").click(function () {
+    var selectedCheckbox = $("input[name='reservationIdx']:checked");
+
+    if (selectedCheckbox.length === 0) {
+        alert("출력할 예매내역을 선택하세요.");
+        return;
+    }
+
+    var statusText = selectedCheckbox.closest("tr").find("td:eq(4)").text().trim();
+    if (statusText === "예매취소") {
+        alert("취소된 예매입니다. 출력할 수 없습니다.");
+        return;
+    }
+
+    // 모달이 존재하는지 확인 후 표시
+    if ($('#bookingModal').length > 0) {
+        $('#bookingModal').fadeIn();
+    } else {
+        alert("예매내역을 먼저 선택해주세요.");
+    }
+});
+	
+   
+	$(document).on('click', '#closeModalBtn', function() {
+        $('#bookingModal').fadeOut();
+    });
+    
+    $(document).on('click', '.close-btn', function() {
+        $('#bookingModal').fadeOut();
+    });
 
 
 	$("#btnDeleteReservations").click(function() {
 	    const selected = $("input[name='reservationIdx']:checked").val();
 
 	    if (!selected) {
-	        alert("삭제할 예매를 선택하세요.");
+	        alert("취소할 예매를 선택하세요.");
 	        return;
 	    }
 
-	    if (!confirm("정말 삭제하시겠습니까?")) {
+	    if (!confirm("정말 취소하시겠습니까?")) {
+	        return;
+	    }
+	    
+	    const statusText = $("input[name='reservationIdx']:checked").closest("tr").find("td:eq(4)").text().trim();
+	    if (statusText === "예매취소") {
+	        alert("이미 취소된 예매입니다.");
 	        return;
 	    }
 
@@ -248,10 +315,10 @@ $(document).ready(function () {
 	        data: { reservationIdx: selected },
 	        success: function(response) {
 	            if (response.success) {
-	                alert("삭제 완료!");
+	                alert("취소 완료!");
 	                location.reload();
 	            } else {
-	                alert("삭제 실패했습니다.");
+	                alert("취소 실패했습니다.");
 	            }
 	        },
 	        error: function() {
@@ -305,14 +372,14 @@ $(document).ready(function () {
 <div id="container">
 <div class="profile-container">
 	<div class="profile-header">
-  				 <c:choose>
-				        <c:when test="${not empty member.picture}">
-				            <img src="/profile/${member.picture}" alt="프로필이미지"  style="width:130px; height:130px"/>
-				        </c:when>
-				        <c:otherwise>
-				            <img src="/movie_prj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
-				        </c:otherwise>
-				    </c:choose>
+	 <c:choose>
+     <c:when test="${not empty member.picture}">
+		<img src="/profile/${member.picture}" alt="프로필이미지"  style="width:130px; height:130px"/>
+	 </c:when>
+	<c:otherwise>
+		 <img src="/movie_prj/common/img/default_img.png" style="width:130px; height:130px" id="img" alt="기본이미지"/>
+	</c:otherwise>
+	 </c:choose>
     <div class="profile-info">
    		 <h2>
          	<c:out value="${member.userName}" />
@@ -374,9 +441,8 @@ $(document).ready(function () {
   <td>
     <input class="form-check-input" type="checkbox" name="reservationIdx"
            value="${ticket.reservationIdx}"
-           onchange="location.href='?reservationIdx=' + this.value;"
            <c:if test="${param.reservationIdx == ticket.reservationIdx}">checked</c:if>>
-  </td>
+</td>
   <td>${ticket.movieName}</td>
   <td>${ticket.theaterName}</td>
   <td>${ticket.screenDate}</td>
@@ -427,7 +493,6 @@ $(document).ready(function () {
       <th scope="col">제목</th>
       <th scope="col">등록일</th>
       <th scope="col">상태</th>
-      <th scope="col">답변일</th>
     </tr>
   </thead>
  <tbody>
@@ -452,18 +517,19 @@ $(document).ready(function () {
 </a>
 	 </td>
       <td>${inquiry.created_time}</td>
+      
+  
       <td>
       
   <c:choose>
-    <c:when test="${inquiry.answer_status == 1}">
-      답변 완료
-    </c:when>
-    <c:otherwise>
-      미답변
-    </c:otherwise>
+   		 <c:when test="${inquiry.answer_status == 1}">
+     		 답변 완료
+    	</c:when>
+    	<c:otherwise>
+      		답변중
+    	</c:otherwise>
   </c:choose>
-</td>
-      <td>${inquiry.answered_time}</td>
+	</td>
     </tr>
 </c:forEach>
 </tbody>

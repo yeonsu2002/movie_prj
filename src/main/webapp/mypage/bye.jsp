@@ -6,11 +6,11 @@
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
-    MemberDTO user = (MemberDTO) session.getAttribute("loginUser");
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 
-    if (user != null) {
+    if (loginUser != null) {
         MemberService ms = new MemberService();
-        boolean result = ms.modifyIsActive(user.getUserIdx(), "N");
+        boolean result = ms.modifyIsActive(loginUser.getUserIdx(), "N");
 
         // 세션 종료 (로그아웃)
         session.invalidate();
@@ -79,17 +79,14 @@
 </header>
 <main>
 <div id="container">
-	<!-- <div class="title">
-    	<h2 style="text-align: center;">회원탈퇴완료</h2>
-    </div>
-     -->
+	
     <div class="card text-center">
     
   <div class="card-body">
     <img src="http://localhost/movie_prj/common/img/%EA%B0%80%EC%A7%80%EB%A7%9D.gif"/>
     <h5 class="card-title">안녕히 가세요</h5>
   
-    <input type="button" value="회원가입" class="btn btn-danger" style="width: 100px"/>
+    <a href="http://localhost/movie_prj/index.jsp" type="button" class="btn btn-danger" style="width: 100px">메인화면</a>
     
     
   </div>

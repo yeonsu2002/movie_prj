@@ -31,7 +31,7 @@
 	  }
   } catch (Exception e){
     e.printStackTrace();
-  }
+  } 
   
   if(memberId != null && !memberId.isBlank()){ //가입정보가 이미 존재함 
     request.setAttribute("name", name);

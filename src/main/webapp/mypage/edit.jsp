@@ -1,4 +1,4 @@
-<%@page import="kr.co.yeonflix.member.MyPageService"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
 <%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
@@ -191,7 +191,9 @@ select {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
 $(function(){
+	//닉네임 중복 검사를 했는지 여부를 추적하는 변수
     let isNicknameChecked = false;
+	//페이지 로드 시 닉네임의 초기값을 저장
     let originalNickname = $("#nickname").val().trim();
     
     // 비밀번호 입력 이벤트
@@ -224,7 +226,9 @@ $(function(){
         checkNicknameDuplicate();
     });
     
-    // 전체 폼 유효성 검사
+    
+    
+    ////////////////////////////////////// 전체 폼 유효성 검사//////////////////////////////////////////////////
     function validateForm() {
         let isValid = true;
         
@@ -266,6 +270,7 @@ $(function(){
         $("#btnUpdate").prop("disabled", !isValid);
         return isValid;
     }
+    
     
     // 비밀번호 강도 검사
     function validatePassword() {
@@ -433,9 +438,6 @@ $(function(){
             let frm = $("#frm")[0];
             let formData = new FormData(frm);
             
-            // 로딩 표시
-            $(this).prop("disabled", true).text("처리중...");
-            
             $.ajax({
                 url: "edit_process.jsp", 
                 type: "POST",
@@ -491,8 +493,8 @@ $(function(){
     
     
     int userIdx = loginDTO.getUserIdx();  
-    MyPageService mps = new MyPageService();
-    MemberDTO member = mps.searchMember(userIdx);  
+    MemberService ms=new MemberService();
+    MemberDTO member = ms.searchOneMember(userIdx);
     pageContext.setAttribute("member", member);
 %>
 
@@ -510,7 +512,7 @@ $(function(){
                 <div class="profile-image-container">
                    <c:choose>
 				        <c:when test="${not empty member.picture}">
-				            <img src="/profile/${member.picture}" alt="프로필이미지"/>
+				            <img src="/profile/${member.picture}" alt="프로필이미지" id="img"/>
 				        </c:when>
 				        <c:otherwise>
 				            <img src="/movie_pfj/common/img/default_img.png" style="width:180px; height:180px" id="img" alt="기본이미지"/>
@@ -607,8 +609,6 @@ $(function(){
                     <option value="gmail.com" <%= "gmail.com".equals(email2) ? "selected" : "" %>>gmail.com</option>
                     <option value="naver.com" <%= "naver.com".equals(email2) ? "selected" : "" %>>naver.com</option>
                     <option value="daum.net" <%= "daum.net".equals(email2) ? "selected" : "" %>>daum.net</option>
-                    <option value="yahoo.com">yahoo.com</option>
-                    <option value="hotmail.com">hotmail.com</option>
                 </select>
             </td>
         </tr>
@@ -660,7 +660,6 @@ $(function(){
 </form>
 </div>
 <br><br>
-<p>member.picture: <c:out value="${member.picture}" /></p>
 </main>
 
 <footer>
