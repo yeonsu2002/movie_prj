@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NonMemberDTO {
-
+ 
   private int userIdx;
   private LocalDate birth;
   private String email;
