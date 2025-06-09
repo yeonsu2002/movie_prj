@@ -4,8 +4,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
+<jsp:include page="/common/jsp/external_file.jsp" />
+<jsp:include page="/common/jsp/header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -90,7 +90,7 @@
 
   <div class="container">
     <h2>작성하신 이메일 문의가 정상적으로 접수 완료 되었습니다</h2>
-    <p>문의하신 내용은 MY CGV &gt; 나의 문의내역 &gt; 1:1문의에서 확인하실 수 있습니다</p>
+    <p>문의하신 내용은 &gt; 나의 문의내역 &gt; 1:1문의에서 확인하실 수 있습니다</p>
     <div class="info-box">
       접수일시 <%=year %>년 <%=month %>월 <%=day %>일
     </div>
@@ -99,7 +99,7 @@
   </div>
  
 	<footer>
-		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
+<jsp:include page="/common/jsp/footer.jsp"/>
 	</footer>
  
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
