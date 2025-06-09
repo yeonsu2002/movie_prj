@@ -407,7 +407,14 @@ public class MemberService {
 	            
 	        }
 		  return result;
-	    }//modifyIsActive
+  }//modifyIsActive
+	
+	//기존회원 여부 검증 후 이메일로 회원정보 찾기
+	public MemberDTO getOneMember(String email) throws SQLException {
+	  MemberDTO memberDTO = new MemberDTO();
+	  memberDTO = memberDAO.selectMemberByEmail(email);
+	  return memberDTO;
+	}
 	
 	
 	
