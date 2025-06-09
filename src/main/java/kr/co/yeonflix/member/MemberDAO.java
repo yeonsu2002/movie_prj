@@ -836,7 +836,7 @@ public class MemberDAO {
 		}finally {
 			dbCon.dbClose(null, pstmt, con);
 		}
-			
+			 
 			
 		if (!"Y".equals(isActive) && !"N".equals(isActive)) {
 	        isActive = "N"; 
