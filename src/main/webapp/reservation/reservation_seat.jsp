@@ -46,8 +46,8 @@ for (TempSeatDTO tempSeat : tempSeatsList) {
 	int seatIdx = tempSeat.getSeatIdx();
 	Duration d = Duration.between(holdTime, LocalDateTime.now());
 
-	//현재는 테스트용으로 10초로 해놨으나 나중에 5분으로 변경
-	if (d.toSeconds() >= 10) {
+	//현재는 테스트용으로 1분 해놨으나 나중에 5분으로 변경
+	if (d.toMinutes() >= 1) {
 		boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
 		if (removed) {
 	removedCount++; // 실제 삭제된 경우에만 카운트
@@ -443,7 +443,16 @@ request.setAttribute("grade", grade);
 						</div>
 						<div class="movie-info">
 							<div class="movie-title" style="font-size: 18px">${mDTO.movieName}
-								| ${tDTO.theaterType} | ${grade}세 관람가</div>
+								| ${tDTO.theaterType} | 
+								<c:choose>
+								<c:when test="${grade == 'ALL' }">
+								전체이용가
+								</c:when>
+								<c:otherwise>
+								<c:out value="${grade}"/>세 관람가
+								</c:otherwise>
+								</c:choose>
+								</div>
 							<br>
 							<div style="font-size: 17px">
 								좌석: <span id="seatInfo" class="movie-title"></span>

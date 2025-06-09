@@ -289,10 +289,10 @@ public class ReservationDAO {
 		try {
 			con = dbCon.getDbConn();
 			StringBuilder query = new StringBuilder();
-			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, ");
+			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, total_price,");
 			query.append("       user_idx, user_type, member_id, tel, rnum ");
 			query.append("FROM ( ");
-			query.append("    SELECT r.reservation_idx, r.reservation_number, r.reservation_date, r.canceled_date, ");
+			query.append("    SELECT r.reservation_idx, r.reservation_number, r.reservation_date, r.canceled_date, r.total_price,");
 			query.append("           r.user_idx, c.user_type, m.member_id, m.tel, ");
 			query.append("           ROW_NUMBER() OVER (ORDER BY r.reservation_date DESC) AS rnum ");
 			query.append("    FROM reservation r ");
@@ -334,6 +334,7 @@ public class ReservationDAO {
 				urDTO.setUserType(rs.getString("user_type"));
 				urDTO.setMemberId(rs.getString("member_id"));
 				urDTO.setTel(rs.getString("tel"));
+				urDTO.setTotalPrice(rs.getInt("total_price"));
 
 				list.add(urDTO);
 			}
@@ -475,10 +476,10 @@ public class ReservationDAO {
 			con = dbCon.getDbConn();
 			StringBuilder query = new StringBuilder();
 
-			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, ");
+			query.append("SELECT reservation_idx, reservation_number, reservation_date, canceled_date, total_price, ");
 			query.append("       user_idx, user_type, non_member_birth, email, rnum ");
 			query.append("FROM ( ");
-			query.append("    SELECT r.reservation_idx, r.reservation_number, r.reservation_date, r.canceled_date, ");
+			query.append("    SELECT r.reservation_idx, r.reservation_number, r.reservation_date, r.canceled_date, r.total_price,");
 			query.append("           r.user_idx, c.user_type, m.non_member_birth, m.email, ");
 			query.append("           ROW_NUMBER() OVER (ORDER BY r.reservation_date DESC) rnum ");
 			query.append("    FROM reservation r ");
@@ -521,6 +522,7 @@ public class ReservationDAO {
 				grDTO.setUserType(rs.getString("user_type"));
 				grDTO.setEmail(rs.getString("email"));
 				grDTO.setNonMemberBirth(rs.getDate("non_member_birth"));
+				grDTO.setTotalPrice(rs.getInt("total_price"));
 
 				list.add(grDTO);
 			}

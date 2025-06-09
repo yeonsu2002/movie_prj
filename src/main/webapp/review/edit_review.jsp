@@ -44,7 +44,7 @@
     ReviewService rs = new ReviewService();
     ReviewDTO review = null;
     try {
-        review = rs.getReviewById(reviewId);
+    	review = rs.getReviewById(reviewId);
         if (review == null) {
 %>
     <div style="text-align:center; margin-top:50px; color:#e74c3c;">
