@@ -33,7 +33,7 @@
             margin: 50px auto;
         }
     </style>
-    <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
+    <link rel="stylesheet" href="/movie_prj/common/css/admin.css">
     <link rel="stylesheet" href="/movie_prj/admin/dashboard/dashboard.css/dashboard.css">
 </head>
 <body>

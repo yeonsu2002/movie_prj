@@ -3,7 +3,7 @@
     %>
     
 <!-- favicon 설정 -->
-<link rel="shortcut icon" href="http://localhost/movie_prj/common/img/favicon.ico"/>
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/common/img/favicon.ico"/>
 
 <!--  bootstrap CDN -->
 <link rel="stylesheet" type="text/css"
@@ -14,5 +14,5 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
 <!-- 공통 CSS -->
-<link rel="stylesheet" href="http://localhost/movie_prj/common/css/reset.css">
-<link rel="stylesheet" href="http://localhost/movie_prj/common/css/style.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/common/css/reset.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/common/css/style.css">

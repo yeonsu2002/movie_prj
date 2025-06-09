@@ -11,8 +11,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>매니저 관리</title>  
-<link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
-<link rel="stylesheet" href="http://localhost/movie_prj/common/css/adminWork.css">
+<link rel="stylesheet" href="/movie_prj/common/css/admin.css">
+<link rel="stylesheet" href="/movie_prj/common/css/adminWork.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminModal.css">
 <style type="text/css">
 
@@ -304,7 +304,7 @@ function setupModalEvents() {
 	    if (file && file.size > (1024 * 1024 * 10)) {
 		    alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
 		    fileInput.value = ''; //선택한 파일값 다시 비우고 
-		    profileImg.src = "http://localhost/movie_prj/common/img/default_img.png"; //프로필 미리보기 주소를 기본값으로 변경 
+		    profileImg.src = "/movie_prj/common/img/default_img.png"; //프로필 미리보기 주소를 기본값으로 변경 
 		    return false;
 	    }
 		    

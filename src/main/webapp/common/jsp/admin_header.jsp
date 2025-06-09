@@ -17,7 +17,7 @@ function logout(){
     <!-- 로고 영역 -->
     <div class="logo-container">
         <div class="logo-img">
-            <img src="http://localhost/movie_prj/common/img/logo.png" alt="메인 로고" />
+            <img src="${pageContext.request.contextPath}/common/img/logo.png" alt="메인 로고" />
         </div>
         <div class="logo-text">관리자 페이지</div>
     </div>
@@ -64,7 +64,7 @@ function logout(){
     	<div class="menu-title">회원 관리</div>
 		 	<c:choose>
 		 		<c:when test="${loginAdmin.manageArea eq 'ManageMember' or loginAdmin.manageArea eq '전체'}">
-        	<div class="menu-item"><a href="http://localhost/movie_prj/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
+        	<div class="menu-item"><a href="${pageContext.request.contextPath}/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
 		 		</c:when>
 		 		<c:otherwise>
 		      <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>회원 목록</a></div>
@@ -74,16 +74,16 @@ function logout(){
     
     <div class="menu-category">
 	    <div class="menu-title">상영관 관리</div>
-	    <div class="menu-item"><a href="http://localhost/movie_prj/admin/theater/theater_manage.jsp"><span>▶</span>상영관 목록</a></div>
+	    <div class="menu-item"><a href="${pageContext.request.contextPath}/admin/theater/theater_manage.jsp"><span>▶</span>상영관 목록</a></div>
     </div>
     
     <div class="menu-category">
     	<div class="menu-title">영화 관리</div>
   		<c:choose>
 	  		<c:when test="${loginAdmin.manageArea eq 'ManageMovie' or loginAdmin.manageArea eq '전체'}">
-	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_list.jsp">영화 리스트</a></div>
-	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_edit.jsp?mode=insert">영화 등록</a></div>
-	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/review/admin_review.jsp">영화 리뷰 관리</a></div>
+	        <div class="menu-item"><span>▶</span><a href="${pageContext.request.contextPath}/admin/movie/movie_list.jsp">영화 리스트</a></div>
+	        <div class="menu-item"><span>▶</span><a href="${pageContext.request.contextPath}/admin/movie/movie_edit.jsp?mode=insert">영화 등록</a></div>
+	        <div class="menu-item"><span>▶</span><a href="${pageContext.request.contextPath}/review/admin_review.jsp">영화 리뷰 관리</a></div>
 	  		</c:when>
 	  		<c:otherwise>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>영화 리스트</a></div>
@@ -99,8 +99,8 @@ function logout(){
       <div class="menu-title">상영스케줄 관리</div>
   		<c:choose>
 	  		<c:when test="${loginAdmin.manageArea eq 'ManageSchedule' or loginAdmin.manageArea eq '전체'}">
-	        <div class="menu-item"><a href="http://localhost/movie_prj/admin/schedule/schedule_manage.jsp"><span>▶</span>상영스케줄 목록</a></div>
-	        <div class="menu-item"><a href="http://localhost/movie_prj/admin/schedule/schedule_register.jsp"><span>▶</span>상영스케줄 등록</a></div>
+	        <div class="menu-item"><a href="${pageContext.request.contextPath}/admin/schedule/schedule_manage.jsp"><span>▶</span>상영스케줄 목록</a></div>
+	        <div class="menu-item"><a href="${pageContext.request.contextPath}/admin/schedule/schedule_register.jsp"><span>▶</span>상영스케줄 등록</a></div>
 	  		</c:when>
 	  		<c:otherwise>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>상영스케줄 목록 </a></div>
@@ -113,8 +113,8 @@ function logout(){
       <div class="menu-title">문의 관리</div>
   		<c:choose>
 	  		<c:when test="${loginAdmin.manageArea eq 'ManageInquiry' or loginAdmin.manageArea eq '전체'}">
-	        <div class="menu-item"><a href="http://localhost/movie_prj/admin/notice/notice_admin_main.jsp"><span>▶</span>공지사항</a></div>
-        	<div class="menu-item"><a href="http://localhost/movie_prj/admin/inquiry/inquiry_admin_main.jsp"><span>▶</span>1:1문의</a></div>
+	        <div class="menu-item"><a href="${pageContext.request.contextPath}/admin/notice/notice_admin_main.jsp"><span>▶</span>공지사항</a></div>
+        	<div class="menu-item"><a href="${pageContext.request.contextPath}/admin/inquiry/inquiry_admin_main.jsp"><span>▶</span>1:1문의</a></div>
 	  		</c:when>
 	  		<c:otherwise>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>공지사항</a></div>
@@ -127,12 +127,12 @@ function logout(){
  	<!-- 상단 버튼 영역  -->
 <div class="header-container">
     <div class="header-buttons">
-        <a href="http://localhost/movie_prj/admin/dashboard/dashboard.jsp" class="header-button">
-            <img src="http://localhost/movie_prj/common/img/home_icon.png" alt="홈 아이콘" class="button-icon">
+        <a href="${pageContext.request.contextPath}/admin/dashboard/dashboard.jsp" class="header-button">
+            <img src="${pageContext.request.contextPath}/common/img/home_icon.png" alt="홈 아이콘" class="button-icon">
             메인으로
         </a>
         <a href="javascript:logout()" class="header-button">
-            <img src="http://localhost/movie_prj/common/img/signOut_icon.png" alt="로그아웃 아이콘" class="button-icon">
+            <img src="${pageContext.request.contextPath}/common/img/signOut_icon.png" alt="로그아웃 아이콘" class="button-icon">
             로그아웃
         </a>
     </div>
