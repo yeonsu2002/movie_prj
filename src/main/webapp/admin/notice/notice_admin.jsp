@@ -28,14 +28,14 @@
 		<div class="description">주요한 이슈 및 여러가지 소식들을 확인하실 수 있습니다</div>
 		<strong>유형</strong>
 		<label>${nDTO.board_code_name}</label><br>
-		<form>
+		<form action="notice_modify.jsp" id="alter">
 		<strong>제목</strong>
 			<label>${nDTO.notice_title}</label><br>
-			<textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">
-			${nDTO.notice_content }
-			</textarea>
-
+			<input type="hidden" name="num" value="${nDTO.notice_board_idx }"/>
+			<textarea id="content" name="content" placeholder="내용을 입력하세요">${nDTO.notice_content }</textarea>
+			
 			<div class="btn-area">
+				<input type="button" id="modify" value="수정하기"/>
 				<input type="button" id="list" value="목록으로" />
 			</div>
 		</form>
@@ -46,6 +46,9 @@
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script type="text/javascript">
 		$(function() {
+			$("#modify").click(function(){
+				$("#alter").submit();
+			})
 			$("#list").click(
 					function() {
 						location.href = "http://localhost/movie_prj/admin/notice/notice_admin_main.jsp";

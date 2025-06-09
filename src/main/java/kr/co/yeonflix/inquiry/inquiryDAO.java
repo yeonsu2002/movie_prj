@@ -23,7 +23,7 @@ public class inquiryDAO {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx "
 				+ "from inquiry_board ";
 		if(!user.equals("all")) {
 			sql+="where user_idx=? ";
@@ -39,6 +39,7 @@ public class inquiryDAO {
 			while(rs.next()) {
 				inquiryDTO iDTO = new inquiryDTO();
 				iDTO.setBoard_code_name(rs.getString("board_code_name"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
 				iDTO.setInquiry_title(rs.getString("inquiry_title"));
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
@@ -59,7 +60,7 @@ public class inquiryDAO {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx "
 				+ "from inquiry_board "
 				+ "where inquiry_board_idx=? "
 				+ "order by inquiry_board_idx";
@@ -71,6 +72,7 @@ public class inquiryDAO {
 			while(rs.next()) {
 				iDTO = new inquiryDTO();
 				iDTO.setBoard_code_name(rs.getString("board_code_name"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
 				iDTO.setInquiry_title(rs.getString("inquiry_title"));
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));

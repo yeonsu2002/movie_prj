@@ -129,3 +129,36 @@ input[type="button"]:hover {
   color: #fb4357; /* 원래 강조색 */
   text-decoration: underline;
 }
+
+/* notice.jsp 컬럼별 너비 지정 */
+.notice-wrapper table#mid th:nth-child(1),
+.notice-wrapper table#mid td:nth-child(1) {
+  width: 60px;       /* 번호 */
+  min-width: 60px;
+}
+
+.notice-wrapper table#mid th:nth-child(2),
+.notice-wrapper table#mid td:nth-child(2) {
+  width: 100px;      /* 구분 */
+  min-width: 100px;
+}
+
+.notice-wrapper table#mid th:nth-child(3),
+.notice-wrapper table#mid td:nth-child(3) {
+  width: 400px;      /* 제목 */
+  min-width: 400px;
+  text-align: left;  /* 제목은 왼쪽 정렬 */
+  padding-left: 10px;
+}
+
+.notice-wrapper table#mid th:nth-child(4),
+.notice-wrapper table#mid td:nth-child(4) {
+  width: 80px;       /* 조회수 */
+  min-width: 80px;
+}
+
+.notice-wrapper table#mid th:nth-child(5),
+.notice-wrapper table#mid td:nth-child(5) {
+  width: 140px;      /* 등록일 */
+  min-width: 140px;
+}

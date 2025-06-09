@@ -10,6 +10,14 @@ public class ReviewService {
 
     public boolean addReview(ReviewDTO rDTO) {
         boolean flag = false;
+        
+        System.out.println("userId = " + rDTO.getUserId());
+        System.out.println("movieId = " + rDTO.getMovieId());
+        System.out.println("movieName = " + rDTO.getMovieName());
+        System.out.println("rating = " + rDTO.getRating());
+        System.out.println("content = " + rDTO.getContent());
+        
+        
         ReviewDAO rDAO = ReviewDAO.getInstance();
 
         try {
@@ -49,6 +57,21 @@ public class ReviewService {
 
         return flag;
     }
+    public int updateReview(ReviewDTO rDTO) throws SQLException {
+        return ReviewDAO.getInstance().updateReview(rDTO);
+    }
+    public List<ReviewDTO> getReviewsByUserId(int userId) throws SQLException {
+        return ReviewDAO.getInstance().selectReviewsByUserId(userId);
+    }
+    public boolean hasUserReviewedMovie(int userId, int movieId) throws SQLException {
+        return ReviewDAO.getInstance().hasUserReviewedMovie(userId, movieId);
+    }
+    public ReviewDTO getReviewById(int reviewId) {
+        ReviewDAO dao = new ReviewDAO();
+        return dao.selectReviewById(reviewId);
+    }
+
+    
     //관리자 리뷰검색
     public List<ReviewDTO> searchReviewsByUserId(String keyword) {
         List<ReviewDTO> list = null;

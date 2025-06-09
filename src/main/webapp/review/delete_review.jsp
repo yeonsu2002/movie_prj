@@ -35,7 +35,7 @@
     ReviewService reviewService = new ReviewService();
     boolean deleted = false;
     try {
-        deleted = reviewService.deleteReviewByUser(reviewId, userId);
+        deleted = reviewService.removeReview(reviewId);
     } catch (Exception e) {
         e.printStackTrace();
         out.println("<script>alert('서버 오류가 발생했습니다.'); history.back();</script>");

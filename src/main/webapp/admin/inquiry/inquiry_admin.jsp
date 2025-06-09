@@ -26,14 +26,14 @@
 	<form action="inquiry_answer.jsp" id="answer_add">
 	<input type="hidden" name="num" value="${iDTO.inquiry_board_idx}" />
 		<h2>1:1문의</h2>
+		<strong>유저idx</strong>
+		<label>${iDTO.user_idx}</label><br>
 		<strong>유형</strong>
 		<label>${iDTO.board_code_name}</label><br>
 		<strong>제목</strong>
 			<label>${iDTO.inquiry_title}</label><br>
 			<strong>내용</strong>
-			<textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">
-			<c:out value="${iDTO.inquiry_content}" />
-			</textarea>
+			<textarea id="content" placeholder="내용을 입력하세요" readonly="readonly"><c:out value="${iDTO.inquiry_content}" /></textarea>
 			<br>
 			<strong>답변</strong>
 			<textarea id="answer_content" name="answer_content" placeholder="답변을 입력하세요"><c:out value="${iDTO.answer_content}"/></textarea>

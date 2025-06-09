@@ -24,6 +24,12 @@
             if (sessionId != null && sessionId.trim().equalsIgnoreCase(id.trim())) {
                 // 로그인한 유저와 입력한 아이디가 일치할 때만 로그인 허용
                 LoginDTO lDTO = new LoginDTO();  // lDTO 객체 선언
+        
+        
+        if (id != null && pass != null && sessionUser != null) {
+            // 로그인한 유저와 입력한 아이디가 일치할 때만 로그인 허용
+            if (sessionUser.getMemberId().equals(id)) {
+                LoginDTO lDTO = new LoginDTO();
                 lDTO.setId(id);
                 lDTO.setPass(pass);
 
@@ -40,6 +46,8 @@
             }
         } else {
             System.out.println("세션에 로그인 정보가 없습니다.");
+        }
+    }
         }
     }
 

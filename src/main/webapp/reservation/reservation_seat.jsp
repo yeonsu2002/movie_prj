@@ -445,7 +445,7 @@ request.setAttribute("grade", grade);
 							<div class="movie-title" style="font-size: 18px">${mDTO.movieName}
 								| ${tDTO.theaterType} | 
 								<c:choose>
-								<c:when test="${grade == 'ALL' }">
+								<c:when test="${grade == 'all' }">
 								전체이용가
 								</c:when>
 								<c:otherwise>
