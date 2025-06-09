@@ -8,15 +8,17 @@
 <head>
 <meta charset="${encoding}">
 <title><c:out value="${site_name}"/></title>
+</head>
 <body>
-	<%
+<%
 		noticeDAO nDAO = new noticeDAO();
-		String type= request.getParameter("type");
-		String title= request.getParameter("title");
+		String num= request.getParameter("num");
 		String content= request.getParameter("content");
-	    nDAO.insertNotice(type, title, content);
-	    response.sendRedirect("notice_admin_main.jsp");
+		nDAO.alternotice(num, content);
+		response.sendRedirect("http://localhost/movie_prj/admin/notice/notice_admin_main.jsp");
 	%>
+
+
 
 <script type="text/javascript">
 $(function(){

@@ -119,3 +119,48 @@
 .inquiry-wrapper .bottom-buttons input {
   margin-left: 10px;
 }
+
+
+/* inquiry.jsp 테이블 컬럼 너비 지정 */
+.inquiry-wrapper table#mid th:nth-child(1),
+.inquiry-wrapper table#mid td:nth-child(1) {
+  width: 60px;      /* 선택 (체크박스) */
+  min-width: 60px;
+  text-align: center;
+}
+
+.inquiry-wrapper table#mid th:nth-child(2),
+.inquiry-wrapper table#mid td:nth-child(2) {
+  width: 60px;      /* 번호 */
+  min-width: 60px;
+  text-align: center;
+}
+
+.inquiry-wrapper table#mid th:nth-child(3),
+.inquiry-wrapper table#mid td:nth-child(3) {
+  width: 100px;     /* 유형 */
+  min-width: 100px;
+  text-align: center;
+}
+
+.inquiry-wrapper table#mid th:nth-child(4),
+.inquiry-wrapper table#mid td:nth-child(4) {
+  width: 400px;     /* 제목 */
+  min-width: 400px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.inquiry-wrapper table#mid th:nth-child(5),
+.inquiry-wrapper table#mid td:nth-child(5) {
+  width: 140px;     /* 등록일 */
+  min-width: 140px;
+  text-align: center;
+}
+
+.inquiry-wrapper table#mid th:nth-child(6),
+.inquiry-wrapper table#mid td:nth-child(6) {
+  width: 100px;     /* 상태 */
+  min-width: 100px;
+  text-align: center;
+}

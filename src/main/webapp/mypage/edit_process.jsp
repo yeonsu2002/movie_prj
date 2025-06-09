@@ -11,7 +11,6 @@
 <%
     response.setContentType("application/json; charset=UTF-8");
     JSONObject json = new JSONObject();
-
     MemberDTO memberVO = new MemberDTO();
 
     MultipartRequest multi = null;
@@ -64,27 +63,44 @@
             String originalFileName = multi.getOriginalFileName("profile");
             String savedFileName = multi.getFilesystemName("profile");
             String existingPicture = sessionDTO.getPicture();
-			String picture=existingPicture;
+            String picture = existingPicture;
             
             if (profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()) {
                 String ext = originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toUpperCase();
                 if (ext.equals("PNG") || ext.equals("JPG") || ext.equals("GIF") || ext.equals("JPEG")) {
-                	picture=(savedFileName != null ? savedFileName : existingPicture);
+                    picture = (savedFileName != null ? savedFileName : existingPicture);
                 } else {
-                	picture = "default_img.png"; 
+                    picture = "default_img.png"; 
                 }
-                } else {
-                    System.out.println("이미지 업로드 없음, 기존 이미지 유지: " + existingPicture);
-                }
+            } else {
+                System.out.println("이미지 업로드 없음, 기존 이미지 유지: " + existingPicture);
+            }
             memberVO.setPicture(picture);
+            
             // DB 업데이트
-            
-            
             MemberService memberService = new MemberService();
             boolean result = memberService.modifyMember(memberVO);
 
             if (result) {
-                session.setAttribute("loginUser", memberVO); // 세션 갱신
+                // DB에서 업데이트된 전체 정보를 다시 가져와서 세션에 저장
+                MemberDTO updatedMember = memberService.searchOneMember(sessionDTO.getUserIdx());
+                if (updatedMember != null) {
+                    session.setAttribute("loginUser", updatedMember);
+                    System.out.println("세션 갱신 완료 - 회원ID: " + updatedMember.getMemberId());
+                } else {
+                    // DB 조회 실패 시 기존 세션 정보에 수정된 내용만 업데이트
+                    sessionDTO.setNickName(nickName);
+                    sessionDTO.setEmail(email);
+                    sessionDTO.setIsEmailAgreed(multi.getParameter("isEmailAgreed"));
+                    sessionDTO.setIsSmsAgreed(multi.getParameter("isSmsAgreed"));
+                    sessionDTO.setPicture(picture);
+                    if (memberPwd != null && !memberPwd.trim().isEmpty()) {
+                        sessionDTO.setMemberPwd(memberPwd);
+                    }
+                    session.setAttribute("loginUser", sessionDTO);
+                    System.out.println("세션 부분 갱신 완료 - 회원ID: " + sessionDTO.getMemberId());
+                }
+                
                 json.put("result", true);
                 json.put("message", "회원 정보가 성공적으로 수정되었습니다.");
             } else {
@@ -102,6 +118,4 @@
     }
    
     out.print(json.toJSONString());
-    
-
 %>

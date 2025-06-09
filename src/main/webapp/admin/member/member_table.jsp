@@ -253,6 +253,10 @@ if (userType == null || userType.isEmpty()) {
 NonMemberDAO nDAO=NonMemberDAO.getInstance();
 List<NonMemberDTO> nonMemberList=nDAO.selectAllNonMember(rDTO);
 
+for(int i = 0; i < nonMemberList.size(); i++){
+	
+}
+
 
 int totalCount = 0;
 totalCount = ms.totalCount(rDTO);

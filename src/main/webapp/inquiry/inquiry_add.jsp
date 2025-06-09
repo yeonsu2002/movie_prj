@@ -64,7 +64,24 @@
 <script type="text/javascript">
 $(function(){
     $("#add").click(function(){
-        $("#inquiry_add").submit();
+    	  const type = $("input[name='type']:checked").val();
+          const title = $("#title").val().trim();
+          const content = $("#content").val().trim();
+
+          if(!type) {
+              alert("문의 유형을 선택해주세요.");
+              return;
+          }
+          if(title === "") {
+              alert("제목을 입력해주세요.");
+              return;
+          }
+          if(content === "") {
+              alert("내용을 입력해주세요.");
+              return;
+          }
+
+          $("#inquiry_add").submit();
     });
     $("#list").click(function(){
     	location.href="http://localhost/movie_prj/inquiry/inquiry_user_main.jsp";

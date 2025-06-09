@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@page import="kr.co.yeonflix.review.ReviewService"%>
+<%@page import="kr.co.yeonflix.review.ReviewDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@page import="org.json.simple.JSONObject"%>
@@ -77,19 +80,163 @@ if ("main-info".equals(tabType)) {
     </div>
 </div>
 <%
+
 } else if ("review".equals(tabType)) {
+    ReviewService rs = new ReviewService();
+    List<ReviewDTO> reviewList = null;
+
+    try {
+        reviewList = rs.getReviewsByMovie(movieIdx);  // 영화 번호로 리뷰 조회
+    } catch (Exception e) {
 %>
-<div class="tab-content active">
-    <h3>관람평</h3>
-    <div class="review-placeholder">
-        리뷰가 아직 등록되지 않았습니다.
-        <br><br>
-        <small>곧 리뷰 기능이 추가될 예정입니다.</small>
-    </div>
+<div class='tab-content active' style='text-align: center; padding: 60px 20px; color: #e74c3c;'>
+    리뷰를 불러오는 중 오류가 발생했습니다.
 </div>
 <%
-} else {
-    // 알 수 없는 탭 타입
-    out.println("<div class='tab-content active' style='text-align: center; padding: 60px 20px; color: #e74c3c;'>지원되지 않는 탭입니다.</div>");
+        e.printStackTrace();
+        return;
+    }
+
+    // 로그인 ID 세션에서 가져오기
+    String loginId = (String) session.getAttribute("loginId");
+    if (loginId == null) {
+        loginId = "testUser";  // 임시 아이디 (테스트용)
+    }
+%>
+<div class="tab-content active">
+<h3>관람평</h3>
+
+<div class="review-section">
+    <% if (reviewList != null && !reviewList.isEmpty()) {
+        for (ReviewDTO review : reviewList) {
+            String safeContent = review.getContent()
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\"", "&quot;")
+                .replaceAll("\n", "<br>");
+    %>
+        <div class="review-box">
+            <div class="review-user"><strong><%= review.getUserLoginId() %></strong> 님의 리뷰</div>
+            <div class="review-rating">⭐ 평점: <%= review.getRating() %>점</div>
+            <div class="review-content"><%= safeContent %></div>
+            <div class="review-date"><small><%= new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(review.getWriteDate()) %></small></div>
+        </div>
+        <hr>
+    <%  }
+    } else { %>
+        <div class="review-placeholder">리뷰가 아직 등록되지 않았습니다.<br><br><small>첫 리뷰를 남겨보세요!</small></div>
+    <% } %>
+</div>
+
+<div style="margin-top: 20px;">
+    <% if (loginId != null) { %>
+        <button id="openReviewBtn" 
+     style="
+    padding: 8px 16px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+">
+            리뷰 작성
+        </button>
+    <% } else { %>
+        <p>리뷰를 작성하려면 <a href="<%=request.getContextPath()%>/movie_prj/login/loginFrm.jsp"><strong>로그인</strong></a> 해주세요.</p>
+    <% } %>
+</div>
+</div>
+
+<!-- 모달 오버레이 -->
+<div id="modalOverlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); z-index:1000;"></div>
+
+<!-- 모달 박스 -->
+<div id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#f4f4f4; padding:20px 30px; border-radius:12px; width:450px; max-width:90vw; box-shadow:0 8px 16px rgba(0,0,0,0.3); z-index:1100;">
+<h2 id="modalTitle"> <%= movie.getMovieName() %></h2>
+<form action="<%=request.getContextPath()%>/review/add_review.jsp" method="post">
+    <input type="hidden" name="movieId" value="<%= movieIdx %>" />
+
+    <label for="rating">평점 (1~10점):</label><br>
+    <select name="rating" id="rating" required style="padding:6px; margin-bottom:15px; width:100%;">
+        <option value="">평점을 선택하세요</option>
+        <% for(int i=1; i<=10; i++) { %>
+            <option value="<%= i %>"><%= i %> 점</option>
+        <% } %>
+    </select>
+
+    <label for="reviewText">리뷰 내용 (최대 280바이트):</label><br>
+    <textarea id="reviewText" name="content" maxlength="280" placeholder="리뷰를 입력하세요" required style="width:100%; height:120px; resize:none; font-size:14px; padding:10px; border:1px solid #ccc; border-radius:6px;"></textarea>
+    <div id="byteCount" style="font-size:12px; color:#666; margin-top:6px;">0/280byte</div>
+
+    <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="submit" id="submitBtn" style="background:#5c6bc0; color:#fff; padding:8px 16px; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">등록하기</button>
+        <button type="button" id="cancelBtn" style="background:#ccc; padding:8px 16px; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">취소</button>
+    </div>
+</form>
+</div>
+
+<script>
+const openBtn = document.getElementById('openReviewBtn');
+const modal = document.getElementById('reviewModal');
+const overlay = document.getElementById('modalOverlay');
+const cancelBtn = document.getElementById('cancelBtn');
+const textarea = document.getElementById('reviewText');
+const byteCount = document.getElementById('byteCount');
+const maxBytes = 280;
+
+function updateByteCount() {
+    const text = textarea.value;
+    let totalBytes = 0;
+    for (let i = 0; i < text.length; i++) {
+        const charCode = text.charCodeAt(i);
+        totalBytes += (charCode > 127) ? 2 : 1;
+    }
+    byteCount.textContent = `${totalBytes}/${maxBytes}byte`;
+
+    if (totalBytes > maxBytes) {
+        let trimmed = '';
+        let currentBytes = 0;
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const charByte = (char.charCodeAt(0) > 127) ? 2 : 1;
+            if (currentBytes + charByte > maxBytes) break;
+            trimmed += char;
+            currentBytes += charByte;
+        }
+        textarea.value = trimmed;
+        byteCount.textContent = `${currentBytes}/${maxBytes}byte`;
+    }
 }
+
+textarea.addEventListener('input', updateByteCount);
+
+// 모달 열기
+openBtn.addEventListener('click', () => {
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    updateByteCount();
+});
+
+// 모달 닫기 함수
+function closeModal() {
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+    textarea.value = '';
+    byteCount.textContent = `0/${maxBytes}byte`;
+    document.getElementById('rating').value = '';
+}
+
+cancelBtn.addEventListener('click', closeModal);
+overlay.addEventListener('click', closeModal);
+</script>
+<%
+} else {
+%>
+<div class='tab-content active' style='text-align: center; padding: 60px 20px; color: #e74c3c;'>
+    잘못된 탭 요청입니다.
+</div>
+<%
+} // 탭별 if-else 종료
 %>

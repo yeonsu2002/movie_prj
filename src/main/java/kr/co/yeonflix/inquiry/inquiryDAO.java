@@ -23,7 +23,7 @@ public class inquiryDAO {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx "
 				+ "from inquiry_board ";
 		if(!user.equals("all")) {
 			sql+="where user_idx=? ";
@@ -39,6 +39,7 @@ public class inquiryDAO {
 			while(rs.next()) {
 				inquiryDTO iDTO = new inquiryDTO();
 				iDTO.setBoard_code_name(rs.getString("board_code_name"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
 				iDTO.setInquiry_title(rs.getString("inquiry_title"));
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
@@ -59,7 +60,7 @@ public class inquiryDAO {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx "
 				+ "from inquiry_board "
 				+ "where inquiry_board_idx=? "
 				+ "order by inquiry_board_idx";
@@ -71,6 +72,7 @@ public class inquiryDAO {
 			while(rs.next()) {
 				iDTO = new inquiryDTO();
 				iDTO.setBoard_code_name(rs.getString("board_code_name"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
 				iDTO.setInquiry_title(rs.getString("inquiry_title"));
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
@@ -215,7 +217,7 @@ public class inquiryDAO {
 	    ResultSet rs = null;
 	    
 	    String sql = 
-	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id FROM (" +
+	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx FROM (" +
 	        "    SELECT ROWNUM rnum, a.* FROM (" +
 	        "        SELECT * FROM inquiry_board ORDER BY inquiry_board_idx DESC" +
 	        "    ) a WHERE ROWNUM <= ?" +
@@ -236,6 +238,7 @@ public class inquiryDAO {
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 				
 	            // 필요한 항목 추가
 	            list.add(iDTO);
@@ -293,6 +296,7 @@ public class inquiryDAO {
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
+				iDTO.setUser_idx(rs.getInt("user_idx"));
 
 				inquiryList.add(iDTO);
 			}

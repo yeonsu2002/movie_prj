@@ -4,6 +4,8 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class MemberService {

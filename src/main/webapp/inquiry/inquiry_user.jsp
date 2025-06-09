@@ -4,8 +4,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/external_file.jsp" />
+<jsp:include page="/common/jsp/header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,12 +33,12 @@
 		</div>
 		 <div class="field">
 		<strong>내용</strong>
-		<textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">${iDTO.inquiry_content }</textarea>
+		<textarea id="content" class="${iDTO.answer_status == 1 ? 'has-answer' : 'no-answer'}" readonly="readonly">${iDTO.inquiry_content }</textarea>
 		</div>
 		<br>
 		<%if(iDTO.getAnswer_status()==1){ %>
 			<strong>답변</strong>
-			<textarea id="answer" readonly="readonly"><c:out value="${iDTO.answer_content}"/></textarea>
+			<textarea id="answer" class="${iDTO.answer_status == 1 ? 'has-answer' : 'no-answer'}" readonly="readonly"><c:out value="${iDTO.answer_content}"/></textarea>
 			<br>
 		<%} %>
 		<input type="button" id="list" value="목록으로" />
@@ -46,7 +46,7 @@
 </div>
 	
 <footer>
-<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
+<jsp:include page="/common/jsp/footer.jsp"/>
 </footer>
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

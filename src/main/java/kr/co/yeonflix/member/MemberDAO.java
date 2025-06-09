@@ -9,6 +9,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.security.auth.message.callback.PrivateKeyCallback.Request;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import kr.co.yeonflix.dao.DbConnection;
 
@@ -699,43 +703,45 @@ public class MemberDAO {
 
 	        // 1. 기존 회원 정보 가져오기
 	        MemberDTO existing = getMemberByUserIdx(memberVO.getUserIdx());
-	        
-	      
+
 	        // 2. 비밀번호가 null 또는 빈 값이면 기존 비밀번호 유지
 	        String password = memberVO.getMemberPwd();
 	        if (password == null || password.trim().isEmpty()) {
 	            password = existing.getMemberPwd();
 	        }
 
-	        // 2. 닉네임이 변경되었을 경우 중복 검사
+	        // 3. 닉네임이 변경되었을 경우 중복 검사
 	        if (!memberVO.getNickName().equals(existing.getNickName())) {
 	            if (isNicknameDuplicate(memberVO.getNickName())) {
 	                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
 	            }
 	        }
-	        
+
+	        // 4. 이메일 처리 (빈 값이면 기존 이메일 사용)
 	        String email = memberVO.getEmail();
 	        if (email == null || email.trim().isEmpty()) {
-	            // 입력값이 없으면 기존 이메일 유지
 	            email = existing.getEmail();
-	        } else {
-	            // 입력값이 있으면 그대로 업데이트 (즉, 수정)
-	            // 여기에 추가 검증 로직 넣어도 됨
 	        }
-	        
+
+	        // 5. 프로필 사진 처리 (빈 값이면 기존 사진 사용)
 	        String picture = memberVO.getPicture();
 	        if (picture == null || picture.trim().isEmpty()) {
 	            picture = existing.getPicture();
 	        }
 
-
-	       
+	        // 6. 전화번호 처리 (빈 값이면 기존 전화번호 사용)
 	        String tel = memberVO.getTel();
 	        if (tel == null || tel.trim().isEmpty()) {
-	            tel = existing.getTel(); 
+	            tel = existing.getTel();
 	        }
 
-	        // 4. UPDATE 수행
+	        // 7. 회원 ID 처리 (빈 값이면 기존 ID 사용)
+	        String Id = memberVO.getMemberId();
+	        if (Id == null || Id.trim().isEmpty()) {
+	            Id = existing.getMemberId();
+	        }
+
+	        // 8. DB UPDATE 수행
 	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ?, has_temp_pwd = 'N' WHERE user_idx = ?";
 	        pstmt = con.prepareStatement(query);
 	        pstmt.setString(1, password);
@@ -750,13 +756,22 @@ public class MemberDAO {
 	        int cnt = pstmt.executeUpdate();
 	        result = cnt > 0;
 
+			/*
+			 * // 9. 세션 갱신 (회원 정보 수정 후 세션에 최신 정보 반영) if (result) { HttpSession session =
+			 * request.getSession(); session.setAttribute("loginUser", memberVO); // 수정된 정보로
+			 * 세션 갱신 }
+			 */
+
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new SQLException("회원 정보 수정 중 오류가 발생했습니다.", e);
 	    } finally {
 	        dbCon.dbClose(null, pstmt, con);
 	    }
 
 	    return result;
 	}
-	
+
 	
 	
 	

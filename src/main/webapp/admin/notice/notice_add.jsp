@@ -54,7 +54,14 @@
 <script type="text/javascript">
 $(function(){
     $("#add").click(function(){
-    	$("#notice_add").submit();
+        const title = $("#title").val().trim();
+        const content = $("#content").val().trim();
+
+        if(title === "" || content === "") {
+            alert("제목과 내용을 모두 입력해주세요.");
+            return; // 제출 막기
+        }
+        $("#notice_add").submit();
     });
     $("#list").click(function(){
         location.href="http://localhost/movie_prj/admin/notice/notice_admin_main.jsp";

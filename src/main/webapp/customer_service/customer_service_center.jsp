@@ -4,9 +4,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8" info=""%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
-<!DOCTYPE html>
+<jsp:include page="/common/jsp/external_file.jsp" />
+<jsp:include page="/common/jsp/header.jsp" /><!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -50,7 +49,7 @@
 					<c:forEach var="notice" items="${notices}" varStatus="status">
 						<c:if test="${status.count <= 5}">
 							<tr>
-								<td><a href="http://localhost/movie_prj/notice/notice_user.jsp?idx=${notice.notice_board_idx }">제목${notice.notice_title}</a></td>
+								<td><a href="http://localhost/movie_prj/notice/notice_user.jsp?idx=${notice.notice_board_idx }">${notice.notice_title}</a></td>
 								<td>조회수${notice.view_count}</td>
 							</tr>
 						</c:if>
@@ -62,7 +61,7 @@
 
 
 	<footer>
-		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
+<jsp:include page="/common/jsp/footer.jsp"/>
 	</footer>
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

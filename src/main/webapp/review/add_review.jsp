@@ -1,77 +1,117 @@
-<%@page import="kr.co.yeonflix.review.ReviewService"%>
-<%@page import="kr.co.yeonflix.review.ReviewDTO"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"
-    info="Main template page"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
+<%@ page import="kr.co.yeonflix.review.ReviewService" %>
+<%@ page import="kr.co.yeonflix.review.ReviewDTO" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-request.setCharacterEncoding("UTF-8");
+    // 한글 인코딩
+    request.setCharacterEncoding("UTF-8");
 
-// 파라미터 수신 (String으로 받기)
-String movieIdStr = request.getParameter("movieId");
-String content = request.getParameter("content");
-String scoreStr = request.getParameter("score");
-double rating = Double.parseDouble(request.getParameter("rating"));
+    // 파라미터 수신
+    String movieIdStr = request.getParameter("movieId");
+    String content = request.getParameter("content");
+    String ratingStr = request.getParameter("rating");
+    String movieName = request.getParameter("movieName");
 
-// 파라미터 변환
-int movieId = 0;
-try {
-    movieId = Integer.parseInt(movieIdStr);
-} catch (Exception e) {
-    movieId = 0; // 기본값 또는 오류 처리
-}
-
-int score = 0;
-try {
-    score = Integer.parseInt(scoreStr);
-} catch (Exception e) {
-    score = 0;
-}
-
-// 사용자 ID (세션에서 꺼내기, 숫자형으로 변환)
-Integer userId = null;
-Object sessionUserId = session.getAttribute("userId");
-if (sessionUserId != null) {
-    try {
-        // 세션에 저장된 userId가 String일 수도, Integer일 수도 있으니 확인
-        if (sessionUserId instanceof String) {
-            userId = Integer.parseInt((String) sessionUserId);
-        } else if (sessionUserId instanceof Integer) {
-            userId = (Integer) sessionUserId;
+    // rating 파싱
+    double rating = 0.0;
+    if (ratingStr != null && !ratingStr.trim().isEmpty()) {
+        try {
+            rating = Double.parseDouble(ratingStr.trim());
+        } catch (NumberFormatException e) {
+            rating = 0.0;
         }
-    } catch (Exception e) {
-        userId = null;
     }
-}
 
-// 로그인 체크
-/* if (userId == null) {
-    out.println("<script>alert('로그인이 필요합니다.'); location.href='/movie_prj/login/loginFrm.jsp';</script>");
-    return;
-} */
+    // movieId 파싱
+    int movieId = 0;
+    try {
+        if (movieIdStr != null && !movieIdStr.trim().isEmpty()) {
+            movieId = Integer.parseInt(movieIdStr.trim());
+        }
+    } catch (NumberFormatException e) {
+        movieId = 0;
+    }
 
-// DTO 생성 및 데이터 설정
-if(userId == null){
-	
-userId = 1; 
-}
+    // 세션에서 userId 가져오기
+    Integer userId = null;
+    Object sessionUserId = session.getAttribute("userId");
+    if (sessionUserId != null) {
+        try {
+            if (sessionUserId instanceof String) {
+                userId = Integer.parseInt((String) sessionUserId);
+            } else if (sessionUserId instanceof Integer) {
+                userId = (Integer) sessionUserId;
+            }
+        } catch (NumberFormatException e) {
+            userId = null;
+        }
+    }
+    
+    // 로그인 체크
+    if (userId == null) {
+        out.println("<script>alert('로그인이 필요합니다.'); location.href='" + request.getContextPath() + "/login/loginFrm.jsp';</script>");
+        return;
+    }
+    
+    PurchaseHistoryService phs = new PurchaseHistoryService();
+    Boolean Purchased = phs.hasPurchasedMovie(userId, movieId);
+    if(!Purchased){
+    	 out.println("<script>alert('영화 관람 후에만 리뷰 작성이 가능합니다'); location.href='" + request.getContextPath() + "/login/loginFrm.jsp';</script>");
+         return;
+    }
 
-ReviewDTO dto = new ReviewDTO();
+    // 필수 값 체크
+    if (movieId <= 0) {
+        out.println("<script>alert('올바른 영화를 선택해주세요.'); history.back();</script>");
+        return;
+    }
+    if (content == null || content.trim().isEmpty()) {
+        out.println("<script>alert('리뷰 내용을 입력해주세요.'); history.back();</script>");
+        return;
+    }
 
-dto.setMovieId(movieId);
-dto.setContent(content);
-dto.setRating(rating);
-dto.setUserId(userId);
+    // 리뷰 내용 바이트 길이 제한 (예: 280 바이트)
+    int byteLen = 0;
+    for (int i = 0; i < content.length(); i++) {
+        byteLen += (content.charAt(i) > 127) ? 2 : 1;
+    }
+    if (byteLen > 280) {
+        out.println("<script>alert('리뷰 내용은 280바이트를 넘을 수 없습니다.'); history.back();</script>");
+        return;
+    }
 
-// Service를 통해 DB 저장
-ReviewService service = new ReviewService();
-boolean result = service.addReview(dto);
+    // DTO 생성 및 세팅
+    ReviewDTO dto = new ReviewDTO();
+    dto.setMovieId(movieId);
+    dto.setMovieName(movieName);
+    dto.setContent(content.trim());
+    dto.setRating(rating);
+    dto.setUserId(userId);
 
-if (result) {
-    // 저장 성공 시 영화 상세 페이지로 리다이렉트
-    response.sendRedirect("/movie_prj/lee/movie_review.jsp? movieId=" + movieId);
-} else {
-    // 저장 실패 시 경고창
-    out.println("<script>alert('리뷰 저장에 실패했습니다.'); history.back();</script>");
-}
+    // 서비스 호출
+    ReviewService service = new ReviewService();
+    boolean result = false;
+    try {
+        result = service.addReview(dto);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    // 결과 처리
+
+    if (result) {
+%>
+    <script>
+        alert('리뷰가 정상적으로 저장되었습니다.');
+        location.href = document.referrer;
+    </script>
+<%
+    } else {
+%>
+    <script>
+        alert('리뷰 저장에 실패했습니다.');
+        history.back();
+    </script>
+<%
+    }
 %>

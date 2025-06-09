@@ -4,8 +4,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/external_file.jsp"/>
+<jsp:include page="/common/jsp/header.jsp"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,9 +33,7 @@
     <strong>제목</strong>
     <label>${nDTO.notice_title}</label><br>
 
-    <textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">
-${nDTO.notice_content}
-    </textarea>
+    <textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">${nDTO.notice_content}</textarea>
 
     <div class="btn-area">
       <input type="button" id="list" value="목록으로" />
@@ -44,7 +42,7 @@ ${nDTO.notice_content}
 </div>
 
 <footer>
-<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
+<jsp:include page="/common/jsp/footer.jsp"/>
 </footer>
 
 

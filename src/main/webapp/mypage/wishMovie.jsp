@@ -1,3 +1,6 @@
+<%@page import="java.sql.Date"%>
+<%@page import="kr.co.yeonflix.movie.saved.SavedMovieDTO"%>
+<%@page import="kr.co.yeonflix.movie.saved.SavedMovieService"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
 <%@page import="kr.co.yeonflix.reservation.ReservationDTO"%>
 <%@page import="java.util.ArrayList"%>
@@ -36,47 +39,17 @@
     // JSP에 member 객체 넘기기
     request.setAttribute("member", mDTO);
     
-    
-    
-    
-    PurchaseHistoryService phs = new PurchaseHistoryService();
-    ReservationService rs = new ReservationService();
-    ScheduleService ss = new ScheduleService();
-    MovieService mov = new MovieService();
-
-    List<PurchaseHistoryDTO> purchList = phs.searchAllPurchasebyUser(loginUserIdx);
-    List<MovieDTO> movieList = new ArrayList<>();
-
-    
-    for (PurchaseHistoryDTO pDto : purchList) {
-        int reservationIdx = pDto.getReservationIdx();
-
-        ReservationDTO rDto = rs.searchOneSchedule(reservationIdx);
-        if (rDto == null) continue;
-
-        int scheduleIdx = rDto.getScheduleIdx();
-        ScheduleDTO schDto = ss.searchOneSchedule(scheduleIdx);
-        if (schDto == null) continue;
-
-        
-        int movieIdx = schDto.getMovieIdx();
-        
-        MovieDTO movDto = mov.searchOneMovie(movieIdx);
-        if (movDto == null) continue;
-
-        movieList.add(movDto); 
-    }
-
-    request.setAttribute("movieList", movieList);
-/*     
-     WishListService wishListService = new WishListService();
-    List<MovieDTO> wishMovieList = wishListService.getWishMovieList(loginUserIdx);
-    request.setAttribute("wishMovieList", wishMovieList); 
-     */
-     
-    
- %>
-
+   ///내가 찜한 영화/////
+   
+   SavedMovieService sms=new SavedMovieService();
+   List<SavedMovieDTO> saveMovieList=sms.savedAllMovie(loginUserIdx);
+   request.setAttribute("saveMovieList", saveMovieList); 
+   
+   
+   
+   
+  
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -217,6 +190,69 @@
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+
+.main-content {
+  padding: 20px;
+  margin-left: 0; /* 사이드바와 flex 구조라 필요 없음 */
+}
+
+.movie-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+}
+.movie-card {
+  flex: 0 0 calc(50% - 15px);
+  max-width: calc(50% - 15px);
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 20px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+  width: 180px;
+}
+
+
+.movie-card img {
+  width: 180px;          /* 폭은 고정 */
+  height: 270px;         
+  object-fit: cover;     /* 비율에 맞춰 자르기 */
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.movie-info {
+  width: 180%; /* 너비를 100%로 설정해서 movie-card에 맞게 조정 */
+  padding: 10px 0; /* 상하 여백만 적용 */
+  text-align: center;
+  word-break: keep-all;
+  background-color: white;
+  border-radius: 8px;
+}
+}
+
+.movie-title {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: keep-all;
+  margin-bottom: 6px;
+}
+
+.movie-date {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+
 </style>
 <script type="text/javascript">
 </script>
@@ -251,37 +287,37 @@
    <!-- 메인 콘텐츠 -->
     <div class="main-content">
         <div class="content-header">
-            <h1 class="content-title" style="font-size: 30px; font-weight:bold;">내가 찜한 영화 <span class="movie-count">${fn:length(wishMovieList)}건</span></h1>
+            <h1 class="content-title" style="font-size: 30px; font-weight:bold;">내가 찜한 영화 <span class="movie-count">${fn:length(saveMovieList)}건</span></h1>
         </div>
         <br><br>
        <div class="movie-grid">
 		 <c:choose>
-		  <c:when test="${empty wishMovieList}">
-		    <div class="empty-content">
-		      <p>기대되는 영화가 없습니다.</p><br>
-		      <p>영화 상세 페이지에서 '기대돼요!'를 선택하여 영화를 추가해보세요.</p>
-		      <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" type="button" class="btn btn-danger mt-3">무비 차트</a>
-		    </div>
-		  </c:when>
-		  <c:otherwise>
-		    <c:forEach var="movie" items="${wishMovieList}">
-		      <div class="movie-card">
-		        <div class="movie-poster">
-		          <img src="/movie_prj/common/img/${movie.posterPath }"/>
-		        </div>
-		        <br>
-		        <div class="movie-info">
-		          <div class="movie-title"><c:out value="${movie.movieName}" /></div>
-		          <br>
-		          <div class="movie-date">
-		            <c:out value="${movie.releaseDate}" /> 개봉 
-		            <c:out value="${movie.runningTime}" />분
-		          </div>
-		        </div>
-		      </div>
-		    </c:forEach>
-		  </c:otherwise>
-		</c:choose>
+    <c:when test="${empty saveMovieList}">
+        <div class="empty-content">
+            <p>기대되는 영화가 없습니다.</p><br>
+            <p>영화 상세 페이지에서 '기대돼요!'를 선택하여 영화를 추가해보세요.</p>
+            <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" type="button" class="btn btn-danger mt-3">무비 차트</a>
+        </div>
+    </c:when>
+    <c:otherwise>
+        <c:forEach var="movie" items="${saveMovieList}">
+            <div class="movie-card">
+                <div class="movie-poster">
+                    <img src="/movie_prj/common/img/${movie.posterPath}"/>
+                </div>
+                <br>
+                <div class="movie-info">
+                    <div class="movie-title"><c:out value="${movie.movieName}" /></div>
+                    <br>
+                    <div class="movie-date">
+                        <c:out value="${movie.releaseDate}" /> 개봉
+                        <c:out value="${movie.runningTime}" />분
+                    </div>
+                </div>
+            </div>
+        </c:forEach>
+    </c:otherwise>
+</c:choose>
 </div>
     </div>
 </div>

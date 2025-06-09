@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
 
@@ -118,5 +120,35 @@ public class SavedMovieDAO {
 		return flag;
 	}
 	
+	
+	public List<SavedMovieDTO> selectSavedMoviesByUser(int userIdx) throws SQLException {
+	    List<SavedMovieDTO> savedMovies = new ArrayList<>();
+	    DbConnection db = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        con = db.getDbConn();
+	        StringBuilder selectSavedMovies = new StringBuilder();
+	        selectSavedMovies.append("SELECT movie_idx FROM saved_movie ")
+	                         .append("WHERE user_idx = ?");
+
+	        pstmt = con.prepareStatement(selectSavedMovies.toString());
+	        pstmt.setInt(1, userIdx);
+
+	        rs = pstmt.executeQuery();
+
+	        while (rs.next()) {
+	            SavedMovieDTO savedMovie = new SavedMovieDTO();
+	            savedMovie.setMovieIdx(rs.getInt("movie_idx"));
+	            savedMovies.add(savedMovie);
+	        }
+	    } finally {
+	        db.dbClose(rs, pstmt, con);
+	    }
+
+	    return savedMovies;
+	}
 	
 }

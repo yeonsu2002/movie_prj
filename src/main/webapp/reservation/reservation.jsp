@@ -234,7 +234,7 @@ pageContext.setAttribute("minDate", minDate);
 					<tbody>
 						<tr>
 							<td class="grade-label"><img
-								src="http://localhost/movie_prj/common/img/icon_ALL.svg" />전체
+								src="http://localhost/movie_prj/common/img/icon_all.svg" />전체
 								관람가</td>
 							<td>모든 연령의 고객님께서 관람하실 수 있습니다.</td>
 						</tr>
