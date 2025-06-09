@@ -11,7 +11,7 @@
 	MemberDTO loginUser = memService.loginMember(memberId, memberPwd);
 	
 	//디버깅 
-	System.out.println("loginUser의 정보 = " + loginUser);
+	//System.out.println("loginUser의 정보 = " + loginUser);
 	
 	//회원정보는 조회되지만, 탈퇴한 회원인 경우 
 	if(loginUser != null && "N".equals(loginUser.getIsActive())){
@@ -19,7 +19,6 @@
 			out.print("isDeleted");
 		} catch (Exception e) {
 	    e.printStackTrace();
-	    System.out.println("Forward 실패: " + e.getMessage());
 		}
 		return;
 	}

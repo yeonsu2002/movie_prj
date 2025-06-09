@@ -28,30 +28,27 @@ String platform = request.getHeader("sec-ch-ua-platform");
 if (platform != null) {
     platform = platform.replaceAll("\"", ""); // 큰따옴표 제거, 브라우저가 보여줄 때, 큰따음표 빼고 보여줘서 equals문에서 에러발생함  
 }
-System.out.println("platform = " + platform);
 String savePath = "";
 
 if("Windows".equals(platform)){
 	savePath = "C:\\dev\\movie\\userProfiles";
 } else if ("macOS".equals(platform)){
-	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
+	savePath = "/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles";
 	//	/Users/smk/Downloads/학원프로젝트/2차프로젝트/profiles
 }
-System.out.println("savePath = " + savePath);
 
 
 File saveDir = new File(savePath);
 
 if (!saveDir.exists()) {
   boolean created = saveDir.mkdirs(); // 디렉토리 생성
-  System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
+  //System.out.println("디렉토리 생성 결과: " + created + ", 경로: " + savePath);
 }
 
 if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 		
 	try{
 		multi = new MultipartRequest(request, savePath, fileMaxSize,  "UTF-8", new DefaultFileRenamePolicy());
-		System.out.println("MultipartRequest 생성 완료, 저장 경로: " + savePath);
 	} catch (Exception e) {
 		e.printStackTrace();
 		out.println("<script>alert('form처리중 오류 발생'); history.back(); </script>");
@@ -69,6 +66,7 @@ if(ServletFileUpload.isMultipartContent(request)){ //multi라면?
 	LocalDateTime lastLoginDate = LocalDateTime.now();
 	String isActive = "Y";
 	String managerIp = request.getRemoteAddr();
+	
 	
 	adminDTO.setAdminId(adminId);
 	adminDTO.setAdminLevel(adminLevel);
@@ -105,7 +103,7 @@ String savedFileName = multi.getFilesystemName("profileImage");
 
 
 if(profileFile != null && profileFile.exists() && originalFileName != null && !originalFileName.trim().isEmpty()){ 
-	System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
+	//System.out.println("업로드된 파일 경로: " + profileFile.getAbsolutePath());
 	
 	String ext = originalFileName.substring(originalFileName.lastIndexOf(".")+1).toUpperCase();
 	
@@ -114,7 +112,6 @@ if(profileFile != null && profileFile.exists() && originalFileName != null && !o
 		if(savedFileName != null) {
 			// URL 인코딩은 필요시에만 적용 (보통 DB 저장시에는 원본명 사용)
 			adminDTO.setPicture(savedFileName);
-			System.out.println("DB에 저장할 파일명: " + savedFileName);
 		} else {
 		  adminDTO.setPicture("default_img.png");
 			System.out.println("파일 저장 실패, 기본 이미지 사용");
@@ -139,7 +136,6 @@ boolean result = adminService.joinAdmin(adminDTO);
 
 if(result){
 	out.println("<script>alert('매니저 추가작업이 정상적으로 처리되었습니다.'); setTimeout(function(){ location.replace('" + request.getContextPath() + "/admin/adminWork/controller/getAdminWorkController.jsp'); }, 100);</script>");
-  //response.sendRedirect(request.getContextPath() + "/admin/adminWork/adminWork.jsp");
 } else {
 	out.println("<script>alert('매니저 가입에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
 }

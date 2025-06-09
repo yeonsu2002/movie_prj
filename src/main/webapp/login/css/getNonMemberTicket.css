@@ -1,0 +1,190 @@
+@charset "UTF-8";
+ * {
+      margin-top: 50px;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    .nomem-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      min-height: 100vh;
+    }
+
+    .nomem-header {
+      background-color: #333;
+      color: white;
+      padding: 15px 30px;
+      position: relative;
+    }
+
+    .nomem-header h1 {
+      font-size: 18px;
+      font-weight: normal;
+    }
+
+    .nomem-close-btn {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #666;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .nomem-notice {
+      background-color: #f8f8f8;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .nomem-main-content {
+      padding: 30px;
+    }
+
+    .nomem-main-title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .nomem-main-title h2 {
+      font-size: 24px;
+      font-weight: normal;
+      color: #333;
+    }
+
+    .nomem-highlight {
+      color: #e74c3c;
+    }
+
+    .nomem-subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+    .nomem-booking-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .nomem-booking-header {
+      background-color: #f8f8f8;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nomem-booking-number {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .nomem-booking-number .nomem-number {
+      color: #e74c3c;
+    }
+
+    .nomem-booking-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #4a90e2;
+    }
+
+    .nomem-booking-content {
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .nomem-movie-poster {
+      width: 120px;
+      height: 160px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+      overflow: hidden;
+  		position: relative;
+    }
+    
+    .nomem-movie-poster > img {
+      width: 100%;
+		  height: 100%;
+		  object-fit: cover;  /* 중요: 비율을 유지하면서 꽉 채움 */
+		  display: block;     /* img 아래 여백 방지 */
+    }
+
+    .nomem-movie-info {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px 30px;
+      align-content: start;
+    }
+
+    .nomem-info-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nomem-info-label {
+      color: #666;
+      font-size: 14px;
+      min-width: 60px;
+    }
+
+    .nomem-info-value {
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nomem-theater-rating {
+      color: #888;
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .nomem-container {
+        margin: 0;
+      }
+
+      .nomem-header,
+      .nomem-main-content {
+        padding: 15px 20px;
+      }
+
+      .nomem-booking-content {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .nomem-movie-info {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        width: 100%;
+      }
+    }

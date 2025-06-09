@@ -1,35 +1,82 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Date"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8" info="Main template page"%>
+   pageEncoding="UTF-8" info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"  %>
+
 <%
 MovieService ms = new MovieService();
 List<MovieDTO> movieList = ms.searchMovieChart();
-request.setAttribute("movieList", movieList);
+List<MovieDTO> nonMovieList = ms.searchNonMovieChart();
 
-    int listSize = movieList.size();
-    int randomIndex = (int)(Math.random() * listSize);
-    MovieDTO randomMovie = movieList.get(randomIndex);
-    
+List<MovieDTO> combinedList = new ArrayList<>();
+if (movieList != null) combinedList.addAll(movieList);
+if (nonMovieList != null) combinedList.addAll(nonMovieList);
+
+request.setAttribute("movieList", movieList);
+request.setAttribute("nonMovieList", nonMovieList);
+
+// 예고편 있는 영화만 필터링 및 랜덤 선택하여 유튜브 임베드 URL 생성
+String embedUrl = "";
+List<MovieDTO> trailerMovies = new ArrayList<>();
+for (MovieDTO movie : combinedList) {
+    String trailerUrl = movie.getTrailerUrl();
+    if (trailerUrl != null && !trailerUrl.trim().isEmpty()) {
+        trailerMovies.add(movie);
+    }
+}
+// videoId 추출
+if (!trailerMovies.isEmpty()) {
+    int randomIndex = (int)(Math.random() * trailerMovies.size());
+    MovieDTO randomMovie = trailerMovies.get(randomIndex);
     String trailerUrl = randomMovie.getTrailerUrl();
     String videoId = "";
 
-    if(trailerUrl.contains("youtu.be/")) {
-        videoId = trailerUrl.substring(trailerUrl.lastIndexOf("/") + 1);
+    if (trailerUrl.contains("youtu.be/")) {
+        int idx = trailerUrl.lastIndexOf("/");
+        if (idx != -1) {
+            videoId = trailerUrl.substring(idx + 1);
+            int paramIdx = videoId.indexOf("?");
+            if (paramIdx != -1) {
+                videoId = videoId.substring(0, paramIdx);
+            }
+        }
     } else if (trailerUrl.contains("watch?v=")) {
-        videoId = trailerUrl.substring(trailerUrl.indexOf("v=") + 2);
-
-        int eqIdx = videoId.indexOf("=");
-        if (eqIdx != -1) {
-        	videoId = videoId.substring(0, eqIdx);
+        int idx = trailerUrl.indexOf("v=") + 2;
+        if (idx != -1) {
+            videoId = trailerUrl.substring(idx);
+            int endIdx = videoId.indexOf("&");
+            if (endIdx == -1) endIdx = videoId.indexOf("=");
+            if (endIdx != -1) {
+                videoId = videoId.substring(0, endIdx);
+            }
         }
     }
-    
-String embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId;
-%>
 
+    if (!videoId.isEmpty()) {
+        embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId;
+    }
+}
+
+//상영예정작 필터링
+SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+String todayStr = sdf.format(new Date());
+List<MovieDTO> upcomingMovieList = new ArrayList<>();
+for (MovieDTO movie : combinedList) {
+    if (movie.getReleaseDate() != null) {
+        String releaseDateStr = sdf.format(movie.getReleaseDate());
+        if (releaseDateStr.compareTo(todayStr) >= 0) {
+            upcomingMovieList.add(movie);
+        }
+    }
+}
+request.setAttribute("upcomingMovieList", upcomingMovieList);
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,11 +86,8 @@ String embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/main_screen.css"/>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // 스크롤 이벤트
     window.addEventListener("scroll", function() {
-    	var buttonWrap = document.querySelector(".fixedBtn_wrap");
-    	var goTopButton = document.querySelector(".btn_gotoTop");
-    	var ticketingButton = document.querySelector(".btn_ticketing");
+       var buttonWrap = document.querySelector(".fixedBtn_wrap");
         if (window.scrollY > 100) {
             if (buttonWrap) {
                 buttonWrap.classList.add("visible");
@@ -56,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     var menuItems = document.querySelectorAll('.specialhall_list li');
     var image = document.getElementById('hallImage');
     var name = document.getElementById('hallName');
@@ -76,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showTab(tabName) {
-	var contents = document.querySelectorAll(".tab-content");
-	var buttons = document.querySelectorAll(".tab-button");
+   var contents = document.querySelectorAll(".tab-content");
+   var buttons = document.querySelectorAll(".tab-button");
     contents.forEach(c => c.classList.remove("active"));
     buttons.forEach(b => b.classList.remove("active"));
     
@@ -108,12 +152,7 @@ function showTab(tabName) {
 
 <div id="trailer-wrapper">
 <div id="trailer-container">
-<iframe 
-  src="<%= embedUrl %>" 
-  frameborder="0" 
-  allowfullscreen
-  allow="autoplay; encrypted-media">
-</iframe>
+<iframe src="<%= embedUrl %>" allowfullscreen allow="autoplay; encrypted-media"></iframe>
   <div class="trailer-overlay"></div>
 </div>
 </div>
@@ -128,72 +167,65 @@ function showTab(tabName) {
   </div>
   <a href="http://localhost/movie_prj/movie_chart/main_chart.jsp" id="btn_allView_Movie" class="btn_allView">전체보기 &gt;</a>
 </div>
-<div>
+
 <div class="content-area">
+  <!-- 무비차트 탭 -->
+  <div id="movieChart" class="tab-content active">
+    <div class="poster-marquee">
+    <div class="marquee">
+    <div class="poster-track">
+          <c:forEach var="movie" items="${movieList}" varStatus="status">
+            <div class="movie-item">
+              <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+                <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+              </a>
+              <div class="rank">${status.index + 1}</div>
+            </div>
+          </c:forEach>
 
-	<div id="movieChart" class="tab-content active">
-		<div class="poster-marquee">
-		<div class="poster-track">
-
-				<c:forEach var="movie" items="${movieList}" varStatus="status">
-				    <div class="movie-item">
-				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-				    	</a>
-				    <div class="rank">${status.index + 1}</div>
-				    </div>
-				</c:forEach>
-				<c:forEach var="movie" items="${movieList}" varStatus="status">
-				    <div class="movie-item">
-				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-				    	</a>
-				    <div class="rank">${status.index + 1}</div>
-				    </div>
-				</c:forEach>
-				<!-- <div class="movie-item">
-				    <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
-				    <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
-				</div> -->
-		</div>
-		</div>
-	</div>
-
-<div id="UpcomingMovies" class="tab-content">
-	<div class="poster-marquee">
-	<div class="poster-track">
-	
-			<c:forEach var="movie" items="${movieList}" varStatus="status">
-				    <div class="movie-item">
-				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-				    	</a>
-				    <div class="rank">${status.index + 1}</div>
-				    </div>
-				</c:forEach>
-				<c:forEach var="movie" items="${movieList}" varStatus="status">
-				    <div class="movie-item">
-				    	<a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
-				        <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
-				    	</a>
-				    <div class="rank">${status.index + 1}</div>
-				    </div>
-				</c:forEach>
-				
-	</div>
-	</div>
-</div>
-</div>
+          <c:forEach var="movie" items="${nonMovieList}" varStatus="status">
+            <div class="movie-item">
+              <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+                <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+              </a>
+              <div class="rank">${movieList.size() + status.index + 1}</div>
+            </div>
+          </c:forEach>
+                      <!-- <div class="movie-item">
+                <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
+                <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
+                 <img src="/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
+            </div> -->
+    </div>
+    </div>
+    </div>
+  </div>
+  <!-- 상영예정작 탭 -->
+  <div id="UpcomingMovies" class="tab-content">
+    <div class="poster-marquee">
+    <div class="marquee">
+    <div class="poster-track">
+          <c:forEach var="movie" items="${upcomingMovieList}" varStatus="status">
+            <div class="movie-item">
+              <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
+                <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
+              </a>
+            </div>
+          </c:forEach>
+    </div>
+    </div>
+    </div>
+  </div>
 
 </div>
-<!-- 특별관 추가 -->
+
+<!-- 특별관 -->
 <div class="sepecialHall_Wrap">
   <div class="contents">
       <div class="specialHall_title_wrap">
           <h2>특별관</h2>
           <a href="http://localhost/movie_prj/theater/theater_intro.jsp" class="btn_allView">전체보기 &gt;</a>
       </div>
-      
       <div class="specialHall_content">
           <div class="hall_image_section">
               <img id="hallImage" src="common/img/IMAX_main.jpg" 
@@ -203,7 +235,6 @@ function showTab(tabName) {
                   <div id="hallDesc" class="hall_description">#최고의 화질과 사운드</div>
               </div>
           </div>
-          
           <ul class="specialhall_list">
               <li data-image="common/img/IMAX_main.jpg"
                   data-name="IMAX" 
@@ -211,21 +242,18 @@ function showTab(tabName) {
                   <div class="hall_title">IMAX</div>
                   <div class="hall_tag">최고의 화질과 사운드</div>
               </li>
-              
               <li data-image="common/img/4DX_main.jpg"
                   data-name="4DX" 
                   data-desc="#모션시트 #오감체험">
                   <div class="hall_title">4DX</div>
                   <div class="hall_tag">모션시트 #오감체험</div>
               </li>
-              
               <li data-image="common/img/screenX_mian.jpg"
                   data-name="SCREENX" 
                   data-desc="#270도 다면상영">
                   <div class="hall_title">SCREENX</div>
                   <div class="hall_tag">270도 다면상영</div>
               </li>
-              
               <li data-image="common/img/Premium_main.jpg"
                   data-name="PREMIUM" 
                   data-desc="#프리미엄 좌석 #럭셔리">

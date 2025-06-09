@@ -107,16 +107,117 @@
     margin-left: 10px;
     border-radius: 3px;
 }
+
+.pw_border_line input{
+	width: 220px;
+}
 </style>
 <script type="text/javascript">
+	let timerInterval; // 타이머 인터벌 변수 추가
 
+	
 $(function(){
 	$(".pw_btn_red").on("click", function(){
 		
 	});
 	
+	//생년월일 입력 실시간 필터링
+	$("#birth").on("input", function(){
+		this.value = this.value.replace(/[^0-9]/g, "");
+	});
+	
+	//인증번호 받기 버튼 클릭시 
+	$("#authCodeBtn").on("click", function(){
+		if(!emailCheck()){
+			return;
+		}
+		//emailCheck(); //이메일양식 검증 함수 
+		const email = $("#email").val();
+		
+	 	$.ajax({
+			url : "${pageContext.request.contextPath}/login/controller/sendVerificationCode.jsp",
+			method: "post",
+			data :{
+				email : email,
+				action : "findPwd"
+			},
+			success : function(result){
+				if(result.trim() === "success"){
+					alert("인증번호 생성, DB 입력 성공");
+					//타이머 표시
+					$("#verification-error").hide();//경고창 숨김
+					$("#verification-timer").show();
+			    startTimer(300, document.getElementById("verification-timer"));
+			    
+			    
+				} else {
+					alert("인증번호 생성, DB 입력 실패");
+				}
+			},
+			error: function(xhr, status, error){
+				console.error("에러 발생!");
+    	  console.log("status: ", status);
+    	  console.log("error: ", error);
+    	  console.log("xhr.status: ", xhr.status);
+    	  console.log("xhr.responseText: ", xhr.responseText);
+			} 
+		});
+	 	
+	 	
+	});
 	
 });
+
+//타이머 함수 
+function startTimer(duration, display) {
+	
+  let timer = duration;
+  let minutes; 
+  let seconds;
+	// 기존 타이머가 있다면 정리
+  clearInterval(timerInterval);
+    
+  timerInterval = setInterval(function() {
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+    
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    
+    display.textContent = minutes + ":" + seconds;
+    
+    if (--timer < 0) {
+      clearInterval(timerInterval);
+      display.textContent = "00:00";
+      
+      // 에러 메시지 표시
+      $("#verification-timer").hide();
+      $("#verification-error").show();
+      $("#verification-error").text("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      
+      
+      // 5분 지났으므로 세션의 인증코드 번호 삭제 
+      $.ajax({
+        url : "${pageContext.request.contextPath}/login/controller/deleteSessionVerificationCode.jsp",
+        type : "POST"
+      });
+      
+      // 인증확인 버튼 비활성화
+      $("#verify-code").prop("disabled", true);
+    }
+  }, 1000);
+}
+
+function emailCheck() {
+  // 이메일 형식 검증
+  const email = $("#email").val();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("올바른 이메일 형식을 입력해주세요.");
+    return false;
+  }
+  return true;
+}
 
 </script>
 </head>
@@ -139,24 +240,26 @@ $(function(){
 	             
 	             <form action="">
 		             <div class="pw_field_row">
-		                 <div class="pw_field_name">법정생년월일<br>(6자리)</div>
+		                 <div class="pw_field_name">법정생년월일(8자리)</div>
 		                 <div>
-		                     <input type="text" class="pw_field_input" required maxlength="6"> * * * * * * *
+		                 	<input type="text" id="birth" name="birth" maxlength="8" placeholder="예) 19900101" />
 		                 </div>
 		             </div>
-		             
+						             
 		             <div class="pw_field_row">
 		                 <div class="pw_field_name">이메일주소</div>
 		                 <div style="display: flex; align-items: center;">
-		                     <input type="email" class="pw_field_input" style="width: 200px;" required>
-		                     <button class="pw_verify_btn">인증번호받기</button>
+		                     <input type="email" id="email" name="email" class="pw_field_input" required>
+		                     <button type="button" id="authCodeBtn" class="pw_verify_btn">인증번호받기</button>
+		                     <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">05:00</span>
+		                     <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-error"></span>
 		                 </div>
 		             </div>
 		             
 		             <div class="pw_field_row">
-		                 <div class="pw_field_name">인증번호<br>(4자리)</div>
+		                 <div class="pw_field_name">인증번호<br>(6자리)</div>
 		                 <div>
-		                     <input type="password" class="pw_field_input" maxlength="4">
+		                     <input type="password" class="pw_field_input" maxlength="6">
 		                 </div>
 		             </div>
 		         </div>

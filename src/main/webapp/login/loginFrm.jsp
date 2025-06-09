@@ -41,16 +41,19 @@ $(function(){
 		$("#nonMemberCheckReservationBtn").on("click", function(event){
 			event.preventDefault();
 			nonMemberCheckReservationFrm();
+			$("#content2").hide();//초기에는 header1만 보이게 
+			getHeader12(); //헤더2개 동적html 함수
+			checkNonMemberTicket() //비회원 예매확인 함수 
 			$(".sect-loginad").hide(); //광고숨김
 			$(".box-login.login_1408").css({width:"900px", height:"680px"});  //사이즈조절
 		});
 		
 		$(document).on("click", ".guest-btn.guest-btn-primary", function(){
-			alert("입력하신 정보와 일치하는 예매내역이 없습니다.");
-			//추후에 ajax로 조회해서, modal창으로 조회 출력하기 
+			//alert("입력하신 정보와 일치하는 예매내역이 없습니다.");
+			//이게 이벤트위임이라서 .on 이벤트리스너같은 거 보다 메모리누수 위험이 없는데..
 		});
 		
-		
+
 		
 		liClassChangeToOn(); //뭐였는지 까먹었지만 css관련 함수 
 		
@@ -92,6 +95,25 @@ $(function(){
 		});
 		
 });//-------------------------------------------------------------ready--------------------
+
+//비회원예매확인 (비회원예매확인 버튼 / 비회원 예매 비밀번호 찾기 버튼)
+function getHeader12(){
+	//상단의 비회원 예매확인 버튼 클릭시
+	$("#header1").on("click", function(){
+		$("#header1").css("backgroundColor", "#f2f2f2");
+		$("#header2").css("backgroundColor", "#fff");
+		$("#content1").show();
+		$("#content2").hide();
+	});
+	//상단의 비회원 예매 비밀번호 찾기 버튼 클릭시
+	$("#header2").on("click", function(){
+		$("#header2").css("backgroundColor", "#f2f2f2");
+		$("#header1").css("backgroundColor", "#fff");
+		$("#content2").show();
+		$("#content1").hide();
+	});
+}
+
 
 function nonMembrEmailInsert(){
 	$(document).on("change", "#emailDomain", function(){
@@ -336,7 +358,7 @@ function nonMemberLoginFrm() {
 
           <div class="form_row">
             <label for="birth">법정생년월일(8자리)</label>
-            <input type="text" id="birth" name="birth" maxlength="8" placeholder="20001225" />
+            <input type="text" id="birth" name="birth" maxlength="8" placeholder="예) 19900101" />
           </div>
 
           <div class="form_row">
@@ -354,7 +376,7 @@ function nonMemberLoginFrm() {
               </select>
               <input type="hidden" id="hiddenEmail" name="email" value="">
               <button type="button" class="btn_sub" style="width: 112px" id="getVerificationBtn" onclick="getVerification()">인증번호받기</button>
-              <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">5:00</span>
+              <span style="display:none; color: #f14d4d; font-size: 13px; margin-left: 10px;" id="verification-timer">05:00</span>
             </div>
           </div>
 
@@ -406,53 +428,66 @@ function nonMemberCheckReservationFrm(){
 	      
 	      <div class="guest-tab-container">
 	        <div class="guest-tab-header">
-	          <div class="guest-active">비회원 예매확인</div>
-	          <div>비회원 예매 비밀번호 찾기</div>
+	          <div class="guest-active" id="header1" style="background-color:#f2f2f2;">비회원 예매확인</div>
+	          <div id="header2" style="background-color:#FFF;">비회원 예매 비밀번호 찾기</div>
 	        </div>
 	        
 	        <div class="guest-tab-content">
-	          <div class="guest-tab-left">
-	            <div class="guest-form-row">
-	              <p>모든 항목은 필수 입력사항입니다.</p>
-	            </div>
-	            
-	            <div class="guest-form-row">
-	              <label>법정생년월일(8자리)</label>
-	              <input type="text" maxlength="8" placeholder="예) 19900101">
-	            </div>
-	            
-	            <div class="guest-form-row">
-	              <label>이메일주소</label>
-	              <div class="guest-email-wrap">
-	                <input type="text" placeholder="아이디">
-	                <span>@</span>
-	                <select>
-	                  <option value="">선택</option>
-	                  <option value="gmail.com">gmail.com</option>
-	                  <option value="naver.com">naver.com</option>
-	                  <option value="daum.net">daum.net</option>
-	                  <option value="custom">직접입력</option>
-	                </select>
-	              </div>
-	            </div>
-	            
-	            <div class="guest-form-row">
-	              <label>비밀번호(4자리)</label>
-	              <input type="password" maxlength="4">
-	            </div>
-	            
-	            <div class="guest-form-row guest-text-center">
-	              <button class="guest-btn guest-btn-primary">비회원 예매확인</button>
-	            </div>
-	          </div>
+	          <div class="guest-tab-left" id="content1" >
 	          
-	          <div class="guest-tab-right">
+	          	<div class="guest-tab-left-container" style="width: 70%; margin:auto;">
+	          	
+		            <div class="guest-form-row">
+		              <p style="color:red;">모든 항목은 필수 입력사항입니다.</p>
+		            </div>
+		            
+		            <form id="chkTicketForm" action="${pageContext.request.contextPath}/login/controller/chkNonMemTicket.jsp" method="POST"> 
+		            
+			            <div class="guest-form-row">
+			              <label>법정생년월일(8자리)</label>
+			              <input type="text" id="nonMemTicketBirth" name="birth" maxlength="8" placeholder="예) 19900101" required>
+			            </div>
+			            
+			            <div class="guest-form-row">
+			              <label>이메일주소</label>
+			              <div class="guest-email-wrap">
+			                <input type="text" id="nonMemGetTicketEmail1" placeholder="아이디" style="width:200px;" required>
+			                <span>@</span>
+			                <input type="text" id="nonMemGetTicketEmail2" value="" /> 
+			                <input type="hidden" id="nonMemGetTicketEmail" name="email" value="" /> 
+			                <select id="selectMail">
+			                  <option value="none" selected disabled>이메일 선택</option>
+			                  <option value="gmail.com">gmail.com</option>
+			                  <option value="naver.com">naver.com</option>
+			                  <option value="daum.net">daum.net</option>
+			                  <option value="custom">직접입력</option>
+			                </select>
+			              </div>
+			            </div>
+			            
+			            <div class="guest-form-row">
+			              <label>비밀번호(4자리)</label>
+			              <input type="password" id="nonMemTicketPassword" name="password" maxlength="4" required>
+			            </div>
+			            
+			            <div class="guest-form-row guest-text-center">
+			              <button class="guest-btn guest-btn-primary" id="checkNonMemberTicket">비회원 예매확인</button>
+			            </div>
+			            
+		            </form>
+		            
+	          	</div> <!--end left-container -->
+	          
+	          </div> <!--end guest-tab-left -->
+	          
+	          <div class="guest-tab-right" id="content2">
 	            <p>비회원 예매 시, 입력한 이메일주소로 SMS인증을 하면 비회원 예매 비밀번호를 찾으실 수 있습니다.</p>
 	            
 	            <div class="guest-divider"></div>
 	            
 	            <div class="guest-text-center" style="margin-top: 30px;">
-	              <button class="guest-btn guest-btn-outline"><a href="http://localhost/movie_prj/login/findNonMemberPwdFrm.jsp"> 이메일로 인증번호 받기</a></button>
+	              <!-- <button class="guest-btn guest-btn-outline"><a href="http://localhost/movie_prj/login/findNonMemberPwdFrm.jsp"> 이메일로 인증번호 받기</a></button> -->
+	              <button class="guest-btn guest-btn-outline"><a href="javascript:alert('현재 유지보수 진행중입니다. 고객센터에 문의해주세요.')"> 이메일로 인증번호 받기</a></button>
 	            </div>
 	          </div>
 	        </div>
@@ -536,7 +571,60 @@ function login(){
 	
 	
 }
+
+//checkNonMemberTicket 비회원 예매확인 버튼 이벤트리스터, 이벤트위임을 하는게 메모리 누수 위험이 없다고 하는데,, 강사님께 여쭈어보자 
+function checkNonMemberTicket(){
+
+		//생일 -> 실시간으로 숫자만 입력되게 필터링(keyup)  
+		$("#nonMemTicketBirth").on("input", function(){
+			this.value = this.value.replace(/[^0-9]/g, "");
+		}); 
+		
+		//이메일 -> 입력값 복사 
+		$("#selectMail").on("change", function(){
+	    let optionVal = $(this).val();  // 이벤트 발생 시점의 값 가져오기
+	    console.log(optionVal);
+	    if(optionVal && optionVal !== "none" && optionVal !== "custom"){
+       	$("#nonMemGetTicketEmail2").val(optionVal); //input은 val() / div,span등은 text()
+	    } else if(optionVal === "custom"){
+	    	$("#nonMemGetTicketEmail2").val("");
+        $("#nonMemGetTicketEmail2").focus();
+	    }
+		});
+		
+	//비회원예매확인 버튼 눌렀을 때 
+	$("#checkNonMemberTicket").on("click", function(event){
+		event.preventDefault();
+		
+		//이메일검증 
+		let emailId = $("#nonMemGetTicketEmail1").val();
+		let domain = $("#nonMemGetTicketEmail2").val();
+		const fullEmail = emailId + "@" + domain;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if(!emailRegex.test(fullEmail)){
+	    alert("옳바른 이메일 형식을 입력해주세요.");
+	    return;
+		}
+		
+		//이메일검증 통과 후 대입 
+		$("#nonMemGetTicketEmail").val(fullEmail);
+		console.log("이메일 : " + fullEmail);
+		
+		//비밀번호 숫자 검증
+		let password = $("#nonMemTicketPassword").val();
+		const fourDigitNumber = /^[0-9]{4}$/;
+		if(!fourDigitNumber.test(password)){
+			alert("비밀번호는 숫자 4자리를 입력해주세요.");
+			return;
+		}
+		
+		$("#chkTicketForm").submit();
+		
+	});
 	
+	
+}
+
 	
 </script>
 

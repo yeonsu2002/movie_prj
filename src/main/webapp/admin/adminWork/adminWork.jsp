@@ -4,14 +4,13 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 
-<%-- <c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" /> --%>
 <jsp:include page="/common/jsp/admin_header.jsp" />  
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>매니저 관리</title>
+<title>매니저 관리</title>  
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/admin.css">
 <link rel="stylesheet" href="http://localhost/movie_prj/common/css/adminWork.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/adminWork/css/adminModal.css">
@@ -20,6 +19,7 @@
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script>
+
 /* $(function() {}) 내부에는 초기 설정 코드, 초기 이벤트 바인딩, 이벤트 핸들러 등록만 넣는 것이 깔끔 */
 $(function() { 
 	
@@ -27,65 +27,65 @@ $(function() {
 		alert("${errorMsg}");
 	</c:if>
 	
-    // 매니저 행 클릭 시 상세정보 표시
-    $('.mgr-list-table tbody tr').click(function() {
-	    // 기존 선택 해제
-	    $('.mgr-list-table tbody tr').removeClass('mgr-selected');
-	    // 현재 행 선택
-	    $(this).addClass('mgr-selected');
+	// 매니저 행 클릭 시 상세정보 표시
+	$('.mgr-list-table tbody tr').click(function() {
+		// 기존 선택 해제
+		$('.mgr-list-table tbody tr').removeClass('mgr-selected');
+		// 현재 행 선택
+		$(this).addClass('mgr-selected');
+		
+		// 매니저 정보 가져오기 (data 속성에서)
+		let managerId = $(this).data('manager-id');
+		let managerName = $(this).find('.mgr-name').text().trim();
+		let managerEmail = $(this).find('.mgr-email').text().trim();
+		let managerPhone = $(this).find('.mgr-phone').text().trim();
+		let managerStatus = $(this).find('.mgr-status').text().trim();
+		let managerRole = $(this).find('.mgr-role').text().trim();
+		let managerPicture = $(this).find('.mgr-picture img').attr('src');
+		let managerIpList = $(this).find('.mgr-ipList').html();
+		let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
+		let userIdx = $("#userIdx").val();
+		
+		// 상세정보 영역 업데이트
+		updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, managerPicture, managerIpList, managerLastLogin, userIdx);
+	
+	}); // end 매니저 행 클릭시 상세정보 표시 
+	
+	// 검색 기능
+	$('#mgrSearchBtn').click(function() {
+	    var searchText = $('#mgrSearchInput').val().toLowerCase();
+	    var searchType = $('#mgrSearchType').val();
 	    
-	    // 매니저 정보 가져오기 (data 속성에서)
-	    let managerId = $(this).data('manager-id');
-	    let managerName = $(this).find('.mgr-name').text().trim();
-	    let managerEmail = $(this).find('.mgr-email').text().trim();
-	    let managerPhone = $(this).find('.mgr-phone').text().trim();
-	    let managerStatus = $(this).find('.mgr-status').text().trim();
-	    let managerRole = $(this).find('.mgr-role').text().trim();
-	    let maangerPicture = $(this).find('.mgr-picture img').attr('src');
-	    let managerIpList = $(this).find('.mgr-ipList').text().trim();
-	    let managerLastLogin = $(this).find('.mgr-last-login').text().trim();
-	    let userIdx = $("#userIdx").val();
-	    
-	    // 상세정보 영역 업데이트
-	    updateManagerDetail(managerId, managerName, managerEmail, managerPhone, managerStatus, managerRole, maangerPicture, managerIpList, managerLastLogin, userIdx);
-   
-    });
+	    $('.mgr-list-table tbody tr').each(function() {
+	        var show = false;
+	        
+	        if (searchType === 'all' || searchType === 'name') {
+	            if ($(this).find('.mgr-name').text().toLowerCase().includes(searchText)) {
+	                show = true;
+	            }
+	        }
+	        if (searchType === 'all' || searchType === 'email') {
+	            if ($(this).find('.mgr-email').text().toLowerCase().includes(searchText)) {
+	                show = true;
+	            }
+	        }
+	        
+	        if (searchText === '' || show) {
+	            $(this).show();
+	        } else {
+	            $(this).hide();
+	        }
+	    });
+	});// end 검색기능 
     
-    // 검색 기능
-    $('#mgrSearchBtn').click(function() {
-        var searchText = $('#mgrSearchInput').val().toLowerCase();
-        var searchType = $('#mgrSearchType').val();
-        
-        $('.mgr-list-table tbody tr').each(function() {
-            var show = false;
-            
-            if (searchType === 'all' || searchType === 'name') {
-                if ($(this).find('.mgr-name').text().toLowerCase().includes(searchText)) {
-                    show = true;
-                }
-            }
-            if (searchType === 'all' || searchType === 'email') {
-                if ($(this).find('.mgr-email').text().toLowerCase().includes(searchText)) {
-                    show = true;
-                }
-            }
-            
-            if (searchText === '' || show) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-    
-    // 엔터키로 검색
+    // 검색input에서 엔터누르면 검색버튼 클릭됨 
     $('#mgrSearchInput').keypress(function(e) {
         if (e.which === 13) {
             $('#mgrSearchBtn').click();
         }
     });
     
-    // 매니저 추가 버튼 클릭시
+    // 매니저 추가 버튼 클릭시 모달창 부름 
     $("#addManagerBtn").on("click", function(){
     	addManager("${pageContext.request.contextPath}/admin/adminWork/insertAdminForm.jsp");
     });
@@ -105,8 +105,8 @@ function updateManagerDetail(id, name, email, phone, status, role, picture, IpLi
     $('#mgrDetailPhone').text(phone);
     $('#mgrDetailStatus').text(status);
     $('#mgrDetailArea').text(role);
-    $('#mgrProfileImg').attr('src', picture);
-    $('#mgrDetailIp').text(IpList);
+    $('#mgrProfileImg').attr('src',  picture );
+    $('#mgrDetailIp').html(IpList);
     $('#mgrDetailLastLogin').text(lastLoginDate);
     $("#userIdx").val(userIdx);
     
@@ -117,7 +117,7 @@ function updateManagerDetail(id, name, email, phone, status, role, picture, IpLi
     //$('.mgr-detail-content').show();
 }
 
-// 매니저 수정 함수  
+// 매니저 수정 버튼 함수  
 function editManager() {
     let selectedRow = $('.mgr-selected');
     if (selectedRow.length === 0) {
@@ -137,9 +137,10 @@ function editManager() {
 				if (data.error) {
 	      	alert(data.error);
 		    }
-        // 모달 불러와 (udpateManager안에 모달창 데이터 채우기 함수가 있어.)
+        // 1. 모달창 매개변수 url초기화
         let getModalUrl = '${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp';
-        updateManager(getModalUrl, data);//모달 불러오고 -> 내용업데이트 순서로 해야 
+      	// 2. 모달jps 호출(매개변수: modal.jsp, modal에 넣을 data)
+        updateManager(getModalUrl, data); //->udpateManager()에 모달창 데이터 채우기 함수가 들어있음 
 	    },
 	    error: function(xhr, status, error) {
 	      console.error("에러 발생!");
@@ -152,7 +153,7 @@ function editManager() {
     });
 }
 
-// 매니저 삭제 함수
+// 매니저 비활성화 함수
 function deleteManager() {
     var selectedRow = $('.mgr-selected');
     if (selectedRow.length === 0) {
@@ -194,10 +195,7 @@ function deleteManager() {
     }
 }
 
-
-
-/* modal 함수: fetch는 좀더 공부해봐야겠어  */
-// 매니저 추가 모달창 
+// 매니저 추가 모달창, modal 함수: fetch는 좀더 공부해봐야겠어
 function addManager(url){ //fetch(url)로 서버에서 HTML 조각(fragment) 을 받아와서
 	fetch(url)
 		.then(response => response.text())
@@ -207,12 +205,26 @@ function addManager(url){ //fetch(url)로 서버에서 HTML 조각(fragment) 을
 			modalBody.innerHTML = html;
 			modalOverlay.style.display = 'flex';
 			
-			// 모달이 로드된 후 이벤트 리스너 다시 등록
+			// 이 부분을 추가!
+      setTimeout(() => {
+        modalOverlay.classList.add('active');
+      }, 10);
+			
+			// 모달이 로드된 후 이벤트 리스너 다시 등록, 동적생성이므로?
       setupModalEvents();
+			validateForm();
+			/*	1.	모달창 HTML 조각을 동적으로 불러옴 (fetch + innerHTML)
+					2.	그 안에는 버튼이나 input 등 여러 요소들이 있음
+					3.	이 요소들에 이벤트 리스너를 걸어야 함
+					4.	그런데 처음부터 있는 DOM이 아니라 나중에 삽입된 거라, 이벤트 리스너도 삽입된 후에 등록해야 함
+					5.	그래서 그걸 전담하는 함수가 setupModalEvents()처럼 하나로 묶여 있음
+					6.	모달을 띄운 후 setupModalEvents()를 호출하면 제대로 연결되는 구조  */
 			
 		});
-}
-// 매니저 수정 모달창 
+		
+} // end 매니저 추가 모달 
+
+// 매니저 수정 모달창
 function updateManager(url, adminData) {
   $.ajax({
     url: url,
@@ -223,57 +235,77 @@ function updateManager(url, adminData) {
       const modalBody = document.querySelector('.modal-body');
       modalBody.innerHTML = html; // 모달 내용 동적으로 변경
       modalOverlay.style.display = 'flex';
+      setTimeout(() => {
+    	    modalOverlay.classList.add('active');
+    	  }, 10); // 약간의 지연이 필요함
 
       // 모달이 로드된 후 이벤트 리스너 다시 등록
       setupModalEvents();
-      
-      fillModalWithData(adminData);  // 모달이 완성된 후 데이터 채우기
+   		// 모달이 로드된 후 데이터 채우기
+      fillModalWithData(adminData);  
     },
     error: function(xhr, status, error) {
       console.error('모달 로드 실패:', error);
     }
   });
+} // end 매니저 수정 모달 
+
+
+//이벤트리스너에 쓰일 모달닫기 함수 
+function closeModal(){
+	const modalOverlay = document.querySelector('.modal-overlay');
+  modalOverlay.classList.remove('active');
+
+  // transition 끝난 뒤 완전히 숨기기
+  setTimeout(() => {
+    modalOverlay.style.display = 'none';
+  }, 300); // transition 시간과 동일하게
 }
 
-function closeModal(){
-	document.querySelector('.modal-overlay').style.display = 'none';
-}
 
 //이벤트리스너
 document.addEventListener("DOMContentLoaded", () =>{
-	
-	document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
 	
 	//배경클릭시 닫기
 	document.querySelector('.modal-overlay').addEventListener("click", (e) => {
     if (e.target.classList.contains('modal-overlay')) closeModal();
   });
 	
-});
+});//end 이벤트리스너 
 
-
-/* --------------------------------------모달창 js-------------------------------------- */
-//모달 이벤트 설정 함수
+/* --------------------------------------모달창 js 함수 : 상위이벤트에 거는거 말고, 함수zip을 만들어서 모달 호출때 같이 호출하는 방식으로 리팩토링 하자-------------------------------------- */
+//모달 이벤트 설정 함수 (모달생성 ajax에서 호출하여 이벤트리스너 재설정중 )
 function setupModalEvents() {
-	
 	// 프로필 이미지 클릭 이벤트 (모달 내부)
-	const profileImg = document.querySelector('.modal-body #mgrProfileImg');
+	const profileImg = document.querySelector('.modal-body #mgrProfileImg2');
 	const fileInput = document.querySelector('.modal-body #profileImageBtn');
+	console.log("모달창의 요소(profileImg) : " + profileImg);
+	console.log("모달창의 요소(fileInput) : " + fileInput);
 	
 	if (profileImg && fileInput) {
 		profileImg.addEventListener('click', function() {
-	    fileInput.click();
+	    fileInput.click(); //이미지클릭 => 파일버튼 클릭 
 		});
-	    
+	     
 		// 파일 변경 이벤트
 		fileInput.addEventListener('change', function(e) {
     	const file = e.target.files[0];
+    	
+    	const lastDotIndex = file.name.lastIndexOf(".");
+    	const fileName = file.name.substring(0, lastDotIndex); //파일이름에서 확장자 뺴고
+    	 
+    	const validNameRegex = /^[a-zA-Z0-9가-힣\-_]{1,20}$/; //정규식: 숫자,한글,영어 10자제한
+    	if(!validNameRegex.test(fileName)){
+    		alert("파일 이름은 숫자, 영문, 한글, -, _로만 이루어져야 하며, 20자 이하만 가능합니다.");
+    		$(this).val('');//파일입력 초기화
+    		return false;
+    	}
 		    
 	    if (file && file.size > (1024 * 1024 * 10)) {
 		    alert("파일첨부 사이즈는 10MB 이내로 가능합니다.");
-		    fileInput.value = '';
-		    profileImg.src = "http://localhost/movie_prj/common/img/default_img.png";
-		    return;
+		    fileInput.value = ''; //선택한 파일값 다시 비우고 
+		    profileImg.src = "http://localhost/movie_prj/common/img/default_img.png"; //프로필 미리보기 주소를 기본값으로 변경 
+		    return false;
 	    }
 		    
 	    if (file) {
@@ -287,28 +319,203 @@ function setupModalEvents() {
 	} else {
   	console.log("모달 내 요소를 찾을 수 없습니다.");
 	}
-}
+	
+	//수정폼에 입력IP 추가 버튼 클릭 이벤트 - 수정된 버전
+	$("#saveIpBtn").on("click", function(event){
+		event.preventDefault();
 
-/* 모달 input 예외처리 검증  */
+		let inputedIp = $("#ipInput").val().trim();
+		if (!inputedIp) {
+			alert("IP를 입력해주세요.");
+			return;
+		}
 
-/* 모달이 동적으로 생성되기 때문에 이벤트 위임을 써야해 */
-//연락처 입력 시 자동으로 hidden input에 합치기
-$(document).on('input', '#phone1, #phone2, #phone3', function() {
-  let phone1 = $('#phone1').val();
-  let phone2 = $('#phone2').val();
-  let phone3 = $('#phone3').val();
-  
-  if (phone1 && phone2 && phone3) {
-    $('#phone').val(phone1 + '-' + phone2 + '-' + phone3);
-  }
-});
+		// IP 형식 검증 (선택사항)
+		const ipPattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+		if (!ipPattern.test(inputedIp)) {
+			alert("올바른 IP 형식을 입력해주세요. (예: 192.168.1.1)");
+			return;
+		}
 
+		// 중복 IP 체크
+		let isDuplicate = false;
+		$("#allowedIpSelect option").each(function() {
+			if ($(this).val() === inputedIp && $(this).val() !== "") {
+				isDuplicate = true;
+				return false; // each문 중단
+			}
+		});
+
+		if (isDuplicate) {
+			alert("이미 등록된 IP입니다.");
+			return;
+		}
+
+		// 현재 등록된 IP 개수 체크 (빈 값이 아닌 옵션들만 카운트)
+		let optionCount = $("#allowedIpSelect option").filter(function() {
+			return $(this).val() !== "" && !$(this).prop("disabled");
+		}).length;
+
+		console.log("현재 등록된 IP 개수:", optionCount);
+
+		if (optionCount >= 3) {
+			alert("접속가능한 IP는 계정당 3개까지 허용됩니다.");
+			return;
+		}
+
+		// 빈 슬롯 찾아서 IP 추가
+		let addedSuccessfully = false;
+		for(let i = 0; i < 3; i++){
+			let option = $("#ipOption"+i);
+			let realIpTag = $("#ipHidden"+i);
+			
+			if (option.val() === "none" || option.prop("disabled")) { //비어있을때 
+				option.val(inputedIp);
+				option.text(inputedIp);
+				realIpTag.val(inputedIp);//히든창에 넘기기 
+				option.prop("disabled", false);
+				addedSuccessfully = true;
+				break;
+			}
+		}
+
+		if (addedSuccessfully) {
+			$("#ipInput").val(""); // 입력창 초기화
+			console.log("IP 추가 완료:", inputedIp);
+		} else {
+			alert("IP 추가에 실패했습니다.");
+		}
+	});
+
+	// 추가: IP 삭제 시 해당 옵션을 완전히 초기화하는 로직도 수정
+	$("#removeIpBtn").on("click", function(event){
+		event.preventDefault();
+		let selectedOption = $("#allowedIpSelect option:selected");
+		
+		if(selectedOption.length > 0){
+			selectedOption.each(function(){ 
+				
+				//ID에서 index추출 -> ipOption1 에서 1추출
+				let optionId = $(this).attr("id");
+				let index = optionId.replace("ipOption", ""); //빼낸 id에서ipOpion글자 삭제 
+				
+				// 옵션을 초기화 
+				$(this).val("");
+				$(this).text("");
+				$(this).prop("disabled", true);
+				$(this).prop("selected", false); // 선택 해제
+				
+				//input타입 hidden도  초기화
+				$("#ipHidden" + index).val("");
+				
+			});
+			console.log("선택된 IP들이 삭제되었습니다.");
+		} else {
+			alert("삭제하실 IP를 선택하여주십시오.");
+			return;
+		}
+	});
+
+	// 수정폼에 수정 버튼 클릭 이벤트
+	$('#updateBtn').click(function() {
+	  if (!validateForm()) {
+		  return;
+	  } else {
+	    $('#adminForm').submit();
+	  }
+	});
+	
+	// 추가폼에 등록 버튼 클릭 이벤트
+	$('#submitBtn').click(function() {
+	  if (!validateForm()) {
+		  return;
+	  } else {
+	    $('#insertAdminForm').submit();
+	  }
+	});
+	
+	
+	
+	// 수정폼에 취소 버튼 클릭 이벤트
+	$('#cancelBtn').click(function() {
+	  $('.modal-overlay').hide() ; // 모달 닫기
+	});
+	
+	// 폼 검증 함수
+	function validateForm() {
+	  let isValid = true;
+	
+	  // 필수 필드 검증
+	  if (!$('#adminName').val().trim()) {
+	    alert('이름을 입력해주세요.');
+	    $('#adminName').focus();
+	    return false;
+	  }
+	  
+	  if (!$('#adminPwd').val().trim()) {
+	    alert('비밀번호를 입력해주세요.ㅋ');
+	    $('#adminPwd').focus();
+	    return false;
+	  }
+	
+	  if (!$('#adminEmail').val().trim()) {
+	    alert('이메일을 입력해주세요.');
+	    $('#adminEmail').focus();
+	    return false;
+	  }
+	
+	  if (!$('#phone1').val() || !$('#phone2').val() || !$('#phone3').val()) {
+	    alert('연락처를 모두 입력해주세요.');
+	    return false;
+	  } else {
+		  let phone1 = $('#phone1').val();
+		  let phone2 = $('#phone2').val();
+		  let phone3 = $('#phone3').val();
+		  let fullPhone = phone1 + '-' + phone2 + '-' + phone3;
+		  
+	    let phoneRegex = /^[0-9\-]+$/;
+
+	    if (!phoneRegex.test(fullPhone)) {
+        alert('연락처에는 숫자만 입력할 수 있습니다.');
+        return false;
+      }
+	    
+	    $('#phone').val(fullPhone);
+	  }
+	
+	  if ($('#manageArea').val() === 'none') {
+	    alert('관리영역을 선택해주세요.');
+	    $('#manageArea').focus();
+	    return false;
+	  }
+
+	  
+	  //이것도 체크해돠 
+		let selectedOption = $("#allowedIpSelect option:selected");
+	  //or
+	 	const select = document.getElementById('allowedIpSelect');
+		const options = select.options;
+		let count = 0;
+		for(let i = 0; i < options.length; i++){
+			if(!options[i].disabled){
+				count++;
+			}
+		}
+	  if (count < 1) {
+	    alert('접속IP를 하나 이상 입력해주세요.');
+	    $('#ipInput').focus();
+	    return false;
+	  }
+	
+	  return isValid;
+	}
+	
+}//setup modal evnet()
 
 //매니저 정보 수정 모달 폼에 데이터 채우기 
 function fillModalWithData(adminData) {
-	console.log("fillModalWithData() 실행 : " + adminData.adminId);
+	console.log(adminData);
   // 기본 정보 채우기
-  
   $('#adminId').val(adminData.adminId);
   //$('#adminPwd').val(adminData.adminPwd);
   $('#adminName').val(adminData.adminName);
@@ -328,42 +535,30 @@ function fillModalWithData(adminData) {
   // 관리영역 선택
   $('#manageArea').val(adminData.manageArea);
   
-  // 프로필 이미지가 있다면
-  if (adminData.picture) {
-	  $('#mgrProfileImg').attr('src', '/profile/' + adminData.picture); //input file값을 주는게 아님. 단순히 이미지출력임
-	  //$("#profileImageBtn").val(adminData.picture); //input file에는 자바스크립트로 값을 줄 수 없음. 보안위반 
+  // 프로필 이미지 재설정 
+  $('#mgrProfileImg2').attr('src', '${pageContext.request.contextPath}/common/img/default_img.png'); // 기본 이미지 등
+  /* if (adminData.picture) {
+	  //$('#mgrProfileImg2').attr('src', '/profile/' + adminData.picture); //input file값을 주는게 아님. 단순히 이미지출력임
+	  //$("#profileImageBtn").val(adminData.picture); //input file에는 자바스크립트로 값을 줄 수 없음. 보안위반사항이래 
 	  
-	} else {
-	  $('#mgrProfileImg').attr('src', '/common/default_img.png'); // 기본 이미지 등
-	}
+	} */ 
+  
   //유저 idx넘기기
   if(adminData.userIdx) {
 	  $("#userIdx").val(adminData.userIdx);
   }
-   
-  // 등록일 (수정 시에는 보통 변경하지 않음)
-  if (adminData.insertDate) {
-    $('input[name="insertDate"]').val(adminData.insertDate);
-  }
-  
-  //취소버튼 클릭시 (모달 닫고 부모페이지 리다이렉트)
-	$('#cancelBtn').click(function() {
-	  alert("취소 버튼 누름 ");
-	  $('#adminModal').modal('hide'); // 모달 닫기
-	});
-  
-  //수정버튼 클릭시 (수정하고 부모페이지 리다이렉트)
-	$('#updateBtn').click(function() {
-		alert("수정 버튼 누름 ");
-	  $('#adminForm').submit();
-	});
-
-
-  
-	//모달창 열기	
-  //updateManager("${pageContext.request.contextPath}/admin/adminWork/updateAdminForm.jsp");
-	//Ajax로 서버에서 모달 HTML 조각을 받아와서 모달 내용을 새로 넣어버립니다. 그래서 기존에 넣었던 데이터가 자꾸 사라지는거 .. 반대로 해야함 아오개빡치너'ㄹ'ㄴㅇ'ㄹ아ㅣㄹ
 	
+	//IP리스트 붙여넣기 
+	if(adminData.iplist.length < 4) { //iplist가 3개까지만 제한  
+		const ipList = adminData.iplist.map(item => item.ipAddress);
+		for(let i = 0; i < ipList.length; i++){
+			$("#ipOption"+i).text(ipList[i]);
+			$("#ipOption"+i).val(ipList[i]);
+			$("#ipHidden"+i).val(ipList[i]);
+			$("#ipOption"+i).prop("disabled", false);
+		}
+
+	}
 }// end fillModalWithData()
  
 
@@ -374,7 +569,6 @@ function fillModalWithData(adminData) {
 	<!-- 모달 구조 -->
 	<div class="modal-overlay">
 	  <div class="admin-modal-content">
-	    <span id="modalCloseBtn" class="modal-close">&times;</span>
 	    <div class="modal-body"></div>
 	  </div>
 	</div>
@@ -451,7 +645,7 @@ function fillModalWithData(adminData) {
 								<!-- fmt:formatDate는 오직 java.util.Date타입만 포맷 가능.. -->
 								<td class="mgr-ipList" style="display: none">
 									<c:forEach var="ip" items="${manager.IPList}">
-										<div>${ip.ipAddress} [생성일: ${ip.formattedCreatedAt}]</div>
+									  ${ip.ipAddress}<br>
 									</c:forEach>
 								</td>
 								<td style="display: none" id="userIdx" class="mgr-userIdx">${manager.userIdx }</td>
@@ -489,7 +683,7 @@ function fillModalWithData(adminData) {
 
 				<!-- 프로필 섹션 -->
 				<div class="mgr-profile-section">
-					<img src="/profiles/${manager.picture }" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
+					<img src="/profile/${manager.picture }" alt="프로필 사진" class="mgr-profile-img" id="mgrProfileImg">
 					<div class="mgr-profile-name">매니저명</div>
 					<div class="mgr-profile-position">직책</div>
 				</div>
@@ -529,7 +723,7 @@ function fillModalWithData(adminData) {
 						<td id="mgrDetailArea">1관, 2관, 3관</td>
 					</tr>
 					<tr>
-						<th>접속 허용된 IP</th>
+						<th>접속 허용 IP</th>
 						<td id="mgrDetailIp"></td>
 					</tr>
 				</table>

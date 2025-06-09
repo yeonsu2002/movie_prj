@@ -11,7 +11,7 @@
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
  #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
- 
+  
 .pw-container {
     max-width: 950px;
     margin: 0 auto;

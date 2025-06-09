@@ -9,7 +9,6 @@
 	response.setContentType("application/json; charset=UTF-8");
 
 	String managerId = request.getParameter("managerId");
-	System.out.println("managerId : " + managerId);
 	
 	AdminService adService = new AdminService();
 	

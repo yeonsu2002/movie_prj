@@ -6,8 +6,13 @@ function logout(){
 	location.href="${pageContext.request.contextPath}/admin/login/controller/logoutController.jsp";
 }
 </script>
-
 <div class="sidebar">
+	<c:if test="${empty loginAdmin }">
+		<script type="text/javascript">
+			alert("접근권한이 존재하지 않습니다.\n로그인 페이지로 이동합니다.");
+			location.href="${pageContext.request.contextPath}/admin/login/adminLoginForm.jsp";
+		</script>
+	</c:if>
 	<!-- 사이드바 -->
     <!-- 로고 영역 -->
     <div class="logo-container">
@@ -56,12 +61,10 @@ function logout(){
     </div>
     
     <div class="menu-category">
-        <div class="menu-title">회원 관리</div>
-        <div class="menu-item"><a href="http://localhost/movie_prj/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
     	<div class="menu-title">회원 관리</div>
 		 	<c:choose>
 		 		<c:when test="${loginAdmin.manageArea eq 'ManageMember' or loginAdmin.manageArea eq '전체'}">
-					<div class="menu-item"><a href="#void"><span>▶</span>회원 목록</a></div>
+        	<div class="menu-item"><a href="http://localhost/movie_prj/admin/member/member_table.jsp"><span>▶</span>회원 목록</a></div>
 		 		</c:when>
 		 		<c:otherwise>
 		      <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>회원 목록</a></div>
