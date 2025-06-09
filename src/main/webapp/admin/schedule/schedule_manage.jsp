@@ -1,3 +1,4 @@
+<%@page import="java.sql.Timestamp"%>
 <%@page import="kr.co.yeonflix.schedule.ShowScheduleDTO"%>
 <%@page import="java.sql.Date"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
@@ -14,6 +15,28 @@
 <jsp:include page="/common/jsp/admin_header.jsp" />
 
 <%
+//새로고침시 상영상태 변경
+ScheduleService ss = new ScheduleService();
+List<ScheduleDTO> list = ss.searchAllSchedule();
+Timestamp nowTime = new Timestamp(System.currentTimeMillis());
+
+for (ScheduleDTO sDTO : list) {
+	int status = sDTO.getScheduleStatus();
+	Timestamp startTime = sDTO.getStartTime();
+	Timestamp endTime = sDTO.getEndTime();
+
+	if (nowTime.after(startTime) && nowTime.before(endTime)) {
+		status = 1;
+	} else if (nowTime.after(endTime)) {
+		status = 2;
+	} else {
+		status = 0;
+	}
+
+	sDTO.setScheduleStatus(status);
+	ss.modifySchedule(sDTO);
+}
+
 //상단 탭 용 날짜 처리
 SimpleDateFormat sdf = new SimpleDateFormat("M/d E");
 SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
@@ -55,7 +78,6 @@ TheaterService ths = new TheaterService();
 List<TheaterDTO> theaterList = ths.searchAllTheater();
 
 //영화 정보 처리
-ScheduleService ss = new ScheduleService();
 List<MovieDTO> movieList = ss.searchAllMovie();
 
 //스케줄 가져오기
@@ -97,10 +119,6 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 			
 			// form 제출
 			$("#theaterForm").submit();
-		});
-		
-		$("#reload-btn").click(function(){
-			location.href = "schedule_reload.jsp";
 		});
 		
 		$(".coudNotEdit").click(function(){
@@ -208,10 +226,6 @@ pageContext.setAttribute("showScheduleList", showScheduleList);
 					</c:forEach>
 				</tbody>
 			</table>
-		</div>
-		
-		<div style="text-align: center;">
-			<button type="button" class="reload-btn" id="reload-btn">🔄 새로고침</button>
 		</div>
 	</div>
 </body>

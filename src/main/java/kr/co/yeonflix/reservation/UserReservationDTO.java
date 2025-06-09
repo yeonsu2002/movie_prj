@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 public class UserReservationDTO {
 
-	private int reservationIdx, userIdx, seatsCnt;
+	private int reservationIdx, userIdx, seatsCnt, totalPrice;
 	private String reservationNumber, memberId, seatsInfo, userType, tel;
 	private Timestamp reservationDate, canceledDate;
 }

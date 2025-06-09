@@ -32,7 +32,7 @@ System.out.println("userIdx : " + userIdx + " / movieIdx : " + movieIdx);
 
 
 // 위시리스트 서비스 호출
-SavedMovieService sms = new SavedMovieService(); 
+SavedMovieService sms = new SavedMovieService();
 boolean success = sms.addSavedMovie(movieIdx, userIdx);
 
 if (success) {

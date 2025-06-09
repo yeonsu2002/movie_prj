@@ -76,7 +76,7 @@ pageContext.setAttribute("reservationIdx", reservationIdx);
 		});
 
 		$("#toMyPage").click(function() {
-			location.href = "";
+			location.href = "http://localhost/movie_prj/mypage/MainPage.jsp";
 		});
 	});
 </script>
@@ -148,7 +148,15 @@ pageContext.setAttribute("reservationIdx", reservationIdx);
 					</ul>
 				</div>
 			</div>
+			<br><br>
+			<div class="main-banner">
+				<img src="http://localhost/movie_prj/common/img/banner/banner2.png"
+					style="width: 100%;">
+			</div>
+			<br> <br>
 		</div>
+		
+		
 
 
 	</main>

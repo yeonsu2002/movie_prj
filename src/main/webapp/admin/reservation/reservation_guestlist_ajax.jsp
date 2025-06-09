@@ -12,7 +12,6 @@
 <%
 int scheduleIdx = Integer.parseInt(request.getParameter("scheduleIdx"));
 int currentPage = Integer.parseInt(request.getParameter("currentPage"));
-int moviePrice = Integer.parseInt(request.getParameter("moviePrice"));
 int pageScale = Integer.parseInt(request.getParameter("pageScale"));
 
 String col = request.getParameter("col");
@@ -30,7 +29,6 @@ pageContext.setAttribute("currentPage", currentPage);
 pageContext.setAttribute("totalCnt", totalCnt);
 pageContext.setAttribute("pageScale", pageScale);
 pageContext.setAttribute("totalPage", totalPage);
-pageContext.setAttribute("moviePrice", moviePrice);
 pageContext.setAttribute("grDTOList", grDTOList);
 pageContext.setAttribute("key", key);
 
@@ -105,7 +103,7 @@ pageContext.setAttribute("key", key);
 					<td>👥 비회원</td>
 					<td>${grDTO.email}</td>
 					<td>${grDTO.birthFormatted}</td>
-					<td><fmt:formatNumber value="${grDTO.seatsCnt * moviePrice}"
+					<td><fmt:formatNumber value="${grDTO.totalPrice}"
 							type="number" groupingUsed="true" />원</td>
 				</tr>
 			</c:forEach>

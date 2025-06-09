@@ -417,7 +417,7 @@ public int selectTotalCount(RangeDTO rDTO) throws SQLException {
       if (rs.next()) {
           cnt = rs.getInt("cnt");
       }
-
+ 
   } catch (SQLException e) {
       // 예외 로깅 처리 (로그를 남기는 방법이 좋습니다)
       e.printStackTrace();

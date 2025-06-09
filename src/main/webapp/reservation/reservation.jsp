@@ -1,3 +1,4 @@
+<%@page import="java.sql.Timestamp"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonDTO"%>
 <%@page import="kr.co.yeonflix.movie.common.CommonService"%>
 <%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
@@ -25,31 +26,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <%
-//모든 스케줄의 선점된 좌석들 5분이 지났으면 없애기
-ReservedSeatService rss = new ReservedSeatService();
-ScheduleService ss = new ScheduleService();
-List<TempSeatDTO> tempSeatsList = rss.searchAllTempSeat();
-
-if (tempSeatsList != null) {
-	for (TempSeatDTO tempSeat : tempSeatsList) {
-		LocalDateTime holdTime = tempSeat.getClickTime().toLocalDateTime();
-		Duration d = Duration.between(holdTime, LocalDateTime.now());
-		
-		int seatIdx = tempSeat.getSeatIdx();
-		int scheduleIdx = tempSeat.getScheduleIdx();
-		
-		//현재는 테스트용으로 10초로 해놨으나 나중에 5분으로 변경
-		if (d.toSeconds() >= 10) {
-			boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
-			if (removed) {
-				ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
-				schDTO.setRemainSeats(schDTO.getRemainSeats()+1);
-				ss.modifySchedule(schDTO);
-			}
-		}
-	}
-}
-
 //날짜 가공
 List<Map<String, String>> dateList = new ArrayList<>();
 SimpleDateFormat monthSdf = new SimpleDateFormat("M월");
@@ -80,24 +56,9 @@ if (dateParam != null && !dateParam.isEmpty()) {
 	todayDate = Date.valueOf(minDate);
 }
 
-//해당 날짜의 상영스케줄 가져오기
-List<ScheduleDTO> todayScheduleList = ss.searchAllScheduleWithDate(todayDate);
-
-//해당 날짜에 상영하는 영화 목록 가져오기
-List<MovieDTO> todayMovieList = ss.searchAllMovieWithSchedule(todayScheduleList);
-
-//해당 날짜에 상영하는 영화가 가진 스케줄 및 상영관 정보
-Map<Integer, List<ScheduleTheaterDTO>> scthMap = new HashMap<>();
-for (MovieDTO mDTO : todayMovieList) {
-	List<ScheduleTheaterDTO> scthList = ss.searchtAllScheduleAndTheaterWithDate(mDTO.getMovieIdx(), todayDate);
-	scthMap.put(mDTO.getMovieIdx(), scthList);
-}
-
 pageContext.setAttribute("dateList", dateList);
 pageContext.setAttribute("minDate", minDate);
-pageContext.setAttribute("todayScheduleList", todayScheduleList);
-pageContext.setAttribute("todayMovieList", todayMovieList);
-pageContext.setAttribute("scthMap", scthMap);
+
 %>
 <!DOCTYPE html>
 <html>
@@ -111,31 +72,50 @@ pageContext.setAttribute("scthMap", scthMap);
 </style>
 <script type="text/javascript">
 	$(function() {
-		days = $(".day_list");
 
-		$(".btn_prev").click(function() {
-			var days = $(".day_list");
-			var idx = getCurrentIdx(days);
-			if (idx > 0) {
-				// 이전 날짜로 이동하고 해당 폼을 submit
-				days.eq(idx - 1).closest("form").submit();
-			}
-		});
+		var currentDate = $(".day_list.on").data("date");
+		
+	    if (currentDate) {
+	        loadSchedule(currentDate);
+	    }
+	    
+	    //날짜 버튼 클릭시
+	    $(".day_list").click(function() {
+	        var selectedDate = $(this).data("date");
+	        
+	        $(".day_list").removeClass("on");
+	        $(this).addClass("on");
+	        
+	        loadSchedule(selectedDate);
+	    });
 
-		$(".btn_next").click(function() {
-			var days = $(".day_list");
-			var idx = getCurrentIdx(days);
-			if (idx < days.length - 1) {
-				// 다음 날짜로 이동하고 해당 폼을 submit
-				days.eq(idx + 1).closest("form").submit();
-			}
-		});
+	    //다음 버튼 클릭시
+	    $(".btn_prev").click(function () {
+	        var days = $(".day_list");
+	        var idx = getCurrentIdx(days);
+	        if (idx > 0) {
+	            updateActive(days, idx - 1);
+	            var selectedDate = days.eq(idx - 1).data("date");
+	            loadSchedule(selectedDate);
+	        }
+	    });
+
+	    //이전 버튼 클릭시
+	    $(".btn_next").click(function () {
+	        var days = $(".day_list");
+	        var idx = getCurrentIdx(days);
+	        if (idx < days.length - 1) {
+	            updateActive(days, idx + 1);
+	            var selectedDate = days.eq(idx + 1).data("date");
+	            loadSchedule(selectedDate);
+	        }
+	    });
 
 		//상영시간 버튼 클릭시 예매페이지로 이동
-		$(".showtime").click(function() {
-			$(this).closest("form").submit();
-		});
-
+	    $(document).on("click", ".showtime", function(){
+	    	$(this).closest("form").submit();
+	    });
+	    
 		//관람등급 클릭시
 		$(".grade").click(function() {
 			$("#gradeModal").fadeIn();
@@ -146,10 +126,6 @@ pageContext.setAttribute("scthMap", scthMap);
 			$("#gradeModal").fadeOut();
 		});
 
-		//날짜 탭 클릭시
-		$(".day_list").click(function() {
-			$(this).closest("form").submit();
-		});
 	});
 
 	function updateActive(days, idx) {
@@ -159,6 +135,20 @@ pageContext.setAttribute("scthMap", scthMap);
 
 	function getCurrentIdx(days) {
 		return days.index(days.filter(".on"));
+	}
+
+	function loadSchedule(date) {
+		$.ajax({
+			url : "ajax_reservation.jsp",
+			method : "POST",
+			data : {date : date},
+			success : function(response) {
+				$("#movie-items").html(response);
+			},
+			error : function() {
+				alert("스케줄을 불러오는데 실패했습니다.");
+			}
+		});
 	}
 </script>
 </head>
@@ -176,18 +166,24 @@ pageContext.setAttribute("scthMap", scthMap);
 						<div class="date_list">
 							<div class="btn btn_prev"></div>
 							<ul class="day">
-								<c:set var="selectedDate"
-									value="${param.date != null ? param.date : minDate  }" />
 								<c:forEach var="day" items="${dateList}">
-									<li>
-										<form method="post" action="reservation.jsp" class="dateForm">
-											<input type="hidden" name="date" value="${day.fullDate}" />
-											<div
-												class="day_list ${day.fullDate == selectedDate ? 'on' : ''}">
-												<span>${day.month}<br> <em>${day.week}</em></span> <strong>${day.day}</strong>
-											</div>
-										</form>
-									</li>
+									<c:choose>
+										<c:when
+											test="${day.fullDate == minDate}">
+											<li>
+												<div class="day_list on" data-date="${day.fullDate}">
+													<span>${day.month}<br> <em>${day.week}</em></span> <strong>${day.day}</strong>
+												</div>
+											</li>
+										</c:when>
+										<c:otherwise>
+											<li>
+												<div class="day_list" data-date="${day.fullDate}">
+													<span>${day.month}<br> <em>${day.week}</em></span> <strong>${day.day}</strong>
+												</div>
+											</li>
+										</c:otherwise>
+									</c:choose>
 								</c:forEach>
 							</ul>
 							<div class="btn btn_next"></div>
@@ -202,80 +198,7 @@ pageContext.setAttribute("scthMap", scthMap);
 						<p>* 시간을 클릭하시면 빠른 예매를 하실 수 있습니다.</p>
 					</div>
 					<br> <br>
-					<div id="movie-items">
-					<c:forEach var="tml" items="${todayMovieList}">
-						<c:set var="selectedMovieIdx" value="${tml.movieIdx}" />
-						<%
-						
-						//각 영화별 장르와 등급 가져오기
-						int selectedMovieIdx = (Integer) pageContext.getAttribute("selectedMovieIdx");
-						MovieCommonCodeService mccs = new MovieCommonCodeService();
-						String genre = mccs.searchOneGenre(selectedMovieIdx);
-						String grade = mccs.searchOneGenre(selectedMovieIdx);
-
-						request.setAttribute("genre", genre);
-						request.setAttribute("grade", grade);
-						%>
-						<div class="movie-item">
-							<div class="movie-info">
-								<div>
-									<img src="http://localhost/movie_prj/common/img/icon_${grade}.svg" />&nbsp
-								</div>
-								<div class="movie-name">${tml.movieName}</div>
-								<div class="meta">
-									<span class="status">상영중</span> | ${genre} / ${tml.runningTime}분 /
-									<fmt:formatDate value="${tml.releaseDate}" pattern="yyyy.MM.dd" />
-									개봉
-								</div>
-							</div>
-							<c:set var="previousKey" value="" />
-							<c:forEach var="scth" items="${scthMap[tml.movieIdx]}">
-								<c:set var="currentKey"
-									value="${scth.theaterType}_${scth.theaterName}" />
-								<c:if test="${currentKey != previousKey}">
-									<c:set var="previousKey" value="${currentKey}" />
-
-									<div class="theater-block">
-										<div class="theater-info">⯈ ${scth.theaterType} |
-											${scth.theaterName} | 총 140석</div>
-										<div class="showtimes">
-											<c:forEach var="scth2" items="${scthMap[tml.movieIdx]}">
-												<c:if
-													test="${scth2.theaterType == scth.theaterType && scth2.theaterName == scth.theaterName}">
-													<c:choose>
-														<c:when test="${scth2.scheduleStatus == 0}">
-															<form action="reservation_seat.jsp"
-																name="selectedSchedule" method="post">
-																<div class="showtime">
-																	<fmt:formatDate value="${scth2.startTime}"
-																		pattern="HH:mm" />
-																	<br> <span>${scth2.remainSeats}석</span>
-																</div>
-																<input type="hidden" name="scheduleIdx"
-																	value="${scth2.scheduleIdx}" />
-															</form>
-														</c:when>
-														<c:otherwise>
-															<div class="showtime-end">
-																<fmt:formatDate value="${scth2.startTime}"
-																	pattern="HH:mm" />
-																<br> <span>마감</span>
-															</div>
-														</c:otherwise>
-													</c:choose>
-												</c:if>
-											</c:forEach>
-										</div>
-									</div>
-								</c:if>
-							</c:forEach>
-
-							<br> <br>
-						</div>
-						<br>
-						<br>
-					</c:forEach>
-					</div>
+					<div id="movie-items"></div>
 					<br> <br>
 					<p class="info_screen">[공지]입장 지연에 따른 관람 불편을 최소화하기 위해 영화는 10분 후
 						상영이 시작됩니다.</p>
@@ -311,7 +234,7 @@ pageContext.setAttribute("scthMap", scthMap);
 					<tbody>
 						<tr>
 							<td class="grade-label"><img
-								src="http://localhost/movie_prj/common/img/icon_all.svg" />전체
+								src="http://localhost/movie_prj/common/img/icon_ALL.svg" />전체
 								관람가</td>
 							<td>모든 연령의 고객님께서 관람하실 수 있습니다.</td>
 						</tr>

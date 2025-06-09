@@ -204,7 +204,6 @@ function fetchReservation(url) {
             currentPage: currentPage,
             col: col, 
             key: key,
-            moviePrice: "${moviePrice}",
             pageScale: pageScale
         },
         success: function(response){

@@ -28,8 +28,8 @@
     	int seatIdx = tempSeat.getSeatIdx();
     	Duration d = Duration.between(holdTime, LocalDateTime.now());
     
-    //현재는 테스트용으로 10초로 해놨으나 나중에 5분으로 변경
-    if(d.toSeconds() >= 10){
+    //현재는 테스트용으로 1분 해놨으나 나중에 5분으로 변경
+    if(d.toMinutes() >= 1){
         // 수정: 해당 스케줄의 해당 좌석만 삭제
         boolean removed = rss.removeTempSeat(seatIdx, scheduleIdx);
         if(removed) {
