@@ -119,11 +119,17 @@ public class DashboardDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
-		String sql = "SELECT m.movie_name, COUNT(*) AS reservation_count " + "FROM reservation r "
-				+ "JOIN schedule s ON r.schedule_idx = s.schedule_idx " + "JOIN movie m ON s.movie_idx = m.movie_idx "
-				+ "WHERE r.canceled_date IS NULL " + "  AND m.screening_status = 0 "
-				+ "  AND r.reservation_date >= TRUNC(SYSDATE) - 6 " + "  AND r.reservation_date < TRUNC(SYSDATE) + 1 "
-				+ "GROUP BY m.movie_name " + "ORDER BY reservation_count DESC " + "FETCH FIRST 5 ROWS ONLY";
+		String sql = "SELECT m.movie_name, NVL(COUNT(r.reservation_idx), 0) AS reservation_count " +
+	             "FROM movie m " +
+	             "LEFT JOIN schedule s ON m.movie_idx = s.movie_idx " +
+	             "LEFT JOIN reservation r ON s.schedule_idx = r.schedule_idx " +
+	             "    AND r.canceled_date IS NULL " +
+	             "    AND r.reservation_date >= TRUNC(SYSDATE) - 6 " +
+	             "    AND r.reservation_date < TRUNC(SYSDATE) + 1 " +
+	             "WHERE m.screening_status IN (0, 1) " +
+	             "GROUP BY m.movie_name " +
+	             "ORDER BY reservation_count DESC, m.movie_name ASC " +
+	             "FETCH FIRST 5 ROWS ONLY";
 
 		try {
 			con = dbCon.getDbConn();
