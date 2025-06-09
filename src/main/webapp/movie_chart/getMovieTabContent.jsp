@@ -51,7 +51,7 @@ try {
 // 트레일러 URL 가져오기 (실제 필드명에 맞게 수정 필요)
 String trailerUrl = movie.getTrailerUrl(); // 또는 실제 트레일러 URL 필드명
 String embedUrl = "";
-
+request.setAttribute("trailerUrl", trailerUrl);
 // YouTube URL을 embed URL로 변환
 if (trailerUrl != null && !trailerUrl.trim().isEmpty()) {
     String videoId = "";
@@ -104,13 +104,17 @@ if ("main-info".equals(tabType)) {
 <div class="tab-content active">
     <div class="trailer-container">
         <h3>트레일러</h3>
-       <div class="trailer-preview">
+        <c:choose>
+		  <c:when test="${not empty trailerUrl}">
+		    <div class="trailer-preview">
+		            <div class="trailer-background"></div>
+		            <div class="trailer-overlay">
+		                <div class="play-button"></div>
+		            </div>
+		        </div>
+		  </c:when>
+		</c:choose>
        
-            <div class="trailer-background"></div>
-            <div class="trailer-overlay">
-                <div class="play-button"></div>
-            </div>
-        </div>
         
         <% 
         if (embedUrl != null && !embedUrl.trim().isEmpty()) { %>
