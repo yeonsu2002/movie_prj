@@ -221,9 +221,7 @@ $(function(){
 	
 	 toggleTable();
 }); // ready
-
 	
-	    
 	    function toggleTable() {
 	        const type = document.getElementById("typeSelect").value;
 	        document.getElementById("memberTable").style.display = type === "member" ? "table" : "none";
