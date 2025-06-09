@@ -311,11 +311,11 @@ table.movie-list td:last-child {
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script>
 $(function(){
-	$('#dAddBtn').click(function() {
+/* 	$('#dAddBtn').click(function() {
 	    var left = window.screenX + 200;
 	    var top  = window.screenY + 150;
 	    window.open('actor_list.jsp', 'id', 'width=512,height=313,left=' + left + ',top=' + top);
-	  });
+	  }); */
 	
 	
 	function toggleTooltip() {

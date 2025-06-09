@@ -25,10 +25,12 @@
     
     String reservationRate = request.getParameter("reservationRate");
     
+    
+    
 %>    
     <meta charset="UTF-8">
     <jsp:include page="../common/jsp/external_file.jsp" />
-    <title>CGV 무비차트 - <%=mDTO.getMovieName() %> </title>
+    <title>YEONFLIX 무비차트 - <%=mDTO.getMovieName() %> </title>
     <style>
         body {
             font-family: 'Malgun Gothic', sans-serif;
@@ -782,8 +784,6 @@
                             <div class="reservation-rate">
                                 <span class="label">예매율</span>
                                 <span class="percent"><%=reservationRate%>%</span>
-                                <span style="margin-left: 5px;">⭐</span>
-                                <span style="color: #f80; font-weight: bold;">99%</span>
                             </div>
                         </div>
                         
@@ -791,7 +791,11 @@
                             <div><span class="detail-label">감독</span>: <%= mDTO.getDirectors()%></div>
                             <div><span class="detail-label">배우</span>: <%= mDTO.getActors()%></div>
                             <div><span class="detail-label">장르</span>: ${genre}</div>
+                            <c:choose>
+                            <c:when test="''">
                             <div><span class="detail-label">기본</span>: ${grade}세이상관람가, <%= mDTO.getRunningTime() %>분, <%=mDTO.getCountry() %></div>
+                            </c:when>
+                            </c:choose>
                             <div><span class="detail-label">개봉</span>: <%= mDTO.getReleaseDate() %></div>
                         </div>
                         
@@ -800,7 +804,7 @@
                                 <span class="heart-icon">🤍</span>
                                 <span class="btn-text">보고싶어요</span>
                             </button>
-                            <button class="btn-reserve">예매하기</button>
+                            <a href="../reservation/reservation.jsp"><button class="btn-reserve">예매하기</button></a>
                         </div>
                     </div>
                 </div>

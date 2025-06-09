@@ -120,5 +120,11 @@ public class ReviewService {
 
         return list;
     }
+    
+    public List<ReviewDTO> getReviewsMyMovie(int userIdx) throws SQLException {
+        // ReviewDAO의 selectMyReview 메서드를 호출
+    	ReviewDAO rDAO = ReviewDAO.getInstance();
+        return rDAO.selectMyReview(userIdx);
+    }
 
 }

@@ -54,7 +54,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>기대되는 영화</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
 #container {

@@ -60,7 +60,7 @@ request.setAttribute("iDTO", iDTO);
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>마이페이지</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
  .profile-container {

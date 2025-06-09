@@ -53,11 +53,20 @@
         return;
     }
     
+    // 구매 여부 체크
     PurchaseHistoryService phs = new PurchaseHistoryService();
-    Boolean Purchased = phs.hasPurchasedMovie(userId, movieId);
+    Boolean Purchased = false;
+    try {
+        Purchased = phs.hasPurchasedMovie(userId, movieId);
+    } catch (Exception e) {
+        e.printStackTrace();
+        out.println("<script>alert('서버 오류가 발생했습니다.'); history.back();</script>");
+        return;
+    }
+
     if(!Purchased){
-    	 out.println("<script>alert('영화 관람 후에만 리뷰 작성이 가능합니다'); location.href='" + request.getContextPath() + "/login/loginFrm.jsp';</script>");
-         return;
+        out.println("<script>alert('영화 관람 후에만 리뷰 작성이 가능합니다'); history.back();</script>");
+        return;
     }
 
     // 필수 값 체크
@@ -80,6 +89,19 @@
         return;
     }
 
+    // 중복 리뷰 체크 - 한 아이디당 영화별 리뷰 1개만 허용
+    ReviewService service = new ReviewService();
+    try {
+        if(service.hasUserReviewedMovie(userId, movieId)) {
+            out.println("<script>alert('이미 이 영화에 대해 리뷰를 작성하셨습니다.'); history.back();</script>");
+            return;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        out.println("<script>alert('서버 오류가 발생했습니다.'); history.back();</script>");
+        return;
+    }
+
     // DTO 생성 및 세팅
     ReviewDTO dto = new ReviewDTO();
     dto.setMovieId(movieId);
@@ -88,8 +110,7 @@
     dto.setRating(rating);
     dto.setUserId(userId);
 
-    // 서비스 호출
-    ReviewService service = new ReviewService();
+    // 리뷰 등록 시도
     boolean result = false;
     try {
         result = service.addReview(dto);
@@ -98,7 +119,6 @@
     }
 
     // 결과 처리
-
     if (result) {
 %>
     <script>
