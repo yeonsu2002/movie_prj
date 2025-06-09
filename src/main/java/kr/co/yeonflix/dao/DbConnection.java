@@ -54,9 +54,9 @@ public class DbConnection {
         Connection con = null;
         try {
             Class.forName("oracle.jdbc.OracleDriver");  // Oracle 드라이버 로드
-            String url = "jdbc:oracle:thin:@192.168.10.70:1521:orcl";  // 본인 DB URL로 수정
-            String user = "kiosk";                    // 본인 DB 사용자명
-            String password = "1234";                // 본인 DB 비밀번호
+            String url = "jdbc:oracle:thin:@192.168.10.70:1521:orcl/3";  // 본인 DB URL로 수정
+            String user = "scott";                    // 본인 DB 사용자명
+            String password = "tiger";                // 본인 DB 비밀번호
             con = DriverManager.getConnection(url, user, password);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();

@@ -38,7 +38,7 @@ if (loginUser == null) {
     request.setAttribute("member", mDTO);
  
     /* -------------------------------------------------------------------------------------- */
-    
+    //중복 영화
     Set<Integer> DupMovie=new HashSet<>();
     
     PurchaseHistoryService phs = new PurchaseHistoryService();
@@ -82,23 +82,96 @@ if (loginUser == null) {
 <title>Insert title here</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
-  #container {
+#container {
   min-height: 650px;
-  margin: 30px auto; /* 위아래 여백 + 가운데 정렬 */
-  max-width: 1200px;  /* 최대 너비 제한 */
+  margin: 30px auto;
+  max-width: 1200px;
   display: flex;
-  gap: 40px;
 }
 
+/* 좌측 사이드바 */
 .sidebar {
   width: 250px;
   border-right: 1px solid #e0e0e0;
-  padding: 0 10px;
+  padding: 20px 10px;  /* 위아래 여백 추가 */
   margin-right: 50px;
-  position: relative; /* 부모가 기준이 되도록 설정 */
-  min-height: 100%; /* 높이를 늘려서 자식 절대 위치 가능하게 */
+  position: relative;
+  min-height: 100%;
+  background-color: #fff;  /* 흰 배경 */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  border-radius: 5px;
 }
 
+/* 프로필 */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.profile-id {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  color: gray;
+}
+
+/* 버튼 기본 스타일 */
+.btn {
+  display: inline-block;
+  padding: 12px 0;
+  margin: 10px 0;
+  width: 230px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  box-sizing: border-box;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 연한 버튼 스타일 */
+.btn-light {
+  background-color: #f8f9fa;
+  color: #212529;
+  border: 1px solid #ced4da;
+}
+
+.btn-light:hover {
+  background-color: #e2e6ea;
+  color: #212529;
+}
+
+/* 강조 버튼 스타일 */
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* 사이드바 하단 고정 버튼 */
 .fixed-btn {
   position: absolute;
   bottom: 20px;
@@ -112,6 +185,8 @@ if (loginUser == null) {
   border-radius: 5px;
   text-decoration: none;
   color: black;
+  font-weight: 600;
+  user-select: none;
   transition: background-color 0.3s;
 }
 
@@ -120,69 +195,23 @@ if (loginUser == null) {
 }
 
 /* 우측 콘텐츠 영역 */
-.content-area {
+.header-container {
   flex: 1;
-  padding: 20px;
 }
- 
- 
- .profile {
- display: flex;
-  flex-direction: column;      /* 세로로 쌓기 */
-  align-items: center;         /* 중앙 정렬 */
-  text-align: center;
- }
- 
 
- 
- .profile-info {
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
- }
- 
- 
- .profile-id {
-   display: block;              /* 줄바꿈 */
-  margin-top: 3px;             /* 각 라인 간격 */
-  font-size: 14px;
-  color: gray;
- }
- 
- 
- 
- 
- .content-area {
-   margin-left: 270px;
-   padding: 20px;
- }
- 
+.main-content {
+  padding: 20px;
+  margin-left: 0; /* 사이드바와 flex 구조라 필요 없음 */
+}
 
- 
- .empty-content {
-   text-align: center;
-   padding: 40px;
-   background-color: white;
-   border-radius: 5px;
-   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
- }
- 
- 
- .profile-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 10px; 
-  }
 .movie-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
   justify-content: flex-start;
 }
-
 .movie-card {
-  flex: 0 0 calc(50% - 15px); /* 화면의 50%에서 gap 절반 빼기 */
+  flex: 0 0 calc(50% - 15px);
   max-width: calc(50% - 15px);
   background-color: #fff;
   border-radius: 10px;
@@ -191,14 +220,12 @@ if (loginUser == null) {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 20px;
+  padding: 20px 20px;
   box-sizing: border-box;
   transition: transform 0.2s ease;
+  width: 180px;
 }
 
-.movie-card:hover {
-  transform: translateY(-5px);
-}
 
 .movie-card img {
   width: 180px;          /* 폭은 고정 */
@@ -208,29 +235,32 @@ if (loginUser == null) {
   border-radius: 8px;
 }
 
-.movie-info h3 {
-  font-size: 18px;
-  margin: 10px 0 6px;
+.movie-info {
+  width: 180%; /* 너비를 100%로 설정해서 movie-card에 맞게 조정 */
+  padding: 10px 0; /* 상하 여백만 적용 */
+  text-align: center;
+  word-break: keep-all;
+  background-color: white;
+  border-radius: 8px;
+}
 }
 
-.movie-info p {
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
-}
 .movie-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
+  line-height: 1.4;
+  white-space: normal;
+  word-break: keep-all;
+  margin-bottom: 6px;
 }
-.movie-genre {
-  font-size: 14px;
-  color: #666;
-  margin: 5px 0;
-}
+
 .movie-date {
   font-size: 13px;
   color: #666;
+  line-height: 1.4;
 }
+
+
 
 </style>
 <script type="text/javascript">

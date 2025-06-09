@@ -44,6 +44,7 @@ public class inquiryDAO {
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
+				iDTO.setAnswered_time(rs.getString("answered_time"));
 				
 				inquiryList.add(iDTO);
 			}

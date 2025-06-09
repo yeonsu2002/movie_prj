@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.member.NonMemberDAO"%>
 <%@page import="kr.co.yeonflix.member.NonMemberService"%>
 <%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
 <%@page import="kr.co.yeonflix.member.BoardUtil"%>
@@ -10,8 +11,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<c:import url="http://localhost/movie_prj/common/jsp/admin_header.jsp" />
-<jsp:include page="/common/jsp/admin_header.jsp" />
 
 <jsp:useBean id="rDTO" class="kr.co.yeonflix.member.RangeDTO" scope="page"/>
 <jsp:setProperty name="rDTO" property="*" />
@@ -139,7 +138,7 @@ table {
 }
 
 th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
     padding: 20px 15px;
     text-align: center;
@@ -190,18 +189,16 @@ tr:has(td:last-child:contains("탈퇴")) td:last-child::before {
 $(function(){
 	
 	$("#btnSearch").click(function(){
-		var keyword = $("#keyword").val();
-		
-		if(keyword == ""){
-			alert("검색 키워드는 필수 입력");
-			//early return
-			return;
-		} //end if
-		 $("#searchFrm").submit(); 
-		
-		 
-		 
-	}); //click
+	    var keyword = $("#keyword").val();
+	    
+	    if(keyword === ""){
+	        alert("검색 키워드는 필수 입력");
+	        return;
+	    }
+
+	   
+	    $("#searchFrm").submit(); 
+	});
 	
 	$("#btnReset").click(function () {
 	    // 검색 필드 초기화
@@ -212,15 +209,29 @@ $(function(){
 	    $("#searchFrm").submit();
 	  });
 	
+	$("#typeSelect").change(function() {
+        // 검색 조건 초기화
+        $("#keyword").val("");
+        $("#field").prop("selectedIndex", 0);
+        $("#searchFrm").submit();
+    });
+	
+	
 	 toggleTable();
 }); // ready
 
 	
-	function toggleTable() {
-	    const type = document.getElementById("typeSelect").value;
-	    document.getElementById("memberTable").style.display = type === "member" ? "table" : "none";
-	    document.getElementById("nonMemberTable").style.display = type === "nonmember" ? "table" : "none";
-	}
+	    
+	    function toggleTable() {
+	        const type = document.getElementById("typeSelect").value;
+	        document.getElementById("memberTable").style.display = type === "member" ? "table" : "none";
+	        document.getElementById("nonMemberTable").style.display = type === "nonmember" ? "table" : "none";
+	        
+	     
+	        const countText = type === "member" ? "전체 회원 수" : "전체 비회원 수";
+	        document.getElementById("countLabel").innerText = countText;
+	    }
+
 	
 </script>
 <jsp:include page="/common/jsp/admin_header.jsp" />
@@ -231,9 +242,27 @@ $(function(){
 <%
 
 MemberService ms = new MemberService();
+List<MemberDTO> memberList = ms.searchAllMember(rDTO);
+
+String userType = request.getParameter("userType");
+if (userType == null || userType.isEmpty()) {
+    userType = "member";
+}
+
+NonMemberDAO nDAO=NonMemberDAO.getInstance();
+List<NonMemberDTO> nonMemberList=nDAO.selectAllNonMember(rDTO);
+
 
 int totalCount = 0;
 totalCount = ms.totalCount(rDTO);
+
+if ("member".equals(userType)) {
+    memberList = ms.searchAllMember(rDTO);
+    totalCount = ms.totalCount(rDTO);
+} else if ("nonmember".equals(userType)) {
+    nonMemberList = nDAO.selectAllNonMember(rDTO);
+    totalCount = nDAO.selectTotalCount(rDTO);
+}
 
 // 한 화면에 출력할 게시물의 수
 int pageScale = 0;
@@ -252,13 +281,17 @@ int endNum;
 endNum = ms.endNum(pageScale, rDTO);
 
 // 게시물 리스트
-List<MemberDTO> memberList = ms.searchAllMember(rDTO);
 
-String queryStr = "&field=" + rDTO.getField() + "&keyword=" + rDTO.getKeyword();
+String queryStr = "&field=" + rDTO.getField() + "&keyword=" + rDTO.getKeyword()+"&userType=" + userType;
 pageContext.setAttribute("queryStr", queryStr);
 
 // 검색 조건 항목 설정
-String[] fieldText = {  "이름", "전화번호", "이메일"  };
+String[] fieldText;
+if ("member".equals(userType)) {
+    fieldText = new String[]{"이름", "전화번호", "이메일"};
+} else {
+    fieldText = new String[]{"이메일"};  // 비회원은 이메일만 검색 가능
+}
 
 pageContext.setAttribute("totalCount", totalCount);
 pageContext.setAttribute("pageScale", pageScale);
@@ -266,35 +299,29 @@ pageContext.setAttribute("totalPage", totalPage);
 pageContext.setAttribute("startNum", rDTO.getStartNum());
 pageContext.setAttribute("endNum", rDTO.getEndNum());
 pageContext.setAttribute("memberList", memberList);
+pageContext.setAttribute("nonMemberList", nonMemberList);
 pageContext.setAttribute("fieldText", rDTO.getFieldText());
-// request 속성에 값 저장 (JSTL에서 사용)
 pageContext.setAttribute("rDTO", rDTO);
-
+pageContext.setAttribute("userType", userType);
 %>
 
-
-<%--
-/* NonMemberService nms=new NonMemberService();
-List<NonMemberDTO> nonMemberList = nms.searchAllNonMember(rDTO); 
-pageContext.setAttribute("nonMemberList", nonMemberList);
- */
-
-
---%>
-
- 
 
 	<br>
 		<h2>회원 목록</h2>
 	<br>
+	
+	
 	<div id="searchDiv" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; justify-content: center;">
 	
-    <select id="typeSelect" name="userType" onchange="toggleTable()">
-        <option value="member" <c:if test="${param.userType == 'member' || param.userType == null}">selected</c:if>>회원</option>
-        <option value="nonmember" <c:if test="${param.userType == 'nonmember'}">selected</c:if>>비회원</option>
-    </select>
         <form action="member_table.jsp" id="searchFrm" method="get">
           <input type="hidden" name="currentPage" value="1" />
+          
+		    <select id="typeSelect" name="userType" onchange="toggleTable()">
+		        <option value="member" <c:if test="${param.userType == 'member' || param.userType == null}">selected</c:if>>회원</option>
+		        <option value="nonmember" <c:if test="${param.userType == 'nonmember'}">selected</c:if>>비회원</option>
+		    </select>
+		    
+    
             <select name="field" id="field">
                 <c:forEach var="field" items="${fieldText}" varStatus="i">
                     <option value="${i.index}" <c:if test="${i.index == rDTO.field}">selected</c:if>>
@@ -302,14 +329,27 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
                     </option>
                 </c:forEach>
             </select>
+            
+            
             <input type="text" name="keyword" id="keyword" value="${rDTO.keyword}" />
   		  <input type="button" value="검색" id="btnSearch" class="btn btn-success btn-sm" />
   		  <input type="button" value="초기화" id="btnReset" class="btn btn-secondary btn-sm" />
         </form>
+        
+        
+        
 	</div>
 	<br><br>
-	<h2 style="text-align: left;"> 전체 회원 수: <span class="badge bg-secondary">${totalCount}명</span></h2>
-	<table id="memberTable">
+	<h2 style="text-align: left;">
+    <span id="countLabel">
+        <c:choose>
+            <c:when test="${userType == 'nonmember'}">전체 비회원 수</c:when>
+            <c:otherwise>전체 회원 수</c:otherwise>
+        </c:choose>
+    </span>: 
+    <span class="badge bg-secondary">${totalCount}명</span>
+</h2>
+	<table id="memberTable" style="${param.userType eq 'member' or param.userType == null ? 'display: table;' : 'display: none;'}">
     <thead>
       <tr>
         <th>아이디</th>
@@ -353,7 +393,7 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
 			</c:forEach>
 	</tbody>
 </table>
-<table id="nonMemberTable" style="display: none;">
+<table id="nonMemberTable" style="${param.userType eq 'nonmember' ? 'display: table;' : 'display: none;'}">
   <thead>
     <tr>
       <th>비회원 번호</th>
@@ -375,11 +415,15 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
   	
 			<c:forEach var="NonMember_list" items="${nonMemberList}" varStatus="i">
 			<tr>
+			<td>
+				  <a href="NonMember_detail.jsp?email=${NonMember_list.email}&currentPage=${rDTO.currentPage != null ? rDTO.currentPage : 1}${queryStr != null ? queryStr : ''}">
+				  <c:out value="${NonMember_list.userIdx}" />
+				</a>
+				</td>
 				
-				<td><c:out value="${NonMember_list.userIdx}" /></td>
 				<td><c:out value="${NonMember_list.birth}" /></td>
 				<td><c:out value="${NonMember_list.email}" /></td>
-				<td><c:out value="${NonMember_list.createdAt}" /></td>
+				<td><c:out value="${NonMember_list.createdAt}"/></td>
 			</tr>
 			
 			</c:forEach>
@@ -391,6 +435,7 @@ pageContext.setAttribute("nonMemberList", nonMemberList);
 <%
 PageNationDTO pDTO = new PageNationDTO(3, rDTO.getCurrentPage(), totalPage, "member_table.jsp",
 		rDTO.getField(), rDTO.getKeyword());
+pDTO.setUrl("member_table.jsp?userType=" + userType);
 %>
 
 
