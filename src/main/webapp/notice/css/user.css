@@ -1,7 +1,8 @@
 @charset "UTF-8";
 
   .notice-view-container {
-    max-width: 800px;
+    max-width: 1000px;
+    height:600px;
     margin: 40px auto;
     padding: 30px;
     background-color: #fff;
@@ -38,7 +39,7 @@
 
   .notice-view-container textarea {
     width: 100%;
-    height: 200px;
+    height: 60%;
     padding: 12px;
     margin-top: 12px;
     border: 1px solid #d1d5db;

@@ -124,8 +124,8 @@
 /* inquiry.jsp 테이블 컬럼 너비 지정 */
 .inquiry-wrapper table#mid th:nth-child(1),
 .inquiry-wrapper table#mid td:nth-child(1) {
-  width: 50px;      /* 선택 (체크박스) */
-  min-width: 50px;
+  width: 60px;      /* 선택 (체크박스) */
+  min-width: 60px;
   text-align: center;
 }
 
