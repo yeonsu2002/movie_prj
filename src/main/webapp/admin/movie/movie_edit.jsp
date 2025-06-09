@@ -144,7 +144,7 @@
 
 /* 버튼 기본 스타일 */
 .btn {
-  border: 1px;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;

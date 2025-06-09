@@ -1,3 +1,4 @@
+<%@page import="java.time.format.DateTimeFormatter"%>
 <%@page import="kr.co.yeonflix.member.NonMemberDAO"%>
 <%@page import="kr.co.yeonflix.member.NonMemberService"%>
 <%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
@@ -253,10 +254,6 @@ if (userType == null || userType.isEmpty()) {
 NonMemberDAO nDAO=NonMemberDAO.getInstance();
 List<NonMemberDTO> nonMemberList=nDAO.selectAllNonMember(rDTO);
 
-for(int i = 0; i < nonMemberList.size(); i++){
-	
-}
-
 
 int totalCount = 0;
 totalCount = ms.totalCount(rDTO);
@@ -421,14 +418,14 @@ pageContext.setAttribute("userType", userType);
 			<c:forEach var="NonMember_list" items="${nonMemberList}" varStatus="i">
 			<tr>
 			<td>
-				  <a href="NonMember_detail.jsp?email=${NonMember_list.email}&currentPage=${rDTO.currentPage != null ? rDTO.currentPage : 1}${queryStr != null ? queryStr : ''}">
-				  <c:out value="${NonMember_list.userIdx}" />
-				</a>
+				  <a href="NonMember_detail.jsp?email=${NonMember_list.email}&birth=${NonMember_list.birth}&currentPage=${rDTO.currentPage != null ? rDTO.currentPage : 1}${queryStr != null ? queryStr : ''}">
+					    <c:out value="${NonMember_list.userIdx}" />
+					</a>
 				</td>
 				
 				<td><c:out value="${NonMember_list.birth}" /></td>
 				<td><c:out value="${NonMember_list.email}" /></td>
-				<td><c:out value="${NonMember_list.createdAt}"/></td>
+				<td><fmt:formatDate value="${NonMember_list.createdAtAsDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 			</tr>
 			
 			</c:forEach>

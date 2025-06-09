@@ -665,7 +665,6 @@
                         console.log('보고싶어요 취소 완료');
                     } else {
                         console.log('보고싶어요 취소 실패');
-                        alert('보고싶어요 취소에 실패했습니다.');
                     }
                     $button.prop('disabled', false);
                 });
@@ -686,7 +685,6 @@
                         console.log('보고싶어요 추가 완료');
                     } else {
                         console.log('보고싶어요 추가 실패');
-                        alert('보고싶어요 추가에 실패했습니다.');
                     }
                     $button.prop('disabled', false);
                 });

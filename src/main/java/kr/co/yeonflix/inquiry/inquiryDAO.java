@@ -60,8 +60,9 @@ public class inquiryDAO {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx "
+		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,inquiry_board.user_idx,member.member_id "
 				+ "from inquiry_board "
+				+ "join member on member.user_idx=inquiry_board.user_idx "
 				+ "where inquiry_board_idx=? "
 				+ "order by inquiry_board_idx";
 		try {
@@ -81,6 +82,7 @@ public class inquiryDAO {
 				iDTO.setAnswer_content(rs.getString("answer_content"));
 				iDTO.setAnswered_time(rs.getString("answered_time"));
 				iDTO.setAdmin_id(rs.getString("admin_id"));
+				iDTO.setMember_id(rs.getString("member_id"));
 			}
 		}finally {
 			dbCon.dbClose(rs, pstmt, conn);

@@ -429,8 +429,8 @@ table tbody tr {
 						<td><strong><c:out value="${nonMember.email}"/></strong></td>
 					</tr>
 					<tr>
-						<td>가입일</td>
-						<td><strong><c:out value="${nonMember.createdAt}"/></strong></td>
+						<td>생성일</td>
+						<td><strong><fmt:formatDate value="${nonMember.createdAtAsDate}" pattern="yyyy-MM-dd HH:mm:ss" /></strong></td>
 					</tr>
 					
 					

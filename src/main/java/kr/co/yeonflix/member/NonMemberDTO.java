@@ -2,6 +2,8 @@ package kr.co.yeonflix.member;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,5 +21,11 @@ public class NonMemberDTO {
   private LocalDateTime createdAt;
   
   private String userType;
+  
+  public Date getCreatedAtAsDate() {
+	    if (createdAt == null) return null;
+	    return Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
   
 }
