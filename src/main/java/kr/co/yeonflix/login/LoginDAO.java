@@ -13,6 +13,10 @@ import kr.co.yeonflix.dao.DbConnection;
 import kr.co.yeonflix.member.MemberDTO;
 
 
+
+/**
+ * 로그인 관련 DB를 작업하는 DAO
+ */
 public class LoginDAO {
 	
 	private static LoginDAO lDAO;
@@ -27,8 +31,22 @@ public class LoginDAO {
 		}
 		
 		return lDAO;
-	}
+	}//getInstance
 	
+	
+	
+	 /**
+     * 로그인 정보를 기반으로 DB에서 회원 정보 조회
+     * 
+     * 사용자 ID로 회원 정보를 조회하고, 입력한 비밀번호와 DB에 저장된 해시된 비밀번호를 비교해
+     * 일치하면 해당 회원 정보를 반환함.
+     * 
+     * DB에서 아이디가 일치하는 회원을 찾고, 입력한 비밀번호와 해시된 비밀번호를 비교
+     * 
+     * @param lDTO 사용자가 입력한 로그인 정보 (ID, Password)
+     * @return 로그인 성공 시 MemberDTO 객체, 실패 시 null
+     * @throws SQLException DB 처리 중 발생할 수 있는 예외
+     */
 	public MemberDTO selectLogin(LoginDTO lDTO) throws SQLException {
 	    MemberDTO mDTO = null;
 	    Connection con = null;
@@ -66,6 +84,15 @@ public class LoginDAO {
 
 	
 	
+	 /**
+     * 회원 인덱스(userIdx)를 기준으로 회원 정보를 조회하는 메서드
+     * 
+     * 로그인 이후, 특정 사용자의 상세 정보를 userIdx로 조회
+     * 
+     * @param userIdx 회원 고유 번호 (user_idx)
+     * @return 회원 정보가 담긴 MemberDTO 객체, 없으면 null
+     * @throws SQLException DB 처리 중 발생할 수 있는 예외
+     */
 	public MemberDTO selectMemberById(int userIdx) throws SQLException {
 	    MemberDTO mDTO = null;
 

@@ -16,9 +16,9 @@
 }  
 #trailer-container {
     width: 50%;
-    margin: 40px auto;
+    margin: 1px auto;
     position: relative;
-    padding-bottom: 23%; /* 더 얇은 화면비율 */
+    padding-bottom: 30%; /* 더 얇은 화면비율 */
     height: 0;
 }
 .trailer-overlay {

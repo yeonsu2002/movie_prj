@@ -78,6 +78,8 @@
                 }
             memberVO.setPicture(picture);
             // DB 업데이트
+            
+            
             MemberService memberService = new MemberService();
             boolean result = memberService.modifyMember(memberVO);
 

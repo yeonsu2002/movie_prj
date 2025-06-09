@@ -468,6 +468,16 @@ public class MemberDAO {
 	}//selectId
 	
 	
+	/**
+	 * 회원 목록을 검색 조건과 페이지 범위에 따라 조회하는 메서드.
+	 * 
+	 * <p>검색 조건이 있는 경우 해당 필드명에 keyword가 포함된 회원을 검색하고, 
+	 * Oracle의 ROW_NUMBER() 함수를 이용하여 페이징 처리된 결과를 반환한다.</p>
+	 *
+	 * @param rDTO 검색 필드명, 키워드, 시작 인덱스 및 페이지 크기를 담고 있는 RangeDTO 객체
+	 * @return 조건에 맞는 회원 목록을 담은 List<MemberDTO>
+	 * @throws SQLException DB 작업 중 발생할 수 있는 예외
+	 */
 	public List<MemberDTO> selectAllMember(RangeDTO rDTO) throws SQLException {
 	    List<MemberDTO> list = new ArrayList<>();
 	    DbConnection dbCon = DbConnection.getInstance();
@@ -478,39 +488,35 @@ public class MemberDAO {
 	    try {
 	        con = dbCon.getDbConn();
 
-	        String searchField = validateFieldName(rDTO.getFieldName());  // ex) user_name
+	        String fieldName = validateFieldName(rDTO.getFieldName());
 	        String keyword = rDTO.getKeyword();
 
 	        StringBuilder sql = new StringBuilder();
 	        sql.append("SELECT * FROM ( ");
-	        sql.append("  SELECT ROWNUM rnum, a.* FROM ( ");
-	        sql.append("    SELECT * FROM member ");
+	        sql.append("  SELECT user_idx, member_id, nick_name, user_name, birth, tel, email, created_at, is_active, ");
+	        sql.append("         ROW_NUMBER() OVER (ORDER BY created_at DESC) rnum ");
+	        sql.append("  FROM member ");
 
-	        // 검색 조건 추가
-	        if (searchField != null && keyword != null && !keyword.trim().isEmpty()) {
-	            sql.append(" WHERE ").append(searchField).append(" LIKE ? ");
+	        if (fieldName != null && keyword != null && !keyword.trim().isEmpty()) {
+	            sql.append(" WHERE ").append(fieldName).append(" LIKE ? ");
 	        }
 
-	        sql.append(" ORDER BY created_at DESC ");
-	        sql.append("  ) a WHERE ROWNUM <= ? "); // endRow
-	        sql.append(") WHERE rnum > ?");         // startRow
+	        sql.append(") WHERE rnum BETWEEN ? AND ?");
 
 	        pstmt = con.prepareStatement(sql.toString());
 
 	        int paramIndex = 1;
-
-	        // 검색 조건 바인딩
-	        if (searchField != null && keyword != null && !keyword.trim().isEmpty()) {
+	        if (fieldName != null && keyword != null && !keyword.trim().isEmpty()) {
 	            pstmt.setString(paramIndex++, "%" + keyword + "%");
 	        }
 
-	        int startRow = rDTO.getStartIndex();
-	        int endRow = startRow + rDTO.getPageSize();
-
-	        pstmt.setInt(paramIndex++, endRow);
+	        int startRow = rDTO.getStartIndex() + 1;
+	        int endRow = rDTO.getStartIndex() + rDTO.getPageSize();
 	        pstmt.setInt(paramIndex++, startRow);
+	        pstmt.setInt(paramIndex++, endRow);
 
 	        rs = pstmt.executeQuery();
+	        
 
 	        while (rs.next()) {
 	            MemberDTO memberDTO = new MemberDTO();
@@ -519,17 +525,15 @@ public class MemberDAO {
 	            memberDTO.setNickName(rs.getString("nick_name"));
 	            memberDTO.setUserName(rs.getString("user_name"));
 
-	            java.sql.Date birthDate = rs.getDate("birth");
-	            if (birthDate != null) {
-	                memberDTO.setBirth(birthDate.toLocalDate());
+	            if (rs.getDate("birth") != null) {
+	                memberDTO.setBirth(rs.getDate("birth").toLocalDate());
 	            }
 
 	            memberDTO.setTel(rs.getString("tel"));
 	            memberDTO.setEmail(rs.getString("email"));
 
-	            java.sql.Timestamp createdAtTs = rs.getTimestamp("created_at");
-	            if (createdAtTs != null) {
-	                memberDTO.setCreatedAt(createdAtTs.toLocalDateTime());
+	            if (rs.getTimestamp("created_at") != null) {
+	                memberDTO.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
 	            }
 
 	            memberDTO.setIsActive(rs.getString("is_active"));
@@ -551,14 +555,15 @@ public class MemberDAO {
 	 * 허용된 컬럼명이 아니면 null 반환
 	 */
 	private String validateFieldName(String fieldName) {
-	    // 허용할 컬럼명 배열 예시
-	    String[] allowedFields = {"member_id", "nick_name", "user_name", "email", "tel"};
+		
+		
+	    String[] allowedFields = {"user_name", "email", "tel"};
 	    for (String allowed : allowedFields) {
 	        if (allowed.equalsIgnoreCase(fieldName)) {
 	            return allowed;
 	        }
 	    }
-	    return null;  // 허용되지 않는 필드명
+	    return null; 
 	}
 
 	
@@ -566,10 +571,13 @@ public class MemberDAO {
 	
 	
 	/**
-	 * 게시물 전체 개수
-	 * @return cnt 게시물 전체 개수
-	 * @throws SQLException 예외처리
+	 * 회원 테이블에서 조건에 맞는 전체 회원 수를 조회하는 메서드
+	 * 
+	 * @param rDTO 검색 조건 및 페이징 정보를 담은 객체
+	 * @return 조건에 맞는 회원 수 (int)
+	 * @throws SQLException DB 처리 중 오류 발생 시 예외 던짐
 	 */
+
 	public int selectTotalCount(RangeDTO rDTO) throws SQLException {
 	    int cnt = 0;
 	    DbConnection dbCon = DbConnection.getInstance();
@@ -612,6 +620,13 @@ public class MemberDAO {
 
 
   
+	/**
+	 * 특정 회원(user_idx)을 DB에서 조회하여 MemberDTO 객체로 반환하는 메서드
+	 * 
+	 * @param user_idx 조회할 회원의 고유 번호
+	 * @return 조회된 회원 정보가 담긴 MemberDTO 객체, 없으면 null 반환
+	 * @throws SQLException DB 접근 중 예외 발생 시 전달
+	 */
 	public MemberDTO selectOneMember(int user_idx) throws SQLException {
 	    MemberDTO mDTO = null;
 
@@ -661,6 +676,18 @@ public class MemberDAO {
 	}//selectOneMember
 	
 		
+	/**
+	 * 회원 정보를 수정하는 메서드
+	 * - user_idx로 기존 회원 정보 조회 후,
+	 * - 입력된 값이 없거나 빈 값이면 기존 값 유지
+	 * - 닉네임 변경 시 중복 체크 수행
+	 * - 최종적으로 회원 정보 DB에 업데이트
+	 * 
+	 * @param memberVO 수정할 회원 정보가 담긴 MemberDTO 객체
+	 * @return 수정 성공 시 true, 실패 시 false 반환
+	 * @throws SQLException DB 처리 중 예외 발생 시 전달
+	 * @throws IllegalArgumentException 닉네임 중복 시 발생
+	 */
 	public boolean updateMember(MemberDTO memberVO) throws SQLException {
 	    DbConnection dbCon = DbConnection.getInstance();
 	    Connection con = null;
@@ -682,7 +709,7 @@ public class MemberDAO {
 
 	        // 2. 닉네임이 변경되었을 경우 중복 검사
 	        if (!memberVO.getNickName().equals(existing.getNickName())) {
-	            if (isNicknameDuplicate(memberVO.getNickName(), con)) {
+	            if (isNicknameDuplicate(memberVO.getNickName())) {
 	                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
 	            }
 	        }
@@ -729,8 +756,60 @@ public class MemberDAO {
 
 	    return result;
 	}
+	
+	
+	
+	
+	/**
+	 * 주어진 userIdx에 해당하는 회원 정보를 DB에서 조회하여 MemberDTO 객체로 반환하는 메서드
+	 * 기존 회원 정보 가져오기
+	 * 
+	 * @param userIdx 조회할 회원의 고유번호(user_idx)
+	 * @return 해당 회원 정보가 담긴 MemberDTO 객체, 회원이 없으면 null 반환
+	 * @throws SQLException DB 처리 중 에러 발생 시 예외 던짐
+	 */
+	private MemberDTO getMemberByUserIdx(int userIdx) throws SQLException {
+	    DbConnection dbCon = DbConnection.getInstance();
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+
+	    try {
+	        con = dbCon.getDbConn();
+
+	        String sql = "SELECT member_pwd, nick_name, tel, is_sms_agreed, email, is_email_agreed, picture FROM member WHERE user_idx = ?";
+	        pstmt = con.prepareStatement(sql);
+	        pstmt.setInt(1, userIdx);
+	        rs = pstmt.executeQuery();
+
+	        if (rs.next()) {
+	            MemberDTO dto = new MemberDTO();
+	            dto.setMemberPwd(rs.getString("member_pwd"));
+	            dto.setNickName(rs.getString("nick_name"));
+	            dto.setTel(rs.getString("tel"));
+	            dto.setIsSmsAgreed(rs.getString("is_sms_agreed"));
+	            dto.setEmail(rs.getString("email"));
+	            dto.setIsEmailAgreed(rs.getString("is_email_agreed"));
+	            dto.setPicture(rs.getString("picture"));
+	            dto.setUserIdx(userIdx);
+	            return dto;
+	        }
+	        return null;
+
+	    } finally {
+	        dbCon.dbClose(rs, pstmt, con);
+	    }
+	}
 
 	
+	/**
+	 * 회원의 활성 상태(is_active)를 업데이트하는 메서드
+	 * 
+	 * @param userIdx 활성 상태를 변경할 회원의 고유 번호
+	 * @param isActive 변경할 활성 상태 값 (예: "Y" 또는 "N")
+	 * @return 업데이트 성공 여부 (성공하면 true, 실패하면 false)
+	 * @throws SQLException 데이터베이스 처리 중 오류 발생 시 예외 전달
+	 */
 	public boolean updateIsActive(int userIdx, String isActive) throws SQLException{
 		DbConnection dbCon = DbConnection.getInstance();
 		Connection con = null;
@@ -768,100 +847,27 @@ public class MemberDAO {
 		
 	}
 	
-	private MemberDTO getMemberByUserIdx(int userIdx) throws SQLException {
+	
+
+	// 닉네임 중복 확인
+	private boolean isNicknameDuplicate(String nickName) throws SQLException {
 	    DbConnection dbCon = DbConnection.getInstance();
 	    Connection con = null;
 	    PreparedStatement pstmt = null;
-	    ResultSet rs = null;
 
 	    try {
 	        con = dbCon.getDbConn();
-
-	        String sql = "SELECT member_pwd, nick_name, tel, is_sms_agreed, email, is_email_agreed, picture FROM member WHERE user_idx = ?";
+	        String sql = "SELECT COUNT(*) FROM member WHERE nick_name = ?";
 	        pstmt = con.prepareStatement(sql);
-	        pstmt.setInt(1, userIdx);
-	        rs = pstmt.executeQuery();
-
-	        if (rs.next()) {
-	            MemberDTO dto = new MemberDTO();
-	            dto.setMemberPwd(rs.getString("member_pwd"));
-	            dto.setNickName(rs.getString("nick_name"));
-	            dto.setTel(rs.getString("tel"));
-	            dto.setIsSmsAgreed(rs.getString("is_sms_agreed"));
-	            dto.setEmail(rs.getString("email"));
-	            dto.setIsEmailAgreed(rs.getString("is_email_agreed"));
-	            dto.setPicture(rs.getString("picture"));
-	            dto.setUserIdx(userIdx);
-	            return dto;
-	        }
-	        return null;
-
-	    } finally {
-	        dbCon.dbClose(rs, pstmt, con);
-	    }
-	}
-
-	// 닉네임 중복 확인
-	private boolean isNicknameDuplicate(String nickName, Connection con) throws SQLException {
-	    String sql = "SELECT COUNT(*) FROM member WHERE nick_name = ?";
-	    try (PreparedStatement pstmt = con.prepareStatement(sql)) {
 	        pstmt.setString(1, nickName);
+
 	        try (ResultSet rs = pstmt.executeQuery()) {
 	            return rs.next() && rs.getInt(1) > 0;
 	        }
+	    } finally {
+	        dbCon.dbClose(null, pstmt, con);
 	    }
 	}
-
-	//이메일로 회원정보 조회
-  public MemberDTO selectMemberByEmail(String email) throws SQLException {
-    
-    MemberDTO mDTO = null;
-
-    DbConnection db = DbConnection.getInstance();
-    ResultSet rs = null;
-    PreparedStatement pstmt = null;
-    Connection con = null;
-
-    try {
-        con = db.getDbConn();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM member ")
-           .append("WHERE email = ?");
-
-        pstmt = con.prepareStatement(sql.toString());
-        pstmt.setString(1, email);
-
-        rs = pstmt.executeQuery();
-
-        if (rs.next()) {
-            mDTO = new MemberDTO();
-            mDTO.setUserIdx(rs.getInt("user_idx")); 
-            mDTO.setMemberId(rs.getString("member_id"));
-            mDTO.setNickName(rs.getString("nick_name"));
-            mDTO.setUserName(rs.getString("user_name"));
-            mDTO.setIsActive(rs.getString("is_active"));
-            
-            Date birthDate = rs.getDate("birth");
-            if (birthDate != null) {
-                mDTO.setBirth(birthDate.toLocalDate());
-            }
-            
-            mDTO.setTel(rs.getString("tel"));
-            mDTO.setEmail(rs.getString("email"));
-            
-            java.sql.Timestamp createdTimestamp = rs.getTimestamp("created_at");
-            if (createdTimestamp != null) {
-                mDTO.setCreatedAt(createdTimestamp.toLocalDateTime());
-            }
-            mDTO.setPicture(rs.getString("picture"));
-        }
-    } finally {
-        db.dbClose(rs, pstmt, con);
-    }
-
-    return mDTO;
-  }
 
 
 }

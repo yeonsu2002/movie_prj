@@ -17,24 +17,19 @@ public class RangeDTO {
 
     // 검색 컬럼명 매핑
     public String getFieldName() {
-        // 기본값
-        String fieldName = "user_name";
+        String fieldName = "user_name";  // 기본값 유지
 
-        if (field == null) {
-            return fieldName;
-        }
-
-        switch (field) {
-            case "1":
-                fieldName = "tel";
-                break;
-            case "2":
-                fieldName = "email";
-                break;
+        if ("1".equals(field)) {
+            fieldName = "tel";
+        } else if ("2".equals(field)) {
+            fieldName = "email";
         }
 
         return fieldName;
     }
+    
+    
+    
     // 시작 번호 (페이지 하단 번호 계산용)
     public int getStartNum() {
         return totalCount - (currentPage - 1) * pageSize;
@@ -45,7 +40,6 @@ public class RangeDTO {
         return Math.max(totalCount - currentPage * pageSize + 1, 1);
     }
 
-    // LIMIT 쿼리를 위한 시작 인덱스
     public int getStartIndex() {
         return (currentPage - 1) * pageSize;
     }

@@ -28,10 +28,11 @@
 <script type="text/javascript">
 window.onload = function() {
     document.loginFrm.addEventListener("submit", function(e) {
-        e.preventDefault(); 
+        e.preventDefault();  // 폼이 서버로 제출되지 않도록 막음
         chkNull();
     });
 }
+
 
 function enter(evt) {
     if (evt.which == 13) {  // 엔터키 입력 시
@@ -39,7 +40,7 @@ function enter(evt) {
     }
 }
 
-
+/* 유효성 검사 */
 
 	function chkNull() {
     var obj = document.loginFrm;
@@ -57,8 +58,8 @@ function enter(evt) {
         obj.password.focus();
         return;
     }
-    if (pass.length > 100) {
-        alert("비밀번호는 최대 13자리까지만 입력 가능합니다.");
+    if (pass.length > 20) {
+        alert("비밀번호는 최대 20자리까지만 입력 가능합니다.");
         obj.password.focus();
         return;
     }
