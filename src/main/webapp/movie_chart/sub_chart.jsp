@@ -303,7 +303,7 @@
         .trailer-background {
             width: 100%;
             height: 100%;
-            background-image: url('https://i.ytimg.com/vi/HAfCX54YmB4/maxresdefault.jpg');
+            /* background-image: url('https://i.ytimg.com/vi/HAfCX54YmB4/maxresdefault.jpg'); */
             background-size: cover;
             background-position: center;
         }

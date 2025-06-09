@@ -278,7 +278,7 @@ request.setAttribute("mccs", mccs);
                     <a href="../reservation/reservation.jsp" class="link-reservation">예매</a>
                 </div>
             </div>
-        </c:forEach>
+        </c:forEach> 
 		<c:set var="movieChartSize" value="${fn:length(movieChart)}" />        
         <c:forEach var="nm" items="${nonMovieChart}" varStatus="status">
             <div class="movie-item">

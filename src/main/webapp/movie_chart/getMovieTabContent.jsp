@@ -1,13 +1,11 @@
-<<<<<<< Updated upstream
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.review.ReviewService"%>
 <%@page import="kr.co.yeonflix.review.ReviewDTO"%>
-=======
 <%@page import="kr.co.yeonflix.review.ReviewDTO"%>
 <%@page import="kr.co.yeonflix.review.ReviewService"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
->>>>>>> Stashed changes
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@page import="org.json.simple.JSONObject"%>
@@ -106,14 +104,16 @@ if ("main-info".equals(tabType)) {
 <div class="tab-content active">
     <div class="trailer-container">
         <h3>트레일러</h3>
-        <div class="trailer-preview">
+       <div class="trailer-preview">
+       
             <div class="trailer-background"></div>
             <div class="trailer-overlay">
                 <div class="play-button"></div>
             </div>
         </div>
         
-        <% if (embedUrl != null && !embedUrl.trim().isEmpty()) { %>
+        <% 
+        if (embedUrl != null && !embedUrl.trim().isEmpty()) { %>
         <iframe id="trailer-iframe" class="trailer-iframe"
             src="<%= embedUrl %>"
             frameborder="0"
@@ -123,7 +123,7 @@ if ("main-info".equals(tabType)) {
         <% } else { %>
         <div class="no-trailer">
             트레일러를 찾을 수 없습니다.
-        </div>
+        </div> 
         <% } %>
     </div>
 </div>
@@ -146,7 +146,7 @@ if ("main-info".equals(tabType)) {
     }
 
     // 로그인 ID 세션에서 가져오기
-    String loginId = (String) session.getAttribute("loginId");
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
 %>
 <div class="tab-content active">
 <h3>관람평</h3>
@@ -175,7 +175,7 @@ if ("main-info".equals(tabType)) {
 </div>
 
 <div style="margin-top: 20px;">
-    <% if (loginId != null) { %>
+    <% if (loginUser != null) { %>
         <button id="openReviewBtn" 
      style="
     padding: 8px 16px;
