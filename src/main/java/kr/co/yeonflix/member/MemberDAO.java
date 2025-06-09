@@ -740,6 +740,18 @@ public class MemberDAO {
 	        if (Id == null || Id.trim().isEmpty()) {
 	            Id = existing.getMemberId();
 	        }
+	        
+	        String IsSmsAgreed = memberVO.getIsSmsAgreed();
+	        if (IsSmsAgreed == null || IsSmsAgreed.trim().isEmpty()) {
+	        	IsSmsAgreed = existing.getIsSmsAgreed();
+	        }
+	        
+	        String IsEmailAgreed = memberVO.getIsEmailAgreed();
+	        if (IsEmailAgreed == null || IsEmailAgreed.trim().isEmpty()) {
+	        	IsEmailAgreed = existing.getIsEmailAgreed();
+	        }
+	        
+	        
 
 	        // 8. DB UPDATE 수행
 	        String query = "UPDATE member SET member_pwd = ?, nick_name = ?, tel = ?, is_sms_agreed = ?, email = ?, is_email_agreed = ?, picture = ?, has_temp_pwd = 'N' WHERE user_idx = ?";
@@ -747,9 +759,9 @@ public class MemberDAO {
 	        pstmt.setString(1, password);
 	        pstmt.setString(2, memberVO.getNickName());
 	        pstmt.setString(3, tel);
-	        pstmt.setString(4, memberVO.getIsSmsAgreed());
+	        pstmt.setString(4, IsSmsAgreed);
 	        pstmt.setString(5, email);
-	        pstmt.setString(6, memberVO.getIsEmailAgreed());
+	        pstmt.setString(6, IsEmailAgreed);
 	        pstmt.setString(7, picture);
 	        pstmt.setInt(8, memberVO.getUserIdx());
 
