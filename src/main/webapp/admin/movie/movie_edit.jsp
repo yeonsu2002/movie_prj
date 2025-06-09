@@ -291,7 +291,14 @@ input[value="취소"]:hover {
 	        var regex = /[^ㄱ-ㅎ가-힣a-zA-Z\s]/g;
 	        $(this).val($(this).val().replace(regex, ""));
 	    });
+	  
 
+	 // 상영시간 입력 실시간 검증 (숫자만 허용)
+	 $("#duration").on("input", function() {
+	     // 숫자만 허용하는 정규식 (숫자가 아닌 모든 문자 제거)
+	     var regex = /[^0-9]/g;
+	     $(this).val($(this).val().replace(regex, ""));
+	 });
 	    
 	    // 폼 제출 전 유효성 검사 함수
 	    function validateForm() {
