@@ -9,6 +9,9 @@
 <%@page import="java.time.LocalDateTime"%>
 <%@page import="kr.co.yeonflix.reservedSeat.TempSeatDTO"%>
 <%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.Comparator"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
 <%@page import="kr.co.yeonflix.reservedSeat.ReservedSeatService"%>
 <%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
@@ -76,6 +79,24 @@ List<MovieDTO> todayMovieList = ss.searchAllMovieWithSchedule(todayScheduleList)
 Map<Integer, List<ScheduleTheaterDTO>> scthMap = new HashMap<>();
 for (MovieDTO mDTO : todayMovieList) {
 	List<ScheduleTheaterDTO> scthList = ss.searchtAllScheduleAndTheaterWithDate(mDTO.getMovieIdx(), todayDate);
+	
+	// 상영관별로 그룹화한 후 각 그룹 내에서 startTime 순서로 정렬
+	Collections.sort(scthList, new Comparator<ScheduleTheaterDTO>() {
+		@Override
+		public int compare(ScheduleTheaterDTO o1, ScheduleTheaterDTO o2) {
+			// 먼저 상영관으로 그룹화 (theaterType + theaterName)
+			String theater1 = o1.getTheaterType() + "_" + o1.getTheaterName();
+			String theater2 = o2.getTheaterType() + "_" + o2.getTheaterName();
+			int theaterCompare = theater1.compareTo(theater2);
+			
+			// 같은 상영관이면 startTime으로 정렬
+			if (theaterCompare == 0) {
+				return o1.getStartTime().compareTo(o2.getStartTime());
+			}
+			return theaterCompare;
+		}
+	});
+	
 	scthMap.put(mDTO.getMovieIdx(), scthList);
 }
 
@@ -96,7 +117,6 @@ pageContext.setAttribute("scthMap", scthMap);
 	request.setAttribute("genre", genre);
 	request.setAttribute("grade", grade);
 	%>
-	
 	<div class="movie-item">
 		<div class="movie-info">
 			<div>

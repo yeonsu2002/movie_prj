@@ -213,7 +213,7 @@ public class inquiryDAO {
 	    Connection conn = null;
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-
+	    
 	    String sql = 
 	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id FROM (" +
 	        "    SELECT ROWNUM rnum, a.* FROM (" +
@@ -246,23 +246,46 @@ public class inquiryDAO {
 
 	    return list;
 	}
+	public List<inquiryDTO> Searchinquiry(String type, String input, int page, int size) throws SQLException {
+		List<inquiryDTO> inquiryList = new ArrayList<>();
+		int start = (page - 1) * size + 1;
+		int end = page * size;
 
-	public List<inquiryDTO> Searchinquiry(String type, String input) throws SQLException {
-		List<inquiryDTO> inquiryList = new ArrayList<inquiryDTO>();
+		// 허용된 컬럼명만 검색 가능하게 처리
+		List<String> allowedColumns = List.of("user_idx", "board_code_name", "inquiry_title", "answer_status");
+		if (!allowedColumns.contains(type)) {
+			throw new IllegalArgumentException("잘못된 검색 타입입니다.");
+		}
+		String condition = " = ?";
+		if (type.equals("inquiry_title")) {
+		    condition = " LIKE ?";
+		}
+
+		String sql = 
+		    "SELECT * FROM (" +
+		    "  SELECT ROWNUM rnum, b.* FROM (" +
+		    "    SELECT * FROM inquiry_board WHERE " + type + condition + " ORDER BY inquiry_board_idx DESC" +
+		    "  ) b WHERE ROWNUM <= ?" +
+		    ") WHERE rnum >= ?";
+		
 		Connection conn = null;
-	    PreparedStatement pstmt = null;
-	    ResultSet rs = null;
-		String sql = "select inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id "
-				+ "from inquiry_board "
-				+ "where ?=? "
-				+ "order by inquiry_board_idx";
-		try { 
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
 			conn = dbCon.getDbConn();
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, type);
-			pstmt.setString(2, input);
+
+			if (type.equals("inquiry_title")) {
+			    pstmt.setString(1, "%" + input + "%"); // LIKE 검색
+			} else {
+			    pstmt.setString(1, input);             // 정확히 일치
+			}
+			pstmt.setInt(2, end);      // ROWNUM <= end
+			pstmt.setInt(3, start);    // rnum >= start
+
 			rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				inquiryDTO iDTO = new inquiryDTO();
 				iDTO.setBoard_code_name(rs.getString("board_code_name"));
 				iDTO.setInquiry_board_idx(rs.getInt("inquiry_board_idx"));
@@ -270,12 +293,13 @@ public class inquiryDAO {
 				iDTO.setInquiry_content(rs.getString("inquiry_content"));
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
-				
+
 				inquiryList.add(iDTO);
 			}
-		}finally {
+		} finally {
 			dbCon.dbClose(rs, pstmt, conn);
 		}
+
 		return inquiryList;
 	}
 }

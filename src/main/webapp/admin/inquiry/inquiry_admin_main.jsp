@@ -24,10 +24,19 @@
 		first = Integer.parseInt(request.getParameter("page"));
 	}
 	inquiryDAO idao = new inquiryDAO();
-	int total = idao.getInquiryCount("all");
+	
+	String type="all";
+	String input="";
+	int total = idao.getInquiryCount(type);
 	int totalPages = (int) Math.ceil(total / (double) size);
 
 	List<inquiryDTO> inquirys = idao.selectAllPaged(first, size);
+	if (request.getParameter("type") != null && !request.getParameter("type").trim().equals("")) {
+		type=request.getParameter("type");
+		input=request.getParameter("input");
+		inquirys=idao.Searchinquiry(type, input,first,size);
+	}
+	
 	request.setAttribute("inquirys", inquirys);
 	request.setAttribute("currentPage", first);
 	request.setAttribute("totalPages", totalPages);
@@ -37,10 +46,25 @@
 						List<inquiryDTO> inquirys = idao.selectAllinquiry("all");
 						request.setAttribute("inquirys", inquirys);
 						--%>
+						
 	<div class="inquiry-wrapper">
 		<table>
 			<tr class="title-row">
 				<th>1:1문의</th>
+			</tr>
+			<tr>
+			
+		<form action="inquiry_admin_main.jsp" id="frm" name="frm">
+		<select name="type" id="type">
+			<option value="">-- 타입을 선택하세요 --</option>
+			<option value="user_idx">유저 idx</option>
+			<option value="board_code_name">유형</option>
+			<option value="inquiry_title">제목</option>
+			<option value="answer_status">답변상태</option>
+		</select>
+		<input type="text" name="input"/>
+		<input type="button" id="search" value="검색"/>
+		</form>
 			</tr>
 			<tr>
 				<td>
@@ -70,41 +94,34 @@
 								</tr>
 							</c:forEach>
 							<tr>
-								<td colspan="5">
-									<div class="page-buttons">
-										<c:if test="${currentPage > 1}">
-											<a href="inquiry_admin_main.jsp?page=${currentPage - 1}">«</a>
-										</c:if>
-
-										<c:forEach begin="1" end="${totalPages}" var="i">
-											<a href="inquiry_admin_main.jsp?page=${i}"
-												style="font-weight: ${i == currentPage ? 'bold' : 'normal'}">
-												${i} </a>
-										</c:forEach>
-
-										<c:if test="${currentPage < totalPages}">
-											<a href="inquiry_admin_main.jsp?page=${currentPage + 1}">»</a>
-										</c:if>
-									</div>
-								<td><input type="button" id="delete" value="삭제" /></td>
-								</td>
-							</tr>
 						</form>
 					</table>
 				</td>
 			</tr>
 		</table>
-		<form action="inquiry_search.jsp" id="frm" name="frm">
-		<select name="type" id="type">
-			<option value="">-- 타입을 선택하세요 --</option>
-			<option value="user_idx">유저 idx</option>
-			<option value="board_code_name">유형</option>
-			<option value="inquiry_title">제목</option>
-			<option value="answer_status">답변상태</option>
-		</select>
-		<input type="text" name="input"/>
-		<input type="button" id="search" value="검색"/>
-		</form>
+			<div class="inquiry-actions">
+  <div class="page-wrapper">
+    <div class="page-buttons">
+      <c:if test="${currentPage > 1}">
+        <a href="inquiry_admin_main.jsp?page=${currentPage - 1}">«</a>
+      </c:if>
+
+      <c:forEach begin="1" end="${totalPages}" var="i">
+        <a href="inquiry_admin_main.jsp?page=${i}"
+           style="font-weight: ${i == currentPage ? 'bold' : 'normal'}">
+          ${i}
+        </a>
+      </c:forEach>
+
+      <c:if test="${currentPage < totalPages}">
+        <a href="inquiry_admin_main.jsp?page=${currentPage + 1}">»</a>
+      </c:if>
+    </div>
+  </div>
+  <div class="action-buttons">
+    <input type="button" id="delete" value="삭제" />
+  </div>
+		
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -112,6 +129,9 @@
 		$(function() {
 			$("#delete").click(function() {
 				$("#inquiry_delete").submit();
+			})
+			$("#search").click(function(){
+				$("#frm").submit();
 			})
 		});
 	</script>

@@ -6,7 +6,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
+<jsp:include page="/common/jsp/header.jsp" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,13 +25,14 @@
 		int userIdx = loginUser.getUserIdx();
 		user = Integer.toString(userIdx);
 	} else {
-		response.sendRedirect("http://localhost/movie_prj/login/loginFrm.jsp");//로그인 안되있으면 로그인 사이트로
-		return;
+		user="0";
+		//response.sendRedirect("http://localhost/movie_prj/login/loginFrm.jsp");//로그인 안되있으면 로그인 사이트로
+		//return;
 	}
 	%>
 	<%
 	int first = 1;
-	int size = 10;
+	int size = 3;
 
 	if (request.getParameter("page") != null) {
 		first = Integer.parseInt(request.getParameter("page"));
@@ -52,6 +53,7 @@
 	request.setAttribute("inquirys", inquirys);
 	--%>
 
+	<div class="inquiry-wrapper">
 	<table>
 		<tr>
 			<th>1:1문의</th>
@@ -112,7 +114,7 @@
 			</td>
 		</tr>
 	</table>
-
+</div>
 
 	<footer>
 		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
