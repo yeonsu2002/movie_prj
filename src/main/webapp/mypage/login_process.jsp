@@ -13,6 +13,8 @@
         // 세션에 저장된 로그인 사용자 정보 가져오기
         MemberDTO sessionUser = (MemberDTO) session.getAttribute("loginUser");
 
+        
+        
         if (id != null && pass != null && sessionUser != null) {
             // 로그인한 유저와 입력한 아이디가 일치할 때만 로그인 허용
             if (sessionUser.getMemberId().equals(id)) {

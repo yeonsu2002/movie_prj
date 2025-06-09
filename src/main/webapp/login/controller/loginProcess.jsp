@@ -27,8 +27,11 @@
 	  //보안상 초기화 
 	  session.invalidate(); // 기존 세션 제거
 	  session = request.getSession(true); // 새로운 세션 생성
+	  
 	  //로그인계정 세션 설정
 		session.setAttribute("loginUser", loginUser);
+		session.setAttribute("userId", loginUser.getUserIdx()); 
+
 	  session.setMaxInactiveInterval(1800); //30분만 주자 
 	  
 	  if("Y".equals(loginUser.getHasTempPwd())){ //임시비밀번호 발급 유저(정보수정 전)는 다른 값을 

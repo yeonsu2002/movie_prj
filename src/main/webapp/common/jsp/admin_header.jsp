@@ -83,7 +83,7 @@ function logout(){
 	  		<c:when test="${loginAdmin.manageArea eq 'ManageMovie' or loginAdmin.manageArea eq '전체'}">
 	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_list.jsp">영화 리스트</a></div>
 	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/admin/movie/movie_edit.jsp?mode=insert">영화 등록</a></div>
-	        <div class="menu-item"><span>▶</span>영화 리뷰 관리</div>
+	        <div class="menu-item"><span>▶</span><a href="http://localhost/movie_prj/review/admin_review.jsp">영화 리뷰 관리</a></div>
 	  		</c:when>
 	  		<c:otherwise>
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>영화 리스트</a></div>
