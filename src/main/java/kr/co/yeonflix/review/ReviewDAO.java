@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.co.yeonflix.dao.DbConnection;
+import kr.co.yeonflix.movie.MovieDTO;
 
 public class ReviewDAO {
     private static ReviewDAO rDAO;
@@ -331,7 +332,51 @@ public class ReviewDAO {
         return result;
     }
 
-    // 테스트용 메인 메서드
-    public static void main(String[] args) {
+    public List<ReviewDTO> selectMyReview(int userIdx) throws SQLException {
+        DbConnection db = DbConnection.getInstance();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<ReviewDTO> reviewList = new ArrayList<>();
+        
+        try {
+            con = db.getDbConn();
+            
+            // SQL 쿼리
+            String sql = "SELECT m.MOVIE_NAME, m.POSTER_PATH, " +
+                         "r.RATING, r.REVIEW_CONTENTS, r.WRITE_DATE " +
+                         "FROM review_movie r " +
+                         "JOIN movie m ON r.MOVIE_IDX = m.MOVIE_IDX " +
+                         "WHERE r.USER_IDX = ?";
+            
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, userIdx);
+            rs = pstmt.executeQuery();
+            
+            // 결과 처리
+            while (rs.next()) {
+                // MovieDTO 객체 생성 및 데이터 설정
+                MovieDTO movieDTO = new MovieDTO();
+                movieDTO.setMovieName(rs.getString("MOVIE_NAME"));
+                movieDTO.setPosterPath(rs.getString("POSTER_PATH"));
+                
+                // ReviewDTO 객체 생성 및 데이터 설정
+                ReviewDTO reviewDTO = new ReviewDTO();
+                reviewDTO.setRating(rs.getDouble("RATING"));
+                reviewDTO.setContent(rs.getString("REVIEW_CONTENTS"));
+                reviewDTO.setWriteDate(rs.getDate("WRITE_DATE"));
+                
+                // ReviewDTO에 MovieDTO 설정
+                reviewDTO.setMovieDTO(movieDTO);
+                
+                // List에 추가
+                reviewList.add(reviewDTO);
+            }
+        } finally {
+            db.dbClose(rs, pstmt, con);
+        }
+        
+        return reviewList;
     }
+
 }
