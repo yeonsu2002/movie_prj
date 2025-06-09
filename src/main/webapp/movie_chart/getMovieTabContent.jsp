@@ -1,6 +1,13 @@
+<<<<<<< Updated upstream
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.review.ReviewService"%>
 <%@page import="kr.co.yeonflix.review.ReviewDTO"%>
+=======
+<%@page import="kr.co.yeonflix.review.ReviewDTO"%>
+<%@page import="kr.co.yeonflix.review.ReviewService"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+>>>>>>> Stashed changes
 <%@page import="kr.co.yeonflix.movie.MovieDTO"%>
 <%@page import="kr.co.yeonflix.movie.MovieService"%>
 <%@page import="org.json.simple.JSONObject"%>
@@ -43,6 +50,40 @@ try {
     return;
 }
 
+// 트레일러 URL 가져오기 (실제 필드명에 맞게 수정 필요)
+String trailerUrl = movie.getTrailerUrl(); // 또는 실제 트레일러 URL 필드명
+String embedUrl = "";
+
+// YouTube URL을 embed URL로 변환
+if (trailerUrl != null && !trailerUrl.trim().isEmpty()) {
+    String videoId = "";
+    
+    if (trailerUrl.contains("youtu.be/")) {
+        int idx = trailerUrl.lastIndexOf("/");
+        if (idx != -1) {
+            videoId = trailerUrl.substring(idx + 1);
+            int paramIdx = videoId.indexOf("?");
+            if (paramIdx != -1) {
+                videoId = videoId.substring(0, paramIdx);
+            }
+        }
+    } else if (trailerUrl.contains("watch?v=")) {
+        int idx = trailerUrl.indexOf("v=") + 2;
+        if (idx != -1) {
+            videoId = trailerUrl.substring(idx);
+            int endIdx = videoId.indexOf("&");
+            if (endIdx == -1) endIdx = videoId.indexOf("=");
+            if (endIdx != -1) {
+                videoId = videoId.substring(0, endIdx);
+            }
+        }
+    }
+    
+    if (!videoId.isEmpty()) {
+        embedUrl = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId;
+    }
+}
+
 // 탭별 분기 처리
 if ("main-info".equals(tabType)) {
 %>
@@ -71,12 +112,19 @@ if ("main-info".equals(tabType)) {
                 <div class="play-button"></div>
             </div>
         </div>
+        
+        <% if (embedUrl != null && !embedUrl.trim().isEmpty()) { %>
         <iframe id="trailer-iframe" class="trailer-iframe"
-            src="https://www.youtube.com/embed/HAfCX54YmB4?autoplay=1"
+            src="<%= embedUrl %>"
             frameborder="0"
             allowfullscreen
-            allow="encrypted-media">
+            allow="autoplay; encrypted-media">
         </iframe>
+        <% } else { %>
+        <div class="no-trailer">
+            트레일러를 찾을 수 없습니다.
+        </div>
+        <% } %>
     </div>
 </div>
 <%
@@ -99,9 +147,6 @@ if ("main-info".equals(tabType)) {
 
     // 로그인 ID 세션에서 가져오기
     String loginId = (String) session.getAttribute("loginId");
-    if (loginId == null) {
-        loginId = "testUser";  // 임시 아이디 (테스트용)
-    }
 %>
 <div class="tab-content active">
 <h3>관람평</h3>
