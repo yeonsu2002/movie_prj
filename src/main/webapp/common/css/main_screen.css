@@ -1,0 +1,384 @@
+@charset "UTF-8";
+#container {
+    min-height: 650px;
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 55%;
+}
+  #trailer-wrapper {
+    width: 100%;
+    height: 25%;
+    background-color: black;
+    margin-top: 0;
+    position: relative;
+    overflow: hidden; /* 내용 넘침 방지 */
+}  
+#trailer-container {
+    width: 50%;
+    margin: 1px auto;
+    position: relative;
+    padding-bottom: 30%; /* 더 얇은 화면비율 */
+    height: 0;
+}
+.trailer-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2; /* 그라데이션이 iframe 위에 나타나게 */
+    background: 
+        linear-gradient(to right, 
+            rgba(0, 0, 0, 1) 0%, 
+            rgba(0, 0, 0, 0) 20%, 
+            rgba(0, 0, 0, 0) 100%), 
+        linear-gradient(to left, 
+            rgba(0, 0, 0, 1) 0%, 
+            rgba(0, 0, 0, 0) 20%, 
+            rgba(0, 0, 0, 0) 100%);
+}
+#trailer-container iframe {
+ 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    z-index: 1; /* 오버레이 아래에 있도록 */
+}
+.movie-chart {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열 */
+    gap: 20px; /* 아이템 간 간격 */
+    width: 100%;
+    margin: 60px auto;
+}
+
+.movie-chart h2 {
+    grid-column: span 4; /* 4개의 열을 차지하는 텍스트 */
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.fixedBtn_wrap {
+    display: flex;
+    justify-content: flex-end;
+    position: fixed;
+    right: 250px; /* 화면의 오른쪽 끝에서 약간 떨어지게 위치 */
+    bottom: 50px; /* 화면의 아래에서 80px 위에 위치 */
+    z-index: 7;
+    transition: all 0.3s ease;
+    opacity: 0; /* 초기 상태에서 버튼 숨김 */
+    visibility: hidden; /* 초기 상태에서 버튼 숨김 */
+}
+
+.fixedBtn_wrap.visible {
+    opacity: 1; /* 스크롤 시 버튼이 보이도록 설정 */
+    visibility: visible;
+}
+.tab-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.tab-buttons-left {
+  display: flex;
+  gap: 15px;
+  flex-grow: 1;
+  max-width: 300px; /* 탭 버튼들 넓이 조절 */
+}
+
+.tab-button {
+  flex: none;
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 25px;
+  font-weight: bold;
+  padding: 15px 20px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.tab-button.active {
+  color: #e50914;
+  border-bottom-color: #e50914;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* grid 스타일이 movie-chart에만 적용되어야 함 */
+.movie-chart {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.movie-item {
+  position: relative;
+  width: 100%;
+}
+
+.movie-item img {
+  width: 100%;
+  height: 250px; /* 균일한 높이 */
+  object-fit: cover; /* 비율 유지하며 꽉 채움 */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+.movie-item img:hover {
+    transform: scale(1.03);
+}
+.movie-item .rating-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px; 
+    height: 20px;
+}
+.movie-item .rank {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 80px;
+    font-style: italic;
+    color: white;
+    border-radius: 4px;
+}
+/* 마퀴 */
+/* 마퀴 전체 컨테이너 */
+.poster-marquee {
+  width: 100%;
+  overflow: hidden;
+  padding: 30px 0;
+  background-color: #FFFFFF;
+}
+
+/* 마퀴 트랙 (움직이는 요소) */
+.poster-track {
+  display: flex;
+  gap: 40px;
+  animation: scroll-left 10s linear infinite;
+}
+
+/* 이미지 스타일 */
+.poster-track img {
+  width: 160px;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 왼쪽으로 무한 스크롤 애니메이션 */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.btn_allView {
+  font-size: 14px;
+  color: #999;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 12px;
+  border: 2px solid #999;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
+  white-space: nowrap;
+}
+
+.btn_allView:hover {
+  background-color: #e50914;
+  color: white;
+  text-decoration: none;
+}
+/* 바로가기 css */
+
+.fixedBtn_wrap .btn_group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ED3124; 
+    border-radius: 70px; /* 타원형 형태 */
+    padding: 10px 10px; /* 버튼 간 간격을 더 넓게 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.fixedBtn_wrap .btn_ticketing {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin-right: 10px; /* 예매하기 버튼과 상단 버튼 사이의 간격 */
+    border-right: 2px solid white;
+}
+
+.fixedBtn_wrap .btn_gotoTop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 50%;
+    border: 2px solid #ff734a; /* 버튼 테두리 색상 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fixedBtn_wrap .btn_gotoTop img {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+}
+
+.fixedBtn_wrap.shrink .btn_gotoTop img {
+    width: 18px; /* 스크롤 시 아이콘 크기 축소 */
+    height: 18px;
+}
+
+   
+        .sepecialHall_Wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .contents {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .specialHall_title_wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10px;
+        }
+        
+        .specialHall_title_wrap h2 {
+            font-size: 27px;
+            font-weight: bold;
+            color: #333;
+            margin-left: 20px;
+        }
+        
+        .btn_allView {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 20px;
+            transition: color 0.3s ease;
+        }
+        
+        .btn_allView:hover {
+            color: #333;
+        }
+        
+        .specialHall_content {
+            display: flex;
+            min-height: 400px;
+        }
+        
+        .hall_image_section {
+            flex: 1;
+            position: relative;
+            border-radius: 20px;
+            background: #000;
+        }
+        
+        .hall_image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+        
+        .image_overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 40px 30px 30px;
+        }
+        
+        .hall_name {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .hall_description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .specialhall_list {
+            overflow: hidden;
+            width: 440px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .specialhall_list li {
+            border-bottom: 1px solid #eee;
+            padding: 25px 30px;
+            cursor: default;
+            transition: background-color 0.3s ease;
+        }
+        
+        .specialhall_list li:last-child {
+            border-bottom: none;
+        }
+        
+        .specialhall_list li:hover {
+            background-color: #f8f8f8;
+        }
+        
+        .hall_title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .hall_tag {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .hall_tag::before {
+            content: '#';
+            margin-right: 2px;
+        }

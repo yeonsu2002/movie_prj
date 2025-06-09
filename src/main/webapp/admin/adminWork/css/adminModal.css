@@ -1,0 +1,374 @@
+@charset "UTF-8";
+
+/* 배경 어둡게 */
+.modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+/* 실제 모달 본체 */
+.modal-body {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  transform: translateY(-30px);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+/* 활성화 시 추가될 클래스 */
+.modal-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+.modal-overlay.active .modal-body {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* 모달 창 */
+.admin-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    min-width: 400px;
+    max-width: 650px;
+    max-height: 80vh; /* 모달 높이 제한 (뷰포트의 80%) */
+    overflow-y: auto; /* 세로 스크롤 표시 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 32px rgba(0, 0, 0, 0.1);
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 닫기 버튼 */
+.modal-close {
+    position: absolute;
+    top: 15px; 
+    right: 20px;
+    cursor: pointer;
+    font-size: 24px;
+    color: #6c757d;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+/* 프로필 섹션 */
+.mgr-profile-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.mgr-profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 4px solid #e9ecef;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.mgr-profile-img:hover {
+    border-color: #007bff;
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba(0, 123, 255, 0.15);
+}
+
+.mgr-profile-name {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* 테이블 스타일링 */
+.mgr-detail-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.mgr-detail-table th {
+    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+    color: #ffffff;
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    width: 120px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.mgr-detail-table td {
+    padding: 16px 20px;
+    color: #495057;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f3f4;
+    position: relative;
+}
+
+.mgr-detail-table tr:last-child td,
+.mgr-detail-table tr:last-child th {
+    border-bottom: none;
+}
+
+.mgr-detail-table tr:hover td {
+    background-color: #f8f9fa;
+}
+
+/* 입력 필드 스타일링 */
+.mgr-detail-table td input,
+.mgr-detail-table td select {
+    width: 100%;
+    height: 44px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    color: #495057;
+}
+
+.mgr-detail-table td input:focus,
+.mgr-detail-table td select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    background: #ffffff;
+}
+
+.mgr-detail-table td input:hover:not([readonly]),
+.mgr-detail-table td select:hover {
+    border-color: #6c757d;
+}
+
+/* 읽기 전용 필드 */
+.input-info[readonly] {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #6c757d;
+    border: 2px solid #dee2e6;
+    cursor: not-allowed;
+}
+
+/* 전화번호 입력 필드 */
+.phone-inputs {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.phone-inputs input[type="tel"] {
+    padding: 12px 16px;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.phone-inputs input[type="tel"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.phone-inputs span {
+    flex: 0 0 auto;
+    padding: 0 4px;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#phone1 {
+    flex: 3;
+    min-width: 70px;
+}
+
+#phone2, #phone3 {
+    flex: 4;
+    min-width: 90px;
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 6px;
+    display: none;
+    font-weight: 500;
+}
+
+.error-message.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 버튼 그룹 */
+.btn-group-right {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    padding-right: 0;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: #ffffff;
+    border: 2px solid transparent;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #3d4043 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #ffffff;
+    border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 컨테이너 */
+#container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+/* 선택 박스 스타일링 */
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+select:hover {
+    background-color: #f8f9fa;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .admin-modal-content {
+        margin: 20px;
+        padding: 30px 20px;
+        min-width: auto;
+        max-width: calc(100vw - 40px);
+    }
+    
+    .mgr-detail-table th {
+        width: 100px;
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+    
+    .mgr-detail-table td {
+        padding: 12px 16px;
+    }
+    
+    .phone-inputs {
+        gap: 8px;
+    }
+    
+    .btn-group-right {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+    
+    .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}

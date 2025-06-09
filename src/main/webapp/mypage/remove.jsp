@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>탈퇴</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
 #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
@@ -59,7 +59,7 @@
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div id="container">
@@ -75,7 +75,7 @@
     <h5 class="card-sec">YEONFLIX에 관한 궁금한 사항은 고객센터로 문의 주시면 신속히 해결해드리겠습니다.</h5>
   
     <a href="http://localhost/movie_prj/mypage/MainPage.jsp" type="button" class="btn btn-secondary" style="width: 100px">취소</a>
-    <a href="http://localhost/movie_prj/mypage/bye.jsp" class="btn btn-danger" style="width: 100px">탈퇴</a>
+    <a href="http://localhost/movie_prj/mypage/bye.jsp"  class="btn btn-danger" style="width: 100px" onclick="return confirm('정말 탈퇴하시겠습니까?')">탈퇴</a>
     
     
   </div>

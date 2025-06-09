@@ -11,7 +11,7 @@ import kr.co.yeonflix.dao.DbConnection;
 
 public class TheaterDAO {
 
-	public static TheaterDAO thDAO;
+	private static TheaterDAO thDAO;
 
 	private TheaterDAO() {
 

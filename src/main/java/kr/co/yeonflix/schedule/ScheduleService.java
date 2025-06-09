@@ -27,12 +27,22 @@ public class ScheduleService {
 		return list;
 	}//searchAllMovie
 	
+	public List<MovieDTO> getAvailableMoviesByDate(Date screenDate){
+		List<MovieDTO> list = new ArrayList<MovieDTO>();
+		for(MovieDTO mDTO : searchAllMovie()) {
+			if(!screenDate.before(mDTO.getReleaseDate()) && !screenDate.after(mDTO.getEndDate())) {
+				list.add(mDTO);
+			}
+		}
+		return list;
+	}
+	
 	public MovieDTO searchOneMovie(int movieIdx) {
 		MovieDTO mDTO = null;
 		
-		ScheduleDAO schDTO = ScheduleDAO.getInstance();
+		ScheduleDAO schDAO = ScheduleDAO.getInstance();
 		try {
-			mDTO = schDTO.selectOneMovie(movieIdx);
+			mDTO = schDAO.selectOneMovie(movieIdx);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -126,6 +136,7 @@ public class ScheduleService {
 		ScheduleDAO schDAO = ScheduleDAO.getInstance();
 		try {
 			schDAO.deleteSchedule(scheduleIdx);
+			flag = true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

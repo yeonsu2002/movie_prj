@@ -1,16 +1,59 @@
+<%@page import="kr.co.yeonflix.movie.MovieService"%>
+<%@page import="java.text.NumberFormat"%>
+<%@page import="kr.co.yeonflix.theater.TheaterDTO"%>
+<%@page import="kr.co.yeonflix.theater.TheaterService"%>
+<%@page import="kr.co.yeonflix.movie.MovieDTO"%>
+<%@page import="kr.co.yeonflix.reservation.ReservationService"%>
+<%@page import="kr.co.yeonflix.reservation.ReservationDTO"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
 <%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8" info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%
+int scheduleIdx = Integer.parseInt(request.getParameter("scheduleParam"));
+int reservationIdx = Integer.parseInt(request.getParameter("reservationParam"));
+String seatsInfo = request.getParameter("seatsParam");
 
+//스케줄 객체 가져오기
+ScheduleService ss = new ScheduleService();
+ScheduleDTO schDTO = ss.searchOneSchedule(scheduleIdx);
+
+//예매 객체 가져오기
+ReservationService rs = new ReservationService();
+ReservationDTO resDTO = rs.searchOneSchedule(reservationIdx);
+
+//영화 객체 가져오기
+int movieIdx = schDTO.getMovieIdx();
+MovieService ms = new MovieService();
+MovieDTO mDTO = ms.searchOneMovie(movieIdx);
+
+//극장 객체 가져오기
+int theaterIdx = schDTO.getTheaterIdx();
+TheaterService ts = new TheaterService();
+TheaterDTO tDTO = ts.searchTheaterWithIdx(theaterIdx);
+
+//총 인원수 구하기
+String[] seats = seatsInfo.split(" ");
+int peopleCnt = seats.length;
+
+pageContext.setAttribute("schDTO", schDTO);
+pageContext.setAttribute("resDTO", resDTO);
+pageContext.setAttribute("mDTO", mDTO);
+pageContext.setAttribute("tDTO", tDTO);
+pageContext.setAttribute("seatsInfo", seatsInfo);
+pageContext.setAttribute("peopleCnt", peopleCnt);
+pageContext.setAttribute("reservationIdx", reservationIdx);
+%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>예매 완료</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
-<link rel="stylesheet" href="http://localhost/movie_prj/reservation/reservation.css/reservation_complete.css"/>
+<link rel="stylesheet"
+	href="http://localhost/movie_prj/reservation/reservation.css/reservation_complete.css" />
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#showModalBtn').click(function() {
@@ -31,16 +74,16 @@
 		$('.close-btn').click(function() {
 			$('#bookingModal').fadeOut();
 		});
-		
+
 		$("#toMyPage").click(function() {
-			location.href = "";
+			location.href = "http://localhost/movie_prj/mypage/MainPage.jsp";
 		});
 	});
 </script>
 </head>
 <body>
 	<header>
-		<c:import url="http://localhost/movie_prj/common/jsp/header.jsp" />
+		<jsp:include page="../common/jsp/header.jsp" />
 	</header>
 	<main>
 		<div id="container">
@@ -50,33 +93,42 @@
 				<h1>예매가 완료되었습니다.</h1>
 
 				<div class="booking-info">
-					<img src="resources/images/sundebolt_poster.jpg" alt="썬더볼츠 포스터"
+				
+					<img src="/movie_prj/common/img/${mDTO.posterPath}" alt="썬더볼츠 포스터"
 						class="poster">
 
 					<div class="details">
 						<p>
-							<span>예매번호</span>0199-0501-5636-180
+							<span>예매번호</span>${resDTO.reservationNumber}
 						</p>
 						<p>
-							<span>영화</span>썬더볼츠
+							<span>영화</span>${mDTO.movieName}
 						</p>
 						<p>
-							<span>극장</span>CGV 천호 / 5관
+							<span>극장</span>연플릭스 / ${tDTO.theaterName}
 						</p>
 						<p>
-							<span>일시</span>2025년 5월 1일(목) 23:00 ~ 25:17
+							<span>일시</span><fmt:formatDate value="${schDTO.screenDate}"
+								pattern="yyyy년 M월 dd일(E)" />
+							<fmt:formatDate value="${schDTO.startTime}" pattern="HH:mm" />
+							~
+							<fmt:formatDate value="${schDTO.endTime}" pattern="HH:mm" />
 						</p>
 						<p>
-							<span>인원</span>일반 1명
+							<span>인원</span>일반 ${peopleCnt}명
 						</p>
 						<p>
-							<span>좌석</span>J10
+							<span>좌석</span>${seatsInfo}
 						</p>
 						<p>
-							<span>결제금액</span>14,000 원
+							<%
+							NumberFormat nf = NumberFormat.getInstance();
+							String price = nf.format(resDTO.getTotalPrice());
+							%>
+							<span>결제금액</span><%= price %> 원
 						</p>
 						<p>
-							<span>결제수단</span>신용카드 14,000 원
+							<span>결제수단</span>신용카드 <%= price %> 원
 						</p>
 
 						<br>
@@ -96,14 +148,25 @@
 					</ul>
 				</div>
 			</div>
+			<br><br>
+			<div class="main-banner">
+				<img src="http://localhost/movie_prj/common/img/banner/banner2.png"
+					style="width: 100%;">
+			</div>
+			<br> <br>
 		</div>
+		
+		
 
 
 	</main>
 	<footer>
-		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
+		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp"/>
 	</footer>
-	<c:import url="http://localhost/movie_prj/reservation/booking_modal.jsp"/>
-	
+	<c:import
+		url="http://localhost/movie_prj/reservation/booking_modal.jsp" >
+		<c:param name="reservationIdx" value="${reservationIdx}" />
+		</c:import>
+
 </body>
 </html>

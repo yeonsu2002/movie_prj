@@ -1,0 +1,131 @@
+@charset "UTF-8";
+
+/* 공지 목록 전체 감싸는 영역 */
+.notice-list-container {
+	width:100%;
+	margin-left: 300px; /* sidebar 너비 */
+	padding: 100px 40px 40px; /* 상단 header 높이만큼 여백 확보 */
+	background-color: #f9f9f9;
+	min-height: 100vh;
+	font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 상단 타이틀 */
+.notice-list-container h1 {
+	font-size: 24px;
+	color: #111827;
+	margin-bottom: 30px;
+}
+
+/* 테이블 스타일 */
+.notice-table {
+	width: 100%;
+	border-collapse: collapse;
+	background-color: #fff;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.notice-table th, .notice-table td {
+	padding: 14px 12px;
+	text-align: center;
+	font-size: 14px;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.notice-table th {
+	background-color: #f3f4f6;
+	color: #374151;
+	font-weight: 600;
+}
+
+.notice-table tr:hover {
+	background-color: #f9fafb;
+}
+
+.notice-table a {
+	color: #2563eb;
+	text-decoration: none;
+}
+
+.notice-table a:hover {
+	text-decoration: underline;
+}
+
+/* 버튼 영역 */
+.notice-actions {
+	margin-top: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.notice-actions .page-buttons input, .notice-actions .action-buttons input
+	{
+	background-color: #6366f1;
+	border: none;
+	color: white;
+	padding: 8px 14px;
+	font-size: 13px;
+	border-radius: 4px;
+	cursor: pointer;
+	margin-right: 8px;
+}
+
+.notice-actions .page-buttons input:hover, .notice-actions .action-buttons input:hover
+	{
+	background-color: #4f46e5;
+}
+
+.notice-actions .action-buttons input:last-child {
+	margin-right: 0;
+}
+
+.notice-actions .page-buttons {
+	display: flex;
+	justify-content: center;
+	flex: 1;
+	gap: 16px;
+}
+
+/* 가운데 정렬되면서 좌우로 늘어나는 공간 정리 */
+.notice-actions .action-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.notice-table th:nth-child(1),
+.notice-table td:nth-child(1) {
+	width: 40px;
+}
+
+.notice-table th:nth-child(2),
+.notice-table td:nth-child(2) {
+	width: 60px;
+}
+
+.notice-table th:nth-child(3),
+.notice-table td:nth-child(3) {
+	width: 80px;
+}
+
+.notice-table th:nth-child(4),
+.notice-table td:nth-child(4) {
+	width: 40%;
+	max-width: 400px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.notice-table th:nth-child(5),
+.notice-table td:nth-child(5) {
+	width: 60px;
+}
+
+.notice-table th:nth-child(6),
+.notice-table td:nth-child(6) {
+	width: 150px;
+}

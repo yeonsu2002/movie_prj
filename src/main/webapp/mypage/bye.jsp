@@ -1,13 +1,27 @@
+<%@page import="java.sql.SQLException"%>
+<%@page import="kr.co.yeonflix.member.MemberService"%>
+<%@page import="kr.co.yeonflix.member.MemberDTO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"
     info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    MemberDTO loginUser = (MemberDTO) session.getAttribute("loginUser");
+
+    if (loginUser != null) {
+        MemberService ms = new MemberService();
+        boolean result = ms.modifyIsActive(loginUser.getUserIdx(), "N");
+
+        // 세션 종료 (로그아웃)
+        session.invalidate();
+    }
+%>
 
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>탈퇴</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
  #container{ min-height: 650px; margin-top: 30px; margin-left: 20px}
@@ -61,21 +75,18 @@
 </head>
 <body>
 <header>
-<c:import url="http://localhost/movie_prj/common/jsp/header.jsp"/>
+<jsp:include page="/common/jsp/header.jsp" />
 </header>
 <main>
 <div id="container">
-	<!-- <div class="title">
-    	<h2 style="text-align: center;">회원탈퇴완료</h2>
-    </div>
-     -->
+	
     <div class="card text-center">
     
   <div class="card-body">
-    <img src="http://localhost/movie_prj/common/img/%EA%B0%80%EC%A7%80%EB%A7%9D.gif"/>
+    <img src="http://localhost/movie_prj/common/img/byebye.jpg"/>
     <h5 class="card-title">안녕히 가세요</h5>
   
-    <input type="button" value="회원가입" class="btn btn-danger" style="width: 100px"/>
+    <a href="http://localhost/movie_prj/index.jsp" type="button" class="btn btn-danger" style="width: 100px">메인화면</a>
     
     
   </div>

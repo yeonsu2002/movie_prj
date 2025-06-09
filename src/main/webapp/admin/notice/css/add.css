@@ -1,0 +1,73 @@
+@charset "UTF-8";
+
+.main-wrapper {
+  margin-left: 300px;
+  padding: 100px 80px 40px; /* 상단 100px, 좌우 넉넉하게 */
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  font-family: 'Noto Sans KR', sans-serif;
+  width: 100%;
+}
+
+form table {
+  width: 100%;
+  max-width: 1400px;
+  height: 800px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+form th {
+  background-color: #4f46e5;
+  color: #fff;
+  font-size: 20px;
+  padding: 24px;
+  text-align: center;
+  border-radius: 8px 8px 0 0;
+}
+
+form td {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 16px;
+}
+
+form input[type="text"],
+form select,
+form textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+form textarea {
+  height: 280px;
+  resize: vertical;
+}
+
+.button-container {
+  text-align: center;
+  padding: 24px;
+}
+
+.button-container input[type="button"] {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 0 10px;
+  transition: background-color 0.2s ease;
+}
+
+.button-container input[type="button"]:hover {
+  background-color: #4f46e5;
+}

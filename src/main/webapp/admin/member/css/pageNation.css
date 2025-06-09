@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+/* 페이지네이션 전체 스타일 */
+.pagePrevMark,
+.pageNextMark,
+.pageCurrent,
+.pageNotCurrent {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    padding: 5px 10px;
+    margin: 0 2px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+/* 이전, 다음 비활성화 상태 (클릭 불가 상태) */
+.pagePrevMark:not(a),
+.pageNextMark:not(a) {
+    color: #ccc;
+    background-color: #f9f9f9;
+    cursor: default;
+}
+
+/* 현재 페이지 */
+.pageCurrent {
+    background-color: #6B6FD4;
+    color: white;
+    font-weight: bold;
+    border: 1px solid  #6B6FD4;
+}
+
+/* 다른 페이지 (클릭 가능한 상태) */
+.pageNotCurrent {
+    background-color: #ffffff;
+    color: #6B6FD4;
+    border: 1px solid #6B6FD4;
+    transition: all 0.2s ease-in-out;
+}
+
+.pageNotCurrent:hover {
+    background-color: #6B6FD4;
+    color: white;
+}
+
+/* 이전/다음 링크 스타일 */
+.pagePrevMark a,
+.pageNextMark a {
+    color: #333;
+    text-decoration: none;
+}
+
+.pagePrevMark a:hover,
+.pageNextMark a:hover {
+    text-decoration: underline;
+    
+}

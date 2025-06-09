@@ -1,0 +1,146 @@
+
+@charset "UTF-8";
+
+/* 1:1 문의 전체 컨테이너 */
+.inquiry-wrapper {
+  position: absolute;
+  top: 80px;              /* header-container 높이 */
+  left: 300px;            /* sidebar 너비 */
+  right: 0;
+  bottom: 0;
+  padding: 30px;
+  overflow-y: auto;
+  overflow-x: hidden;     /* ← 좌우 스크롤 방지 */
+  background-color: #f9fafb;
+}
+
+/* 상단 타이틀 */
+.inquiry-wrapper h1 {
+  font-size: 24px;
+  color: #111827;
+  margin-bottom: 30px;
+}
+
+/* 테이블 스타일 */
+.inquiry-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.inquiry-wrapper th,
+.inquiry-wrapper td {
+  padding: 14px 12px;
+  font-size: 14px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inquiry-wrapper th {
+  background-color: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+}
+
+.inquiry-wrapper tr:hover {
+  background-color: #f9fafb;
+}
+
+.inquiry-wrapper a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.inquiry-wrapper a:hover {
+  text-decoration: underline;
+}
+/* 페이징 및 버튼 정렬 영역 */
+.inquiry-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 새로 추가 */
+.page-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.page-buttons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+
+/* 현재 페이지 표시 스타일 (굵게 표시) */
+.inquiry-actions .page-buttons a[style*="bold"] {
+}
+
+/* 삭제 버튼 영역 */
+.inquiry-actions .action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.inquiry-actions .action-buttons input {
+  background-color: #6366f1;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.inquiry-actions .action-buttons input:hover {
+  background-color: #4f46e5;
+}
+
+/* 각 컬럼 너비 고정 */
+
+.inquiry-wrapper th:nth-child(1),
+.inquiry-wrapper td:nth-child(1) {
+	width: 40px;
+}
+
+.inquiry-wrapper th:nth-child(2),
+.inquiry-wrapper td:nth-child(2) {
+	width: 60px;
+}
+
+.inquiry-wrapper th:nth-child(3),
+.inquiry-wrapper td:nth-child(3) {
+	width: 80px;
+}
+
+.inquiry-wrapper th:nth-child(4),
+.inquiry-wrapper td:nth-child(4) {
+	width: 40%;
+	max-width: 400px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.inquiry-wrapper th:nth-child(5),
+.inquiry-wrapper td:nth-child(5) {
+	width: 60px;
+}
+
+.inquiry-wrapper th:nth-child(6),
+.inquiry-wrapper td:nth-child(6) {
+	width: 150px;
+}

@@ -1,0 +1,88 @@
+@charset "UTF-8";
+
+/* 전체 배경 및 중앙 정렬 */
+body {
+  font-family: 'Noto Sans KR', '맑은 고딕', sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+/* 메인 컨테이너 */
+.container {
+  max-width: 1000px;
+  height:600px;
+  margin: 40px auto;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  background-color: #fefefe;
+}
+
+/* 제목 */
+h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #fb4357;
+  margin-bottom: 30px;
+}
+
+/* 필드 제목과 값 정렬 */
+.field {
+  margin-bottom: 20px;
+}
+
+.field strong {
+  display: inline-block;
+  width: 80px;
+  font-weight: 600;
+  color: #444;
+}
+
+.field label {
+  display: inline-block;
+  color: #222;
+  font-weight: 500;
+}
+
+/* textarea 스타일 */
+textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.5;
+  margin-top: 8px;
+  
+}
+
+/* 답변이 있을 때 */
+textarea.has-answer {
+  height: 25%;
+}
+
+/* 답변이 없을 때 */
+textarea.no-answer {
+  height: 50%;
+}
+/* 버튼 */
+input[type="button"] {
+  background-color: #fb4357;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto 0;
+  transition: background-color 0.2s ease;
+}
+
+input[type="button"]:hover {
+  background-color: #e02e3b;
+}

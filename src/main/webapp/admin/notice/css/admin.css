@@ -1,0 +1,89 @@
+@charset "UTF-8";
+
+	/* notice_admin_view.css */
+
+.notice-detail-wrapper {
+  position: absolute;
+  top: 80px;             /* admin_header.jsp header height */
+  left: 300px;           /* sidebar width */
+  right: 0;
+  bottom: 0;
+  padding: 40px;
+  background-color: #f9fafb;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.notice-detail-wrapper .container {
+	width:100%;
+	height:100%;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.notice-detail-wrapper h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.notice-detail-wrapper .description {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+.notice-detail-wrapper strong {
+  display: inline-block;
+  width: 80px;
+  font-weight: 600;
+  margin: 15px 0 5px;
+  color: #374151;
+}
+
+.notice-detail-wrapper label {
+  font-size: 16px;
+  color: #111827;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.notice-detail-wrapper textarea {
+  width: 100%;
+  height:60%;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  resize: none;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.notice-detail-wrapper .btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  gap: 10px; 
+}
+
+.notice-detail-wrapper input[type="button"] {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notice-detail-wrapper input[type="button"]:hover {
+  background-color: #4f46e5;
+}

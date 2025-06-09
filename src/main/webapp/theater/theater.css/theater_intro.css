@@ -1,0 +1,360 @@
+@charset "UTF-8";
+
+/* 전체 컨테이너 */
+#container {
+    min-height: 650px;
+    margin: 0 auto;
+    width: 100%;
+    background: #ffffff;
+    padding: 0;
+}
+
+.special-cinema-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: #ffffff;
+    color: #333;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+/* 탭 버튼 스타일 */
+.tab-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button {
+    flex: 1;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    margin: 0 2px;
+}
+
+.tab-button:hover {
+    color: #333;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+}
+
+.tab-button.active {
+    color: #fff;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+/* 콘텐츠 영역 */
+.content-area {
+    padding-bottom: 40px;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* 상단 이미지 */
+.cinema-top-image {
+    width: 100%;
+    height: 400px;
+    margin-bottom: 50px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.cinema-top-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.cinema-top-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cinema-top-image:hover img {
+    transform: scale(1.05);
+}
+
+/* 특별관 레이아웃 */
+.cinema-layout {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.cinema-info {
+    flex: 1.2;
+}
+
+.cinema-visual {
+    flex: 1;
+}
+
+.cinema-title {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.cinema-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    border-radius: 2px;
+}
+
+.cinema-title.imax { 
+    color: #E8B417; 
+}
+.cinema-title.imax::after { 
+    background: linear-gradient(90deg, #E8B417, #f4d03f); 
+}
+
+.cinema-title.threeD { 
+    color: #00B9C6; 
+}
+.cinema-title.threeD::after { 
+    background: linear-gradient(90deg, #00B9C6, #48cae4); 
+}
+
+.cinema-title.screenx { 
+    color: #15772C; 
+}
+.cinema-title.screenx::after { 
+    background: linear-gradient(90deg, #15772C, #40916c); 
+}
+
+.cinema-title.premium { 
+    color: #ED3124; 
+}
+.cinema-title.premium::after { 
+    background: linear-gradient(90deg, #ED3124, #e63946); 
+}
+
+.cinema-description {
+    font-size: 17px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    color: #555;
+    font-weight: 400;
+}
+
+.cinema-description strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 특징 아이콘 섹션 */
+.features {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.feature-item {
+    text-align: center;
+    flex: 1;
+    background: #f8f9fa;
+    padding: 25px 15px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+}
+
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.feature-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.feature-desc {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+/* 메인 이미지 */
+.main-image {
+    width: 100%;
+    height: 320px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.main-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 0%, rgba(231, 76, 60, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.main-image:hover::after {
+    opacity: 1;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.main-image:hover img {
+    transform: scale(1.03);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+    .cinema-layout {
+        gap: 40px;
+    }
+    
+    .cinema-title {
+        font-size: 42px;
+    }
+}
+
+@media (max-width: 768px) {
+    .special-cinema-container {
+        padding: 30px 15px;
+    }
+    
+    .cinema-layout {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .tab-buttons {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .tab-button {
+        font-size: 15px;
+        padding: 15px 20px;
+        margin: 0;
+    }
+    
+    .cinema-title {
+        font-size: 36px;
+        text-align: center;
+    }
+    
+    .cinema-top-image {
+        height: 250px;
+        margin-bottom: 30px;
+    }
+    
+    .features {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .feature-item {
+        padding: 20px 15px;
+    }
+    
+    .main-image {
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cinema-title {
+        font-size: 28px;
+    }
+    
+    .cinema-description {
+        font-size: 15px;
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+    
+    .cinema-top-image {
+        height: 200px;
+    }
+}
