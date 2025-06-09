@@ -10,8 +10,8 @@ body {
 
 /* 메인 컨테이너 */
 .container {
-  width: 70%;
-  max-width: 800px;
+  max-width: 1000px;
+  height:600px;
   margin: 40px auto;
   padding: 30px;
   box-shadow: 0 0 10px rgba(0,0,0,0.05);
@@ -48,7 +48,6 @@ h2 {
 /* textarea 스타일 */
 textarea {
   width: 100%;
-  height: 150px;
   resize: none;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -58,8 +57,18 @@ textarea {
   color: #333;
   line-height: 1.5;
   margin-top: 8px;
+  
 }
 
+/* 답변이 있을 때 */
+textarea.has-answer {
+  height: 25%;
+}
+
+/* 답변이 없을 때 */
+textarea.no-answer {
+  height: 50%;
+}
 /* 버튼 */
 input[type="button"] {
   background-color: #fb4357;

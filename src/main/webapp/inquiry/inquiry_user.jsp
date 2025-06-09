@@ -33,12 +33,12 @@
 		</div>
 		 <div class="field">
 		<strong>내용</strong>
-		<textarea id="content" placeholder="내용을 입력하세요" readonly="readonly">${iDTO.inquiry_content }</textarea>
+		<textarea id="content" class="${iDTO.answer_status == 1 ? 'has-answer' : 'no-answer'}" readonly="readonly">${iDTO.inquiry_content }</textarea>
 		</div>
 		<br>
 		<%if(iDTO.getAnswer_status()==1){ %>
 			<strong>답변</strong>
-			<textarea id="answer" readonly="readonly"><c:out value="${iDTO.answer_content}"/></textarea>
+			<textarea id="answer" class="${iDTO.answer_status == 1 ? 'has-answer' : 'no-answer'}" readonly="readonly"><c:out value="${iDTO.answer_content}"/></textarea>
 			<br>
 		<%} %>
 		<input type="button" id="list" value="목록으로" />

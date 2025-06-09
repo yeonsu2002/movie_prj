@@ -117,7 +117,7 @@ public class ReviewDAO {
         ResultSet rs = null;
 
         try {
-        	String sql = "SELECT \"REVIEW_IDX\", \"USER_IDX\", "
+        	String sql = "SELECT \"REVIEW_IDX\", \"USER_IDX\", \"MOVIE_NAME\","
         			+ "\"MOVIE_IDX\", \"REVIEW_CONTENTS\", \"WRITE_DATE\", "
         			+ "\"RATING\" FROM \"REVIEW_MOVIE\" ORDER BY \"WRITE_DATE\" DESC";
             pstmt = con.prepareStatement(sql);
@@ -192,7 +192,7 @@ public class ReviewDAO {
 
         try {
             con = db.getDbConn();
-            String sql = "SELECT REVIEW_IDX, MOVIE_IDX, REVIEW_CONTENTS, RATING, WRITE_DATE "
+            String sql = "SELECT REVIEW_IDX, MOVIE_IDX, REVIEW_CONTENTS, RATING, WRITE_DATE,MOVIE_NAME "
                        + "FROM REVIEW_MOVIE WHERE USER_IDX = ? ORDER BY WRITE_DATE DESC";
             pstmt = con.prepareStatement(sql);
             pstmt.setInt(1, userId);
@@ -206,6 +206,7 @@ public class ReviewDAO {
                 dto.setContent(rs.getString("REVIEW_CONTENTS"));
                 dto.setRating(rs.getDouble("RATING"));
                 dto.setWriteDate(rs.getDate("WRITE_DATE"));
+                dto.setMovieName(rs.getString("MOVIE_NAME"));
                 list.add(dto);
             }
         } finally {

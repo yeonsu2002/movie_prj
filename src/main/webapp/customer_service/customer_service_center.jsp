@@ -49,7 +49,7 @@
 					<c:forEach var="notice" items="${notices}" varStatus="status">
 						<c:if test="${status.count <= 5}">
 							<tr>
-								<td><a href="http://localhost/movie_prj/notice/notice_user.jsp?idx=${notice.notice_board_idx }">제목${notice.notice_title}</a></td>
+								<td><a href="http://localhost/movie_prj/notice/notice_user.jsp?idx=${notice.notice_board_idx }">${notice.notice_title}</a></td>
 								<td>조회수${notice.view_count}</td>
 							</tr>
 						</c:if>

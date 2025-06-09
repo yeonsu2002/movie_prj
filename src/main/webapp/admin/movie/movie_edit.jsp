@@ -1,3 +1,5 @@
+<%@page import="kr.co.yeonflix.schedule.ScheduleDTO"%>
+<%@page import="kr.co.yeonflix.schedule.ScheduleService"%>
 <%@page import="kr.co.yeonflix.movie.people.PeopleDTO"%>
 <%@page import="kr.co.yeonflix.movie.people.PeopleService"%>
 <%@page import="java.util.List"%>
@@ -204,6 +206,21 @@ input[value="취소"]:hover {
     .warning{
       color: #DB1C17;
     }
+    
+    .tooltip button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #999;
+  float: right;
+}
+
+.tooltip button:hover {
+  color: #333;
+}
+    
   </style>
  
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -212,134 +229,8 @@ input[value="취소"]:hover {
   String mode = request.getParameter("mode");
   %>
   
-  $(function(){
-    var mode = "<%= mode %>";
-    console.log("현재 모드:", mode);
-    
-    // 폼 제출 전 유효성 검사 함수
-    function validateForm() {
-        var movieName = $("#movieName").val().trim();
-        var genre = $("#genre").val();
-        var grade = $("#grade").val();
-        
-        if (!movieName) {
-            alert("영화제목을 입력해주세요.");
-            $("#movieName").focus();
-            return false;
-        }
-        
-        if (!genre) {
-            alert("장르를 선택해주세요.");
-            $("#genre").focus();
-            return false;
-        }
-        
-        if (!grade) {
-            alert("등급을 선택해주세요.");
-            $("#grade").focus();
-            return false;
-        }
-        
-        return true;
-    }
-    
-    $('#dAddBtn').click(function() {
-        var left = window.screenX + 830;
-        var top  = window.screenY + 150;
-        window.open('people_list.jsp?people=director', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
-    });
-    
-    $('#aAddBtn').click(function() {
-        var left = window.screenX + 830;
-        var top  = window.screenY + 150;
-        window.open('people_list.jsp?people=actor', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
-    });
-    
-    $("#btnImg").click(function(){
-        $("#posterImg").click();
-    });
-    
-    $("#posterImg").change(function(evt){
-        $("#imgName").val($("#posterImg").val());
-        var file = evt.target.files[0];
-        var reader = new FileReader();
-        reader.onload = function(evt){
-            $("#img").prop("src", evt.target.result);
-        }
-        reader.readAsDataURL(file);
-    });
-    
-    $('#dRemoveBtn').click(function() {
-        var input = $('input[name="directors"]');
-        var values = input.val().split(',').map(item => item.trim()).filter(item => item);
-        values.pop();
-        input.val(values.join(', '));
-    });
-
-    $('#aRemoveBtn').click(function() {
-        var input = $('input[name="actors"]');
-        var values = input.val().split(',').map(item => item.trim()).filter(item => item);
-        values.pop();
-        input.val(values.join(', '));
-    });
-    
-    // 폼 제출 버튼 클릭 이벤트
-    $("#positive").click(function(){
-        if (!validateForm()) {
-            return false;
-        }
-        
-        // 액션 설정
-        if (mode === "update") {
-            $("#action").val("update");
-        } else {
-            $("#action").val("insert");
-            // insert 모드일 때는 movieIdx를 0으로 설정하거나 제거
-            $("#movieIdxField").val("0");
-        }
-        
-        console.log("제출할 액션:", $("#action").val());
-        console.log("movieIdx:", $("#movieIdxField").val());
-        
-        $("#frm").submit();
-    });
-    
-    // 장르와 등급 hidden 필드 초기화
-    $("#genreIdx").val($("#genre").val());
-    $("#gradeIdx").val($("#grade").val());
-
-    // 장르/등급 변경 이벤트
-    $("#grade").change(function() {
-        $("#gradeIdx").val($(this).val());
-    });
-
-    $("#genre").change(function() {
-        $("#genreIdx").val($(this).val());
-    });
-    
-    // 취소/삭제 버튼 클릭 이벤트
-    $("#negation").click(function(){
-        if (mode === "update") {
-            if (confirm("정말 삭제하시겠습니까?")) {
-                $("#action").val("delete");
-                $("#frm").submit();
-            }
-        } else {
-            history.back();
-        }
-    });
-  });
-
-  function toggleTooltip() {
-      const tooltip = document.getElementById("tooltip");
-      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
-  }
-  </script>
-</head>
-<body>
-  <div class="content-container">
-  
   <%
+  
   String movieIdxStr = request.getParameter("movieIdx");
   int movieIdxInt = 0;
   if (movieIdxStr != null && !movieIdxStr.trim().isEmpty()) {
@@ -366,36 +257,180 @@ input[value="취소"]:hover {
   }
   
   MovieCommonCodeService mccs = new MovieCommonCodeService();
-  /* List<MovieCommonCodeDTO> mccList = new ArrayList<MovieCommonCodeDTO>(); */
-  /*  
-  int movieGenreCode = 0;
-  int movieGradeCode = 0;
   
-  if ("update".equals(mode) && movieIdxInt > 0) {
-      mccList = mccs.searchCommon(movieIdxInt);
-      
-      for(MovieCommonCodeDTO code : mccList) {
-          if("장르".equals(code.getCodeType())) {
-              movieGenreCode = code.getCodeIdx();
-          } else if("등급".equals(code.getCodeType())) {
-              movieGradeCode = code.getCodeIdx();
-          }
+  ScheduleService ss = new ScheduleService();
+  List<ScheduleDTO> scheduleList = ss.searchAllSchedule();
+  
+  // 스케줄 존재 여부 확인 (삭제 조건 검사용)
+  boolean hasSchedule = false;
+  for(ScheduleDTO sDTO : scheduleList){
+      if(sDTO.getMovieIdx() == movieIdxInt){
+          hasSchedule = true;
+          System.out.println("sDTO.getMovieIdx()  : " + sDTO.getMovieIdx()  + "movieIdxInt : " + movieIdxInt);
+          break;
       }
-  } */
+  }
   
-  /*
-	request.setAttribute("movieGenreCode", movieGenreCode);
-  request.setAttribute("movieGradeCode", movieGradeCode); */
-  
-  
+  request.setAttribute("schedule", scheduleList);
+  request.setAttribute("hasSchedule", hasSchedule);
   request.setAttribute("genre", mccs.searchOneGenreIdx(movieIdxInt));
   request.setAttribute("grade", mccs.searchOneGradeIdx(movieIdxInt));
   request.setAttribute("genreList", genreList);
   request.setAttribute("gradeList", gradeList);
   request.setAttribute("movieIdx", movieIdxInt);
   
-  
   %>
+  $(function(){
+	    var mode = "<%= mode %>";
+	    var hasSchedule = <%= hasSchedule ? "true" : "false" %>;
+
+	    console.log("현재 모드:", mode);
+	    console.log("스케줄 존재 여부:", hasSchedule);
+	    
+	    // 폼 제출 전 유효성 검사 함수
+	    function validateForm() {
+	        var movieName = $("#movieName").val().trim();
+	        var genre = $("#genre").val().trim();
+	        var grade = $("#grade").val();
+	        var country = $("#country").val().trim();
+	        var duration = $("#duration").val().trim();
+	        
+	        if (!movieName) {
+	            alert("영화제목을 입력해주세요.");
+	            $("#movieName").focus();
+	            return false;
+	        }
+	        if (!genre) {
+	            alert("장르를 선택해주세요.");
+	            $("#genre").focus();
+	            return false;
+	        }
+	        if (!grade) {
+	            alert("등급을 선택해주세요.");
+	            $("#grade").focus();
+	            return false;
+	        }
+	        if (!duration) {
+	            alert("상영시간을 입력해주세요.");
+	            $("#duration").focus();
+	            return false;
+	        }
+	       
+	        if (!description) {
+	            alert("영화정보를 입력해주세요");
+	            $("#description").focus();
+	            return false;
+	        }
+	        
+	        return true;
+	    }
+	    
+	    // 스케줄 존재 여부 확인 함수
+	    function checkScheduleExists() {
+	        return hasSchedule;
+	    }
+	    
+	    $('#dAddBtn').click(function() {
+	        var left = window.screenX + 830;
+	        var top  = window.screenY + 150;
+	        window.open('people_list.jsp?people=director', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
+	    });
+	    
+	    $('#aAddBtn').click(function() {
+	        var left = window.screenX + 830;
+	        var top  = window.screenY + 150;
+	        window.open('people_list.jsp?people=actor', 'id', 'width=250,height=600,left=' + left + ',top=' + top);
+	    });
+	    
+	    $("#btnImg").click(function(){
+	        $("#posterImg").click();
+	    });
+	    
+	    $("#posterImg").change(function(evt){
+	        $("#imgName").val($("#posterImg").val());
+	        var file = evt.target.files[0];
+	        var reader = new FileReader();
+	        reader.onload = function(evt){
+	            $("#img").prop("src", evt.target.result);
+	        }
+	        reader.readAsDataURL(file);
+	    });
+	    
+	    $('#dRemoveBtn').click(function() {
+	        var input = $('input[name="directors"]');
+	        var values = input.val().split(',').map(item => item.trim()).filter(item => item);
+	        values.pop();
+	        input.val(values.join(', '));
+	    });
+
+	    $('#aRemoveBtn').click(function() {
+	        var input = $('input[name="actors"]');
+	        var values = input.val().split(',').map(item => item.trim()).filter(item => item);
+	        values.pop();
+	        input.val(values.join(', '));
+	    });
+	    
+	    // 폼 제출 버튼 클릭 이벤트
+	    $("#positive").click(function(){
+	        if (!validateForm()) {
+	            return false;
+	        }
+	        
+	        // 액션 설정
+	        if (mode === "update") {
+	            $("#action").val("update");
+	        } else {
+	            $("#action").val("insert");
+	            // insert 모드일 때는 movieIdx를 0으로 설정하거나 제거
+	            $("#movieIdxField").val("0");
+	        }
+	        
+	        console.log("제출할 액션:", $("#action").val());
+	        console.log("movieIdx:", $("#movieIdxField").val());
+	        
+	        $("#frm").submit();
+	    });
+	    
+	    // 장르와 등급 hidden 필드 초기화
+	    $("#genreIdx").val($("#genre").val());
+	    $("#gradeIdx").val($("#grade").val());
+
+	    // 장르/등급 변경 이벤트
+	    $("#grade").change(function() {
+	        $("#gradeIdx").val($(this).val());
+	    });
+
+	    $("#genre").change(function() {
+	        $("#genreIdx").val($(this).val());
+	    });
+	    
+	    // 취소/삭제 버튼 클릭 이벤트
+	    $("#negation").click(function(){
+	        if (mode === "update") {
+	            // 삭제 전 스케줄 존재 여부 확인
+	            if (hasSchedule === true) {
+	                alert("상영 스케줄에 있는 영화는 삭제할 수 없습니다.");
+	                return false;
+	            }
+	            if (confirm("정말 삭제하시겠습니까?")) {
+	                $("#action").val("delete");
+	                $("#frm").submit();
+	            }
+	        } else {
+	            history.back();
+	        }
+	    });
+	});
+
+  function toggleTooltip() {
+      const tooltip = document.getElementById("tooltip");
+      tooltip.style.display = tooltip.style.display === "none" || tooltip.style.display === "" ? "block" : "none";
+  }
+  </script>
+</head>
+<body>
+  <div class="content-container">
+  
 
     <div class="content">
       <c:choose>
@@ -413,13 +448,11 @@ input[value="취소"]:hover {
       </c:choose>
       
       <div id="tooltip" class="tooltip">
-        포스터, 영화제목, 영화설명, 트레일러URL, 감독, 주연배우(3명), 장르,<br />
-        상영등급, 제작국가, 상영시간, ${ genre }, ${ grade } 
-        <ul>
-          <c:forEach var="g" items="${genreList}">
-            <li>${g.codeIdx} - ${g.movieCodeType}</li>
-          </c:forEach>
-        </ul>
+       <button type="button" onclick="toggleTooltip()" style="float: right; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 14px; color: #999;">✕</button>
+        모든 항목을 다 기입해주세요.<br>
+        같은 시기에 영화 제목이 같을 시 구분할 수 있는 문자를 괄호를 사용해 기입해주세요.<br>
+        ex) 극한직업(2019)
+        
       </div>
 
       <form action="movie_process.jsp" method="post" id="frm" enctype="multipart/form-data">
@@ -479,7 +512,7 @@ input[value="취소"]:hover {
             </div>
 
             <div class="form-row">
-              <label for="duration">상영시간</label>
+              <label for="runningTime">상영시간</label>
               <input type="text" id="duration" name="duration" 
                      value="<%= "update".equals(mode) && mDTO != null ? (mDTO.getRunningTime() != 0 ? String.valueOf(mDTO.getRunningTime()) : "") : "" %>" /> 분
             </div>

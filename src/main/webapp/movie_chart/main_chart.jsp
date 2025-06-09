@@ -11,12 +11,14 @@ pageEncoding="UTF-8"
 info="Main template page"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>CGV 무비차트</title>
+<title>YEONFLIX 무비차트</title>
 
 <jsp:include page="../common/jsp/external_file.jsp" />
 
@@ -174,7 +176,7 @@ info="Main template page"%>
     display: inline-block;
     width: 20px;
     height: 20px;
-    background: #FB4357;
+/*     background: #FB4357;
     color: white;
     text-align: center;
     line-height: 20px;
@@ -182,7 +184,7 @@ info="Main template page"%>
     font-weight: bold;
     border-radius: 3px;
     margin-right: 8px;
-    vertical-align: middle;
+    vertical-align: middle; */
 }
 
 /* 제목과 등급을 함께 표시하는 스타일 */
@@ -254,35 +256,37 @@ request.setAttribute("mccs", mccs);
                         <img src="/movie_prj/common/img/${m.posterPath}" alt="${m.movieName}"/> 
                     </a>
                     <strong class="rank">No.${status.index + 1}</strong>
+                    
                 </div>
                 <div class="box-contents">
                     <div class="title-with-rating">
                         <span class="rating-icon">
-                        ${ mccs.searchOneGrade(m.movieIdx)}
+                        <img src="http://localhost/movie_prj/common/img/icon_${ mccs.searchOneGrade(m.movieIdx)}.svg" />
                         </span>
+                        
                         <strong class="title">${m.movieName}</strong>
                     </div>
 
                     <div class="score">
-                        <strong class="percent">${ms.reservationRate(m.movieIdx)}</strong>
+                        <strong class="percent">${ms.reservationRate(m.movieIdx)}%</strong>
                     </div>
 
                     <span class="txt-info">
                         <fmt:formatDate value="${m.releaseDate}" pattern="yyyy.MM.dd"/> 개봉
                     </span>
 
-                    <a href="/ticket/?MOVIE_CD=${m.movieIdx}" class="link-reservation">예매</a>
+                    <a href="../reservation/reservation.jsp" class="link-reservation">예매</a>
                 </div>
             </div>
         </c:forEach>
-        
+		<c:set var="movieChartSize" value="${fn:length(movieChart)}" />        
         <c:forEach var="nm" items="${nonMovieChart}" varStatus="status">
             <div class="movie-item">
                 <div class="box-image">
                     <a href="sub_chart.jsp?movieIdx=${nm.movieIdx}&reservationRate=${ms.reservationRate(nm.movieIdx)}">
                         <img src="/movie_prj/common/img/${nm.posterPath}" alt="${nm.movieName}"/> 
                     </a>
-                    <strong class="rank">No.${status.index + 4}</strong>
+                    <strong class="rank">No.${movieChartSize + status.index + 1}</strong>
                 </div>
                 <div class="box-contents">
                     <div class="title-with-rating">
@@ -300,7 +304,7 @@ request.setAttribute("mccs", mccs);
                         <fmt:formatDate value="${nm.releaseDate}" pattern="yyyy.MM.dd"/> 개봉
                     </span>
 
-                    <a href="/ticket/?MOVIE_CD=${nm.movieIdx}" class="link-reservation">예매</a>
+                    <a href="../reservation/reservation.jsp" class="link-reservation">예매</a>
                 </div>
             </div>
         </c:forEach> 
