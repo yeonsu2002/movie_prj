@@ -152,7 +152,7 @@ public class NonMemberDAO {
     
     return nmDTO;
   }
-	
+////-------------------------------------------------------------------	
 	//전체멤버 보기
   public List<NonMemberDTO> selectAllNonMember(){
   	List<NonMemberDTO> list = null;
