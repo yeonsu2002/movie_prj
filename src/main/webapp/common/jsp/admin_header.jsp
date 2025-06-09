@@ -121,7 +121,7 @@ function logout(){
 	        <div class="menu-item"><a href="javascript:void(0);" onclick="alert('접근 권한이 없습니다.');"> <span>▶</span>1:1문의</a></div>
 	  		</c:otherwise>
 	  	</c:choose>
-        
+         
     </div>
 </div>
  	<!-- 상단 버튼 영역  -->
