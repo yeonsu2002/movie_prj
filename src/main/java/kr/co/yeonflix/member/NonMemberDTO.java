@@ -19,7 +19,7 @@ public class NonMemberDTO {
   private String email;
   private String ticket_pwd;
   private LocalDateTime createdAt;
-  
+   
   private String userType;
   
   public Date getCreatedAtAsDate() {
