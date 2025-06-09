@@ -35,9 +35,8 @@
     
     
     ReviewService rs=new ReviewService();
-    List<ReviewDTO> reviewList = rs.getReviewsByMovie(loginUserIdx);
+    List<ReviewDTO> reviewList = rs.getReviewsMyMovie(loginUserIdx);
     request.setAttribute("reviewList", reviewList);
-    
     
     
  %>
@@ -46,7 +45,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>내가 쓴 리뷰</title>
 <c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp"/>
 <style>
   
@@ -221,7 +220,7 @@
   <div class="main-content">
     <div class="content-header">
       <h1 class="content-title" style="font-size: 30px; font-weight:bold;">
-        내가 쓴 평점 <span class="review-count">${fn:length(reviewList)}건</span>
+        내가 쓴 리뷰 <span class="review-count">${fn:length(reviewList)}건</span>
       </h1>
     </div>
     <br><br>
@@ -248,7 +247,7 @@
     </c:forEach>
     <c:if test="${empty reviewList}">
       <tr>
-        <td colspan="4" style="text-align:center;">작성한 평점이 없습니다.</td>
+        <td colspan="4" style="text-align:center;">작성한 리뷰이 없습니다.</td>
       </tr>
     </c:if>
   </tbody>
