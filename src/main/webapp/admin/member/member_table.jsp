@@ -438,8 +438,6 @@ PageNationDTO pDTO = new PageNationDTO(3, rDTO.getCurrentPage(), totalPage, "mem
 		rDTO.getField(), rDTO.getKeyword());
 pDTO.setUrl("member_table.jsp?userType=" + userType);
 %>
-
-
 <%= BoardUtil.pagination(pDTO) %>
 </div>
 

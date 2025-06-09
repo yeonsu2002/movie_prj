@@ -1,3 +1,5 @@
+<%@page import="java.time.format.DateTimeParseException"%>
+<%@page import="java.time.LocalDate"%>
 <%@page import="java.util.Enumeration"%>
 <%@page import="java.util.List"%>
 <%@page import="kr.co.yeonflix.member.NonMemberDTO"%>
@@ -11,15 +13,31 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%
 String email = request.getParameter("email");
+String birth = request.getParameter("birth");
 
 if (email == null || email.trim().isEmpty()) {
     out.println("비회원 이메일이 전달되지 않았습니다.");
     return;
 }
 
+//생일 값이 없거나 잘못된 형식이면 오류 처리
+if (birth == null || birth.trim().isEmpty()) {
+ out.println("비회원 생일이 전달되지 않았습니다.");
+ return;
+}
+
+LocalDate birthDate = null;
+try {
+ // 생일이 "yyyy-MM-dd" 형식이면 LocalDate로 변환
+ birthDate = LocalDate.parse(birth);  // 만약 형식이 다르면 DateTimeFormatter 사용 필요
+} catch (DateTimeParseException e) {
+ out.println("생일 형식이 잘못되었습니다. 올바른 형식으로 입력해주세요.");
+ return;
+}
+
 // 이메일로 비회원 정보 조회
 NonMemberDAO nDAO = NonMemberDAO.getInstance();
-NonMemberDTO nDTO = nDAO.selectNonMember(email);
+NonMemberDTO nDTO = nDAO.selectNonMember(birthDate, email);
 
 if (nDTO == null) {
     out.println("해당 비회원 정보를 찾을 수 없습니다.");
