@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.purchaseHistory.PurchaseHistoryService"%>
 <%@ page import="kr.co.yeonflix.review.ReviewService" %>
 <%@ page import="kr.co.yeonflix.review.ReviewDTO" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -45,11 +46,18 @@
             userId = null;
         }
     }
-
+    
     // 로그인 체크
     if (userId == null) {
         out.println("<script>alert('로그인이 필요합니다.'); location.href='" + request.getContextPath() + "/login/loginFrm.jsp';</script>");
         return;
+    }
+    
+    PurchaseHistoryService phs = new PurchaseHistoryService();
+    Boolean Purchased = phs.hasPurchasedMovie(userId, movieId);
+    if(!Purchased){
+    	 out.println("<script>alert('영화 관람 후에만 리뷰 작성이 가능합니다'); location.href='" + request.getContextPath() + "/login/loginFrm.jsp';</script>");
+         return;
     }
 
     // 필수 값 체크
