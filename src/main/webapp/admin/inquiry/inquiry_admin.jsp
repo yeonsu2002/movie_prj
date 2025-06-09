@@ -9,7 +9,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>공지/뉴스 등록</title>
+<title>1:1문의</title>
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
 

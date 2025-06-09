@@ -216,12 +216,14 @@ public class inquiryDAO {
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    
-	    String sql = 
-	        "SELECT ROWNUM rnum, inquiry_board_idx,board_code_name,inquiry_title,inquiry_content, TO_CHAR(created_time, 'YYYY-MM-DD')as created_time,answer_status,answer_content,answered_time,admin_id,user_idx FROM (" +
-	        "    SELECT ROWNUM rnum, a.* FROM (" +
-	        "        SELECT * FROM inquiry_board ORDER BY inquiry_board_idx DESC" +
-	        "    ) a WHERE ROWNUM <= ?" +
-	        ") WHERE rnum >= ?";
+		String sql = 
+		        "SELECT * FROM (" +
+		        "  SELECT ROWNUM rnum, b.* FROM (" +
+		        "    SELECT ib.*, m.member_id FROM inquiry_board ib " +
+		        "    JOIN member m ON ib.user_idx = m.user_idx " +
+		        "    ORDER BY ib.inquiry_board_idx DESC" +
+		        "  ) b WHERE ROWNUM <= ?" +
+		        ") WHERE rnum >= ?";
 
 	    try {
 	        conn = dbCon.getDbConn();
@@ -239,6 +241,7 @@ public class inquiryDAO {
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
 				iDTO.setUser_idx(rs.getInt("user_idx"));
+				iDTO.setMember_id(rs.getString("member_id"));
 				
 	            // 필요한 항목 추가
 	            list.add(iDTO);
@@ -249,13 +252,14 @@ public class inquiryDAO {
 
 	    return list;
 	}
+	
 	public List<inquiryDTO> Searchinquiry(String type, String input, int page, int size) throws SQLException {
 		List<inquiryDTO> inquiryList = new ArrayList<>();
 		int start = (page - 1) * size + 1;
 		int end = page * size;
 
 		// 허용된 컬럼명만 검색 가능하게 처리
-		List<String> allowedColumns = List.of("user_idx", "board_code_name", "inquiry_title", "answer_status");
+		List<String> allowedColumns = List.of("member_id", "board_code_name", "inquiry_title", "answer_status");
 		if (!allowedColumns.contains(type)) {
 			throw new IllegalArgumentException("잘못된 검색 타입입니다.");
 		}
@@ -263,13 +267,19 @@ public class inquiryDAO {
 		if (type.equals("inquiry_title")) {
 		    condition = " LIKE ?";
 		}
-
+		String tb="ib";
+		if(type.equals("member_id")) {
+			tb="m";
+		}
 		String sql = 
-		    "SELECT * FROM (" +
-		    "  SELECT ROWNUM rnum, b.* FROM (" +
-		    "    SELECT * FROM inquiry_board WHERE " + type + condition + " ORDER BY inquiry_board_idx DESC" +
-		    "  ) b WHERE ROWNUM <= ?" +
-		    ") WHERE rnum >= ?";
+		        "SELECT * FROM (" +
+		        "  SELECT ROWNUM rnum, b.* FROM (" +
+		        "    SELECT ib.*, m.member_id FROM inquiry_board ib " +
+		        "    JOIN member m ON ib.user_idx = m.user_idx " +
+		        "    WHERE "+tb+"." + type + condition + " " +
+		        "    ORDER BY ib.inquiry_board_idx DESC" +
+		        "  ) b WHERE ROWNUM <= ?" +
+		        ") WHERE rnum >= ?";
 		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -297,6 +307,7 @@ public class inquiryDAO {
 				iDTO.setCreated_time(rs.getString("created_time"));
 				iDTO.setAnswer_status(rs.getInt("answer_status"));
 				iDTO.setUser_idx(rs.getInt("user_idx"));
+				iDTO.setMember_id(rs.getString("member_id"));
 
 				inquiryList.add(iDTO);
 			}

@@ -57,7 +57,7 @@
 		<form action="inquiry_admin_main.jsp" id="frm" name="frm">
 		<select name="type" id="type">
 			<option value="">------ 타입을 선택하세요 ------</option>
-			<option value="user_idx">유저 idx</option>
+			<option value="member_id">유저 id</option>
 			<option value="board_code_name">유형(문의,불만,칭찬,제안,분실물)</option>
 			<option value="inquiry_title">제목</option>
 			<option value="answer_status">답변상태 (0:미답변 1:답변완료)</option>
@@ -71,7 +71,7 @@
 					<table id="mid">
 						<tr>
 							<th>선택</th>
-							<th>유저idx</th>
+							<th>유저id</th>
 							<th>유형</th>
 							<th>제목</th>
 							<th>등록일</th>
@@ -82,7 +82,7 @@
 								<tr>
 									<td><input type="checkbox" name="choose"
 										value="${inquiry.inquiry_board_idx }" /></td>
-									<td>${inquiry.user_idx}</td>
+									<td>${inquiry.member_id}</td>
 									<td>${inquiry.board_code_name}</td>
 									<td><a
 										href="http://localhost/movie_prj/admin/inquiry/inquiry_admin.jsp?idx=${inquiry.inquiry_board_idx}">${inquiry.inquiry_title}</a></td>
