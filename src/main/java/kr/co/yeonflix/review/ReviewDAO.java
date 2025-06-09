@@ -356,10 +356,13 @@ public class ReviewDAO {
             
             // 결과 처리
             while (rs.next()) {
+                String movieName = rs.getString("MOVIE_NAME");
+                String posterPath = rs.getString("POSTER_PATH");
+                
                 // MovieDTO 객체 생성 및 데이터 설정
                 MovieDTO movieDTO = new MovieDTO();
-                movieDTO.setMovieName(rs.getString("MOVIE_NAME"));
-                movieDTO.setPosterPath(rs.getString("POSTER_PATH"));
+                movieDTO.setMovieName(movieName);
+                movieDTO.setPosterPath(posterPath);
                 
                 // ReviewDTO 객체 생성 및 데이터 설정
                 ReviewDTO reviewDTO = new ReviewDTO();
@@ -367,12 +370,14 @@ public class ReviewDAO {
                 reviewDTO.setContent(rs.getString("REVIEW_CONTENTS"));
                 reviewDTO.setWriteDate(rs.getDate("WRITE_DATE"));
                 
-                // ReviewDTO에 MovieDTO 설정
-                reviewDTO.setMovieDTO(movieDTO);
+                // MovieDTO 객체를 ReviewDTO에 설정
+                reviewDTO.setMovieDTO(movieDTO);  // 여기에서 movieDTO를 ReviewDTO에 할당해주는 코드 확인
+                
                 
                 // List에 추가
                 reviewList.add(reviewDTO);
             }
+
         } finally {
             db.dbClose(rs, pstmt, con);
         }
