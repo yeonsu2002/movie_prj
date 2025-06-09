@@ -146,6 +146,7 @@ request.setAttribute("reviewList", reviewList);
     <table class="review-table">
       <thead>
         <tr>
+        
           <th>선택</th>
           <th>번호</th>
           <th>영화 제목</th>
@@ -175,7 +176,7 @@ request.setAttribute("reviewList", reviewList);
         </c:if>
       </tbody>
     </table>
-    <button type="submit" onclick="return confirm('선택한 리뷰를 삭제하시겠습니까?')">삭제</button>
+    <button type="submit" style="float: right" onclick="return confirm('선택한 리뷰를 삭제하시겠습니까?')">삭제</button>
   </form>
 </div>
 
