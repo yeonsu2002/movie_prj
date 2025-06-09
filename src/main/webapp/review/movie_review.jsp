@@ -1,50 +1,46 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="kr.co.yeonflix.movie.MovieDTO" %>
 <%@ page import="kr.co.yeonflix.movie.MovieService" %>
 <%@ page import="kr.co.yeonflix.review.ReviewService" %>
 
 <%
-  Integer userId = (Integer) session.getAttribute("userId");
-  if (userId == null) {
+    // 로그인된 userId (Integer 타입) 세션에서 꺼내기
+    Integer userId = (Integer) session.getAttribute("userId");
+    if (userId == null) {
 %>
-  <div style="text-align:center; margin-top:50px; color:#e74c3c;">
-    로그인이 필요합니다. <a href="<%=request.getContextPath()%>/login/loginFrm.jsp">로그인 페이지</a>로 이동하세요.
-  </div>
+    <div style="text-align:center; margin-top:50px; color:#e74c3c;">
+        로그인이 필요합니다. <a href="<%=request.getContextPath()%>/login/loginFrm.jsp">로그인 페이지</a>로 이동하세요.
+    </div>
 <%
-    return;
-  }
-
-  String movieIdxParam = request.getParameter("movieIdx");
-  int movieIdx = 0;
-  String movieTitle = "알 수 없음";
-
-  if (movieIdxParam != null) {
-    try {
-      movieIdx = Integer.parseInt(movieIdxParam);
-      MovieService ms = new MovieService();
-      MovieDTO movie = ms.searchOneMovie(movieIdx);
-      if (movie != null) {
-        movieTitle = movie.getMovieName();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+        return;
     }
-  }
 
-  ReviewService reviewService = new ReviewService();
+    // 파라미터 영화 아이디
+    String movieIdxParam = request.getParameter("movieIdx");
+    int movieIdx = 0;
+    String movieTitle = "알 수 없음";
 
-  // 중복 여부 기본값
-  boolean hasReviewed = false;
+    if (movieIdxParam != null) {
+        try {
+            movieIdx = Integer.parseInt(movieIdxParam);
+            MovieService ms = new MovieService();
+            MovieDTO movie = ms.searchOneMovie(movieIdx);
+            if (movie != null) {
+                movieTitle = movie.getMovieName();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-  try {
-    hasReviewed = reviewService.hasUserReviewedMovie(userId, movieIdx);
-  } catch (Exception e) {
-    e.printStackTrace();
-  }
-
-  // 제출 후 파라미터로 중복 알림용 플래그 받기
-  // 예: add_review.jsp에서 리다이렉트 시 ?reviewStatus=duplicate 붙여서 돌아오는 상황 가정
-  String reviewStatus = request.getParameter("reviewStatus");
+    // 리뷰 작성 여부 체크
+    ReviewService reviewService = new ReviewService();
+    boolean hasReviewed = false;
+    try {
+        hasReviewed = reviewService.hasUserReviewedMovie(userId, movieIdx);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 %>
 
 <!DOCTYPE html>
@@ -54,7 +50,7 @@
 <title>리뷰 작성 - <%= movieTitle %></title>
 
 <style>
-  /* 생략 */
+  /* 스타일은 생략 가능, 위 예시 참고 */
   #modalOverlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -76,21 +72,26 @@
     z-index: 1100;
     display: none;
   }
+  /* ... 나머지 스타일 생략 ... */
 </style>
+
 </head>
 <body>
 
 <% if (!hasReviewed) { %>
-
+  <!-- 리뷰 작성 버튼 -->
   <button id="openReviewBtn">리뷰 작성</button>
 
+  <!-- 모달 배경 -->
   <div id="modalOverlay"></div>
 
+  <!-- 리뷰 작성 모달 -->
   <div id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <h2 id="modalTitle">리뷰 작성 - <%= movieTitle %></h2>
-    <form id="reviewForm" action="<%=request.getContextPath()%>/review/add_review.jsp" method="post">
+    <form action="<%=request.getContextPath()%>/review/add_review.jsp" method="post">
       <input type="hidden" name="movieId" value="<%= movieIdx %>" />
       <input type="hidden" name="movieName" value="<%= movieTitle %>" />
+
       <label for="rating">평점 (1~10점):</label><br>
       <select name="rating" id="rating" required>
         <option value="">평점을 선택하세요</option>
@@ -98,10 +99,13 @@
           <option value="<%= i %>"><%= i %> 점</option>
         <% } %>
       </select>
+
       <br>
+
       <label for="reviewText">리뷰 내용 (최대 280바이트):</label><br>
       <textarea id="reviewText" name="content" maxlength="280" placeholder="리뷰를 입력하세요" required></textarea>
       <div id="byteCount">0/280byte</div>
+
       <div class="btn-group" style="margin-top:15px;">
         <button type="submit" id="submitBtn">등록하기</button>
         <button type="button" id="cancelBtn">취소</button>
@@ -109,72 +113,63 @@
     </form>
   </div>
 
-<script>
-  const openBtn = document.getElementById('openReviewBtn');
-  const modal = document.getElementById('reviewModal');
-  const overlay = document.getElementById('modalOverlay');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const textarea = document.getElementById('reviewText');
-  const byteCount = document.getElementById('byteCount');
-  const maxBytes = 280;
+  <script>
+    const openBtn = document.getElementById('openReviewBtn');
+    const modal = document.getElementById('reviewModal');
+    const overlay = document.getElementById('modalOverlay');
+    const cancelBtn = document.getElementById('cancelBtn');
 
-  function openModal() {
-    modal.style.display = 'block';
-    overlay.style.display = 'block';
-  }
+    // 모달 열기
+    openBtn.addEventListener('click', () => {
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+    });
 
-  function closeModal() {
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-  }
-
-  openBtn.addEventListener('click', openModal);
-  cancelBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', closeModal);
-
-  function updateByteCount() {
-    const text = textarea.value;
-    let totalBytes = 0;
-    for (let i = 0; i < text.length; i++) {
-      const charCode = text.charCodeAt(i);
-      totalBytes += (charCode > 127) ? 2 : 1;
+    // 모달 닫기 함수
+    function closeModal() {
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
     }
-    byteCount.textContent = `${totalBytes}/${maxBytes}byte`;
-    if (totalBytes > maxBytes) {
-      let trimmed = '';
-      let currentBytes = 0;
+    cancelBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    // 바이트 수 체크
+    const textarea = document.getElementById('reviewText');
+    const byteCount = document.getElementById('byteCount');
+    const maxBytes = 280;
+
+    function updateByteCount() {
+      const text = textarea.value;
+      let totalBytes = 0;
       for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const charByte = (char.charCodeAt(0) > 127) ? 2 : 1;
-        if (currentBytes + charByte > maxBytes) break;
-        trimmed += char;
-        currentBytes += charByte;
+        const charCode = text.charCodeAt(i);
+        totalBytes += (charCode > 127) ? 2 : 1;
       }
-      textarea.value = trimmed;
-      byteCount.textContent = `${currentBytes}/${maxBytes}byte`;
-    }
-  }
-  textarea.addEventListener('input', updateByteCount);
-  updateByteCount();
+      byteCount.textContent = `${totalBytes}/${maxBytes}byte`;
 
-  // 페이지 로드 시 reviewStatus 파라미터 체크해서 alert 띄우고 모달 닫기
-  window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const reviewStatus = urlParams.get('reviewStatus');
-    if (reviewStatus === 'duplicate') {
-      alert('이미 이 영화에 대해 리뷰를 작성하셨습니다.');
-      closeModal();
+      if (totalBytes > maxBytes) {
+        let trimmed = '';
+        let currentBytes = 0;
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const charByte = (char.charCodeAt(0) > 127) ? 2 : 1;
+          if (currentBytes + charByte > maxBytes) break;
+          trimmed += char;
+          currentBytes += charByte;
+        }
+        textarea.value = trimmed;
+        byteCount.textContent = `${currentBytes}/${maxBytes}byte`;
+      }
     }
-  }
-</script>
+    textarea.addEventListener('input', updateByteCount);
+    updateByteCount();
+  </script>
 
 <% } else { %>
-
 <script>
   alert('이미 이 영화에 대해 리뷰를 작성하셨습니다.');
   history.back();
 </script>
-
 <% } %>
 
 </body>
