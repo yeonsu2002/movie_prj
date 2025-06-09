@@ -97,18 +97,28 @@ private static MovieDAO mDAO;
 			
 			StringBuilder selectMovieList = new StringBuilder();
 			selectMovieList.append(" SELECT movie_idx, movie_name, poster_path, release_date, country, running_time, ")
-            .append(" end_date, movie_description, trailer_url, actors, directors, ")
-            .append(" CASE screening_status ")
-            .append("     WHEN 0 THEN '상영예정' ")
-            .append("     WHEN 1 THEN '상영중' ")
-            .append("     WHEN 2 THEN '상영종료' ")
-            .append(" END AS status_name ")
-            .append(" FROM ( ")
-            .append("     SELECT movie_idx, movie_name, poster_path, release_date, country, running_time, ")
-            .append("            end_date, movie_description, trailer_url, actors, directors, ")
-            .append("            screening_status, ")
-            .append("            ROW_NUMBER() OVER (ORDER BY screening_status DESC, release_date DESC, end_date DESC) AS rnum ")
-            .append("     FROM movie ");
+		    .append(" end_date, movie_description, trailer_url, actors, directors, ")
+		    .append(" CASE screening_status ")
+		    .append("     WHEN 0 THEN '상영예정' ")
+		    .append("     WHEN 1 THEN '상영중' ")
+		    .append("     WHEN 2 THEN '상영종료' ")
+		    .append(" END AS status_name ")
+		    .append(" FROM ( ")
+		    .append("     SELECT movie_idx, movie_name, poster_path, release_date, country, running_time, ")
+		    .append("            end_date, movie_description, trailer_url, actors, directors, ")
+		    .append("            screening_status, ")
+		    .append("            ROW_NUMBER() OVER ( ")
+		    .append("                ORDER BY ")
+		    .append("                    CASE screening_status ")
+		    .append("                        WHEN 1 THEN 1 ") // 상영중
+		    .append("                        WHEN 0 THEN 2 ") // 상영예정
+		    .append("                        WHEN 2 THEN 3 ") // 상영종료
+		    .append("                    END, ")
+		    .append("                    release_date DESC, ")
+		    .append("                    end_date DESC ")
+		    .append("            ) AS rnum ")
+		    .append("     FROM movie ");
+
 		
 			
 			if(rDTO.getKeyword() != null && !"".equals(rDTO.getKeyword())){
