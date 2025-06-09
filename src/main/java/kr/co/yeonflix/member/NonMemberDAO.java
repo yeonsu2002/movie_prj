@@ -201,7 +201,7 @@ public List<NonMemTicketDTO> selectNonMemTicketList(LocalDate birthDate, String 
 
   try {
       con = dbCon.getDbConn();
-
+ 
       // 1. 패스워드 검증
       try (PreparedStatement pstmt = con.prepareStatement(getTicketPwd)) {
           boolean found = false;
