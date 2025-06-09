@@ -496,6 +496,8 @@ $(function(){
     MemberService ms=new MemberService();
     MemberDTO member = ms.searchOneMember(userIdx);
     pageContext.setAttribute("member", member);
+    
+    
 %>
 
 <div class="title">
