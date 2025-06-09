@@ -171,122 +171,142 @@ public NonMemberDTO selectNonMember(LocalDate birth, String email) throws SQLExc
 
 //이메일과 생일로 비회원 예매내역 조회
 public List<NonMemTicketDTO> selectNonMemTicketList(LocalDate birthDate, String email, String password) throws SQLException {
- List<NonMemTicketDTO> selectNonMemTicketList = new ArrayList<NonMemTicketDTO>();
- DbConnection dbCon = DbConnection.getInstance();
- Connection con = null;
- ResultSet rs = null;
- ResultSet rs2 = null;
+  List<NonMemTicketDTO> selectNonMemTicketList = new ArrayList<NonMemTicketDTO>();
+  DbConnection dbCon = DbConnection.getInstance();
+  Connection con = null;
+  ResultSet rs = null;
+  ResultSet rs2 = null;
+  ResultSet rs3 = null;
 
- String getTicketPwd = " SELECT ticket_pwd FROM non_member WHERE email = ? AND non_member_birth = ? ";
+  String getTicketPwd = " SELECT user_idx ,ticket_pwd FROM non_member WHERE email = ? AND non_member_birth = ? ";
+  
+  String getTicketInfo = " SELECT r.reservation_idx,\r\n"
+      + " mv.poster_path,\r\n"
+      + " r.reservation_number,\r\n"
+      + " s.screen_date,\r\n"
+      + " s.start_time,\r\n"
+      + " s.end_time,\r\n"
+      + " r.total_price,\r\n"
+      + " t.theater_name,\r\n"
+      + " mv.movie_name\r\n"
+      + "FROM reservation r\r\n"
+      + "JOIN common_user c ON c.user_idx = r.user_idx\r\n"
+      + "JOIN non_member nm ON c.user_idx = nm.user_idx\r\n"
+      + "JOIN schedule s ON r.schedule_idx = s.schedule_idx\r\n"
+      + "JOIN theater t ON s.theater_idx = t.theater_idx\r\n"
+      + "JOIN movie mv ON s.movie_idx = mv.movie_idx\r\n"
+      + " WHERE nm.user_idx = ? ";
 
- String getTicketInfo = " SELECT r.reservation_idx,\r\n"
-   + " mv.poster_path,\r\n"
-   + " r.reservation_number,\r\n"
-   + " s.screen_date,\r\n"
-   + " s.start_time,\r\n"
-   + " s.end_time,\r\n"
-   + " r.total_price,\r\n"
-   + " t.theater_name,\r\n"
-   + " mv.movie_name\r\n"
-   + "FROM reservation r\r\n"
-   + "JOIN common_user c ON c.user_idx = r.user_idx\r\n"
-   + "JOIN non_member nm ON c.user_idx = nm.user_idx\r\n"
-   + "JOIN schedule s ON r.schedule_idx = s.schedule_idx\r\n"
-   + "JOIN theater t ON s.theater_idx = t.theater_idx\r\n"
-   + "JOIN movie mv ON s.movie_idx = mv.movie_idx\r\n"
-   + "WHERE nm.non_member_birth = ? \r\n"
-   + " AND nm.email = ? ";
+  String getTicketInfoSeats = " SELECT seat_number FROM seat s INNER JOIN reserved_seat rs ON s.seat_idx = rs.seat_idx WHERE rs.reservation_idx = ? ";
 
- String getTicketInfoSeats = " SELECT seat_number FROM seat s INNER JOIN reserved_seat rs ON s.seat_idx = rs.seat_idx WHERE rs.reservation_idx = ? ";
+  try {
+      con = dbCon.getDbConn();
 
- try {
-   con = dbCon.getDbConn();
+      // 1. 패스워드 검증
+      try (PreparedStatement pstmt = con.prepareStatement(getTicketPwd)) {
+          boolean found = false;
+          boolean passwordMatched = false;
+          int validUserIdx = -1;
+          
+          pstmt.setString(1, email);
+          pstmt.setDate(2, java.sql.Date.valueOf(birthDate));
+          rs = pstmt.executeQuery();
 
-   // 1. 패스워드 검증
-   try (PreparedStatement pstmt = con.prepareStatement(getTicketPwd)) {
-     pstmt.setString(1, email);
-     pstmt.setDate(2, java.sql.Date.valueOf(birthDate));
-     rs = pstmt.executeQuery();
+          // 이메일과 생일이 일치하는 모든 데이터를 조회하여 비밀번호 검증
+          while(rs.next()) {
+              found = true;
+              String dbEncodedPwd = rs.getString("ticket_pwd");
+              System.out.println("DB에서 조회된 암호화된 비밀번호: " + dbEncodedPwd);
 
-     if (rs.next()) {
-       String encodedPwd = rs.getString("ticket_pwd");
+              if (dbEncodedPwd == null) {
+                  continue; // null인 경우 다음 행으로 넘어감
+              }
 
-       if (encodedPwd == null) {
-         throw new SQLException("저장된 패스워드가 없습니다.");
-       }
+              BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), dbEncodedPwd);
+              
+              if (result.verified) {
+                  passwordMatched = true;
+                  validUserIdx = rs.getInt("user_idx");
+                  System.out.println("비밀번호 일치! UserIdx: " + validUserIdx);
+                  break; // 일치하는 비밀번호를 찾았으므로 반복 종료
+              }
+          }
+          
+          // 검증 결과 확인
+          if (!found) {
+              throw new SQLException("해당 이메일과 생년월일로 등록된 비회원 정보를 찾을 수 없습니다.");
+          }
+          
+          if (!passwordMatched) {
+              throw new SQLException("이메일과 생일은 일치하지만, 비밀번호가 일치하는 예매내역은 존재하지 않습니다.");
+          }
 
-       BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), encodedPwd);
+          // rs 정리
+          rs.close();
+          rs = null;
 
-       if (result.verified) {
-         rs.close();
-         rs = null;
+          // 2. 예매 정보 조회 (비밀번호가 일치한 경우에만)
+          try (PreparedStatement pstmt2 = con.prepareStatement(getTicketInfo)) {
+              pstmt2.setInt(1, validUserIdx);
+              rs2 = pstmt2.executeQuery();
 
-         // 2. 예매 정보 조회
-         try (PreparedStatement pstmt2 = con.prepareStatement(getTicketInfo)) {
-           pstmt2.setDate(1, java.sql.Date.valueOf(birthDate));
-           pstmt2.setString(2, email);
-           rs = pstmt2.executeQuery();
+              while (rs2.next()) {
+                  NonMemTicketDTO nmtVo = new NonMemTicketDTO();
+                  nmtVo.setMoviePoster(rs2.getString("poster_path"));
+                  nmtVo.setMovieName(rs2.getString("movie_name"));
+                  nmtVo.setDate(rs2.getDate("screen_date"));
+                  nmtVo.setStartTime(rs2.getTimestamp("start_time").toLocalDateTime());
+                  nmtVo.setEndTime(rs2.getTimestamp("end_time").toLocalDateTime());
+                  nmtVo.setTheaterName(rs2.getString("theater_name"));
+                  nmtVo.setTicketNumber(rs2.getString("reservation_number"));
+                  nmtVo.setTotalPrice(rs2.getInt("total_price"));
 
-           while (rs.next()) {
-             NonMemTicketDTO nmtVo = new NonMemTicketDTO();
-             nmtVo.setMoviePoster(rs.getString("poster_path"));
-             nmtVo.setMovieName(rs.getString("movie_name"));
-             nmtVo.setDate(rs.getDate("screen_date"));
-             nmtVo.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
-             nmtVo.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
-             nmtVo.setTheaterName(rs.getString("theater_name"));
-             nmtVo.setTicketNumber(rs.getString("reservation_number"));
-             nmtVo.setTotalPrice(rs.getInt("total_price"));
+                  int reservationIdx = rs2.getInt("reservation_idx");
 
-             int reservationIdx = rs.getInt("reservation_idx");
+                  // 3. 좌석 정보 조회
+                  List<String> seatList = new ArrayList<String>();
+                  try (PreparedStatement pstmt3 = con.prepareStatement(getTicketInfoSeats)) {
+                      pstmt3.setInt(1, reservationIdx);
+                      rs3 = pstmt3.executeQuery();
 
-             // 3. 좌석 정보 조회
-             List<String> seatList = new ArrayList<String>();
-             try (PreparedStatement pstmt3 = con.prepareStatement(getTicketInfoSeats)) {
-               pstmt3.setInt(1, reservationIdx);
-               rs2 = pstmt3.executeQuery();
+                      while (rs3.next()) { // rs2가 아니라 rs3여야 함!
+                          String seat = rs3.getString("seat_number");
+                          seatList.add(seat);
+                      }
+                  } finally {
+                      if (rs3 != null) {
+                          try { rs3.close(); } catch (SQLException e) { e.printStackTrace(); }
+                          rs3 = null;
+                      }
+                  }
 
-               while (rs2.next()) {
-                 String seat = rs2.getString("seat_number");
-                 seatList.add(seat);
-               }
-             } finally {
-               if (rs2 != null) {
-                 try { rs2.close(); } catch (SQLException e) { e.printStackTrace(); }
-                 rs2 = null;
-               }
-             }
+                  nmtVo.setSeats(seatList);
+                  selectNonMemTicketList.add(nmtVo);
+              }
+          }
+      }
 
-             nmtVo.setSeats(seatList);
-             selectNonMemTicketList.add(nmtVo);
-           }
-         }
-       } else {
-         throw new SQLException("패스워드가 일치하지 않습니다.");
-       }
-     } else {
-       throw new SQLException("해당 이메일과 생년월일로 등록된 비회원 정보를 찾을 수 없습니다.");
-     }
-   }
+  } catch (SQLException e) {
+      throw e;
+  } catch (Exception e) {
+      e.printStackTrace();
+      throw new SQLException("비회원 예매내역 조회 중 오류발생", e);
+  } finally {
+      if (rs3 != null) {
+          try { rs3.close(); } catch (SQLException e) { e.printStackTrace(); }
+      }
+      if (rs2 != null) {
+          try { rs2.close(); } catch (SQLException e) { e.printStackTrace(); }
+      }
+      if (rs != null) {
+          try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+      }
+      if (con != null) {
+          try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
+      }
+  }
 
- } catch (SQLException e) {
-   throw e;
- } catch (Exception e) {
-   e.printStackTrace();
-   throw new SQLException("비회원 예매내역 조회 중 오류발생", e);
- } finally {
-   if (rs2 != null) {
-     try { rs2.close(); } catch (SQLException e) { e.printStackTrace(); }
-   }
-   if (rs != null) {
-     try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-   }
-   if (con != null) {
-     try { con.close(); } catch (SQLException e) { e.printStackTrace(); }
-   }
- }
-
- return selectNonMemTicketList;
+  return selectNonMemTicketList;
 }
 
 //전체 비회원 조회 (검색 및 페이징 포함)
