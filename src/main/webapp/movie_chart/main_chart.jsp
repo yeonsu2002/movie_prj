@@ -291,7 +291,7 @@ request.setAttribute("mccs", mccs);
                 <div class="box-contents">
                     <div class="title-with-rating">
                         <span class="rating-icon">
-                        ${ mccs.searchOneGrade(nm.movieIdx)}
+                        <img src="http://localhost/movie_prj/common/img/icon_${ mccs.searchOneGrade(nm.movieIdx)}.svg" />
                         </span>
                         <strong class="title">${nm.movieName}</strong>
                     </div>

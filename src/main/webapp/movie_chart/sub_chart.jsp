@@ -95,18 +95,11 @@
             display: inline-block;
             width: 22px;
             height: 22px;
-            background: #f80;
             color: white;
             text-align: center;
-            line-height: 22px;
-            font-size: 11px;
-            font-weight: bold;
-            border-radius: 2px;
         }
 
-        .age-rating.all {
-            background: #00b04f;
-        }
+        
 
         .movie-meta {
             margin-bottom: 20px;
@@ -776,7 +769,7 @@
                     </div>
                     <div class="movie-info">
                         <div class="movie-title-container">
-                            <span class="age-rating all">ALL</span>
+                            <span class="age-rating all"><img src="http://localhost/movie_prj/common/img/icon_${grade}.svg" /></span>
                             <h1 class="movie-title"><%=mDTO.getMovieName() %></h1>
                         </div>
                         
