@@ -5,7 +5,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:import url="http://localhost/movie_prj/common/jsp/external_file.jsp" />
+<jsp:include page="/common/jsp/external_file.jsp" />
 <jsp:include page="/common/jsp/header.jsp" />
 <!DOCTYPE html>
 <html>
@@ -25,14 +25,13 @@
 		int userIdx = loginUser.getUserIdx();
 		user = Integer.toString(userIdx);
 	} else {
-		user="0";
-		//response.sendRedirect("http://localhost/movie_prj/login/loginFrm.jsp");//로그인 안되있으면 로그인 사이트로
-		//return;
+		response.sendRedirect("http://localhost/movie_prj/login/loginFrm.jsp");//로그인 안되있으면 로그인 사이트로
+		return;
 	}
 	%>
 	<%
 	int first = 1;
-	int size = 3;
+	int size = 10;
 
 	if (request.getParameter("page") != null) {
 		first = Integer.parseInt(request.getParameter("page"));
@@ -117,7 +116,7 @@
 </div>
 
 	<footer>
-		<c:import url="http://localhost/movie_prj/common/jsp/footer.jsp" />
+<jsp:include page="/common/jsp/footer.jsp"/>
 	</footer>
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

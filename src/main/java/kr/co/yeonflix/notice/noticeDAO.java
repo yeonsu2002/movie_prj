@@ -143,6 +143,23 @@ public class noticeDAO {
 		}
 	}
 	
+	public void alternotice(String num, String content) throws SQLException {
+		Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    String sql = "update notice_board set notice_content=? where notice_board_idx=? ";
+	    try {
+	    	conn = dbCon.getDbConn();
+	        pstmt = conn.prepareStatement(sql);
+	        pstmt.setString(1, content);  // 인덱스는 1부터 시작
+	        pstmt.setString(2, num);
+	        pstmt.executeUpdate(); // INSERT는 executeUpdate()
+	    } finally {
+	        dbCon.dbClose(rs,pstmt, conn);
+	    }
+	}
+	
+	
 	public void addcount(String idx) throws SQLException {
 		Connection conn = null;
 	    PreparedStatement pstmt = null;
