@@ -20,8 +20,7 @@
 <%@ page import="java.nio.file.StandardCopyOption" %>
 
 <%
-//이제 필요없어진, 세션에 타있던 email삭제
-session.removeAttribute("email");
+
 
 //멤버객체
 MemberDTO memberVO = new MemberDTO(); 
@@ -128,12 +127,14 @@ if (ServletFileUpload.isMultipartContent(request)) { //multipart 요청이냐?
 	boolean result = memberService.joinMember(memberVO);
 
 	if (result) {
+		//이제 필요없어진, 세션에 타있던 email삭제
+		session.removeAttribute("email");
 		// 성공시 완료 페이지로 이동
 		session.setAttribute("memberVO", memberVO);
 		response.sendRedirect(request.getContextPath() + "/login/join4complete.jsp");
 	} else {
 		// 실패시 에러 메시지와 함께 이전 페이지로
-		out.println("<script>alert('회원가입에 실패했습니다. 다시 시도해주세요.'); history.back();</script>");
+		out.println("<script>alert('이미 등록된 핸드폰 번호입니다. 다시 시도해주세요.'); history.back();</script>");
 	}
 } 
 %>

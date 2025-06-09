@@ -1,6 +1,5 @@
 package kr.co.yeonflix.inquiry;
 
-import java.sql.Time;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +17,5 @@ public class inquiryDTO {
 	private int answer_status; 
 	private String answer_content; 
 	private String answered_time; 
+	private String member_id;
 }

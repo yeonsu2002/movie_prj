@@ -13,7 +13,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <jsp:include page="/common/jsp/admin_header.jsp" />
-<%@ include file="/common/jsp/admin_header.jsp" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -145,7 +144,7 @@
 
 /* 버튼 기본 스타일 */
 .btn {
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -286,44 +285,142 @@ input[value="취소"]:hover {
 
 	    console.log("현재 모드:", mode);
 	    console.log("스케줄 존재 여부:", hasSchedule);
+	 // 제작국가 입력 실시간 검증
+	    $("#country").on("input", function() {
+	        // 한글, 영문, 공백만 허용하는 정규식
+	        var regex = /[^ㄱ-ㅎ가-힣a-zA-Z\s]/g;
+	        $(this).val($(this).val().replace(regex, ""));
+	    });
+	  
+
+	 // 상영시간 입력 실시간 검증 (숫자만 허용)
+	 $("#duration").on("input", function() {
+	     // 숫자만 허용하는 정규식 (숫자가 아닌 모든 문자 제거)
+	     var regex = /[^0-9]/g;
+	     $(this).val($(this).val().replace(regex, ""));
+	 });
 	    
 	    // 폼 제출 전 유효성 검사 함수
 	    function validateForm() {
-	        var movieName = $("#movieName").val().trim();
-	        var genre = $("#genre").val().trim();
-	        var grade = $("#grade").val();
-	        var country = $("#country").val().trim();
-	        var duration = $("#duration").val().trim();
-	        
-	        if (!movieName) {
-	            alert("영화제목을 입력해주세요.");
-	            $("#movieName").focus();
-	            return false;
-	        }
-	        if (!genre) {
-	            alert("장르를 선택해주세요.");
-	            $("#genre").focus();
-	            return false;
-	        }
-	        if (!grade) {
-	            alert("등급을 선택해주세요.");
-	            $("#grade").focus();
-	            return false;
-	        }
-	        if (!duration) {
-	            alert("상영시간을 입력해주세요.");
-	            $("#duration").focus();
-	            return false;
-	        }
-	       
-	        if (!description) {
-	            alert("영화정보를 입력해주세요");
-	            $("#description").focus();
-	            return false;
-	        }
-	        
-	        return true;
+	    	 var movieName = $("#movieName").val().trim();
+	    	    var genre = $("#genre").val().trim();
+	    	    var grade = $("#grade").val();
+	    	    var country = $("#country").val().trim();
+	    	    var duration = $("#duration").val().trim();
+	    	    var description = $("#description").val().trim();
+	    	    var directorsValue = $("input[name='directors']").val();
+	    	    var actorsValue = $("input[name='actors']").val();
+	    	    var openDate = $("#openDate").val();
+	    	    var closeDate = $("#closeDate").val();
+	    	    
+	    	    var country = $("#country").val().trim();
+	    	    var countryRegex = /^[가-힣a-zA-Z\s]+$/; // 한글, 영문, 공백만 허용
+	    	    // readonly 필드의 값을 hidden 필드에 넣기
+	    	    $("#hiddenDirectors").val(directorsValue);
+	    	    $("#hiddenActors").val(actorsValue);
+	    	    
+	    	    // 영화제목 검사
+	    	    if (!movieName) {
+	    	        alert("영화제목을 입력해주세요.");
+	    	        $("#movieName").focus();
+	    	        return false;
+	    	    }
+	    	    
+	    	 // 제작국가 필드 검사 
+	    	    if (!country) {
+	    	        alert("제작국가를 입력해주세요.");
+	    	        $("#country").focus();
+	    	        return false;
+	    	    }
+	    	    
+	    	    // 제작국가 유효성 검사 (한글, 영문만 허용)
+	    	    if (!countryRegex.test(country)) {
+	    	        alert("제작국가는 한글과 영문만 입력 가능합니다.");
+	    	        $("#country").focus();
+	    	        return false;
+	    	    }
+	    	    
+	    	    // 장르 검사
+	    	    if (!genre) {
+	    	        alert("장르를 선택해주세요.");
+	    	        $("#genre").focus();
+	    	        return false;
+	    	    }
+
+	    	    // 등급 검사
+	    	    if (!grade) {
+	    	        alert("등급을 선택해주세요.");
+	    	        $("#grade").focus();
+	    	        return false;
+	    	    }
+
+	    	    // 상영시간 검사
+	    	    if (!duration || isNaN(duration) || duration <= 0) {
+	    	        alert("유효한 상영시간을 입력해주세요.");
+	    	        $("#duration").focus();
+	    	        return false;
+	    	    }
+	    	    
+
+	    	    // 감독 입력 검사
+	    	    if (!directorsValue) {
+	    	        alert("감독을 입력해주세요.");
+	    	        return false;
+	    	    }
+	    	    // 배우 입력 검사
+	    	    if (!actorsValue) {
+	    	        alert("배우를 입력해주세요.");
+	    	        return false;
+	    	    }
+
+	    	 // 개봉일, 상영종료일 검사
+	    	   if (!openDate || openDate.trim() === "") {
+				    alert("개봉일을 입력해주세요.");
+				    $("#openDate").focus();
+				    return false;
+				}
+				
+				if (!closeDate || closeDate.trim() === "") {
+				    alert("상영종료일을 입력해주세요.");
+				    $("#closeDate").focus();
+				    return false;
+				}
+	    	    // 날짜 비교 
+	    	       if (openDate && closeDate) {
+        				var openDateObj = new Date(openDate);
+        				var closeDateObj = new Date(closeDate);
+        
+			        if (closeDateObj < openDateObj) {
+			            alert("상영종료일은 개봉일보다 이전일 수 없습니다.");
+			            $("#closeDate").focus();
+			            return false;
+			        }
+			    }
+	    	    // 영화 정보 입력 검사
+	    	    if (!description) {
+	    	        alert("영화정보를 입력해주세요.");
+	    	        $("#description").focus();
+	    	        return false;
+	    	    }
+	    	    
+	    	    return true;
 	    }
+	    
+	 // 날짜 입력 시 실시간으로 검증
+	    $("#openDate, #closeDate").change(function() {
+	        var openDate = $("#openDate").val();
+	        var closeDate = $("#closeDate").val();
+	        
+	        if (openDate && closeDate) {
+	            var openDateObj = new Date(openDate);
+	            var closeDateObj = new Date(closeDate);
+	            
+	            if (closeDateObj < openDateObj) {
+	                alert("상영종료일은 개봉일보다 이전일 수 없습니다.");
+	                $("#closeDate").val(""); // 잘못된 값 초기화
+	            }
+	        }
+	    });
 	    
 	    // 스케줄 존재 여부 확인 함수
 	    function checkScheduleExists() {
@@ -349,6 +446,11 @@ input[value="취소"]:hover {
 	    $("#posterImg").change(function(evt){
 	        $("#imgName").val($("#posterImg").val());
 	        var file = evt.target.files[0];
+	        if(file && !file.type.startsWith('image/')){
+	            alert("이미지 파일만 업로드 가능합니다.");
+	            $("#posterImg").val('');
+	            return;
+	        }
 	        var reader = new FileReader();
 	        reader.onload = function(evt){
 	            $("#img").prop("src", evt.target.result);
@@ -523,7 +625,9 @@ input[value="취소"]:hover {
                      value="<%= "update".equals(mode) && mDTO != null ? (mDTO.getDirectors() != null ? mDTO.getDirectors() : "") : ""%>" 
                      readonly="readonly" />
               <button type="button" class="btn" id="dAddBtn">감독리스트</button>
+              <input type="hidden" name="hiddenDirectors" id="hiddenDirectors" />
               <button type="button" class="btn" id="dRemoveBtn">삭제</button>
+              
             </div>
 	
             <div class="form-row">
@@ -531,19 +635,22 @@ input[value="취소"]:hover {
               <input type="text" class="person-input" name="actors" 
                      value="<%= "update".equals(mode) && mDTO != null ? (mDTO.getActors() != null ? mDTO.getActors() : "") : ""%>" 
                      readonly="readonly" />
+                     <input type="hidden" name="hiddenActors" id="hiddenActors" />
+                     
+			                       
               <button type="button" class="btn" id="aAddBtn">배우리스트</button>
               <button type="button" class="btn" id="aRemoveBtn">삭제</button>
             </div>
 
             <div class="form-row">
               <label for="openDate">개봉일</label>
-              <input type="date" id="openDate" name="openDate" 
+              <input type="date" id="openDate" name="openDate" required  
                      value="<%= "update".equals(mode) && mDTO != null && mDTO.getReleaseDate() != null ? mDTO.getReleaseDate().toString() : ""%>" />
             </div>
 
             <div class="form-row">
               <label for="closeDate">상영종료일</label>
-              <input type="date" id="closeDate" name="closeDate" 
+              <input type="date" id="closeDate" name="closeDate" required 
                      value="<%= "update".equals(mode) && mDTO != null && mDTO.getEndDate() != null ? mDTO.getEndDate().toString() : ""%>" />
             </div>
 

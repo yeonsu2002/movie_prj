@@ -18,8 +18,10 @@ public class ReviewDTO {
     private String content;
     private Double rating;
     private Date writeDate;
-    private MovieDTO movieDTO;
-    private String userLoginId; 
-    private String posterPath;
     
+    private String userLoginId;
+
+	public MovieDTO movieDTO ;
+		
+	 private String posterPath;
 }

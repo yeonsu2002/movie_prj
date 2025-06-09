@@ -9,7 +9,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>공지/뉴스 등록</title>
+<title>1:1문의</title>
 <link rel="stylesheet"
 	href="http://localhost/movie_prj/common/css/admin.css">
 
@@ -26,8 +26,8 @@
 	<form action="inquiry_answer.jsp" id="answer_add">
 	<input type="hidden" name="num" value="${iDTO.inquiry_board_idx}" />
 		<h2>1:1문의</h2>
-		<strong>유저idx</strong>
-		<label>${iDTO.user_idx}</label><br>
+		<strong>유저id</strong>
+		<label>${iDTO.member_id}</label><br>
 		<strong>유형</strong>
 		<label>${iDTO.board_code_name}</label><br>
 		<strong>제목</strong>

@@ -1,3 +1,4 @@
+<%@page import="kr.co.yeonflix.movie.code.MovieCommonCodeService"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.ArrayList"%>
@@ -21,6 +22,8 @@ if (nonMovieList != null) combinedList.addAll(nonMovieList);
 request.setAttribute("movieList", movieList);
 request.setAttribute("nonMovieList", nonMovieList);
 
+MovieCommonCodeService mccs = new MovieCommonCodeService();
+request.setAttribute("mccs", mccs);
 // 예고편 있는 영화만 필터링 및 랜덤 선택하여 유튜브 임베드 URL 생성
 String embedUrl = "";
 List<MovieDTO> trailerMovies = new ArrayList<>();
@@ -180,6 +183,7 @@ function showTab(tabName) {
                 <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
               </a>
               <div class="rank">${status.index + 1}</div>
+              <img src="/movie_prj/common/img/icon_${ mccs.searchOneGrade(movie.movieIdx)}.svg" alt="관람 등급 아이콘" class="rating-icon" />
             </div>
           </c:forEach>
 
@@ -191,11 +195,6 @@ function showTab(tabName) {
               <div class="rank">${movieList.size() + status.index + 1}</div>
             </div>
           </c:forEach>
-                      <!-- <div class="movie-item">
-                <img src="http://localhost/movie_prj/common/img/main_movie_1.jpg" alt="영화 1">
-                <img src="http://localhost/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
-                 <img src="/movie_prj/common/img/age_12.png" alt="관람 등급 아이콘" class="rating-icon">
-            </div> -->
     </div>
     </div>
     </div>
@@ -210,6 +209,7 @@ function showTab(tabName) {
               <a href="movie_chart/sub_chart.jsp?movieIdx=${movie.movieIdx}">
                 <img src="/movie_prj/common/img/${movie.posterPath}" alt="${movie.movieName}" />
               </a>
+              	<img src="/movie_prj/common/img/icon_${ mccs.searchOneGrade(movie.movieIdx)}.svg" alt="관람 등급 아이콘" class="rating-icon" />
             </div>
           </c:forEach>
     </div>

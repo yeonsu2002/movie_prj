@@ -123,8 +123,6 @@ $(function() {
             return;
         }
 
-        // 버튼 로딩 효과
-        $("#submit-btn").html("등록 중...").prop("disabled", true);
 
         $("#schedule-form").submit();
     });

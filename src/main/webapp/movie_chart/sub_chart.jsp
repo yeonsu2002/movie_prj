@@ -303,7 +303,7 @@
         .trailer-background {
             width: 100%;
             height: 100%;
-            /* background-image: url('https://i.ytimg.com/vi/HAfCX54YmB4/maxresdefault.jpg'); */
+            background-image: url('http://localhost/movie_prj/common/img/<%= mDTO.getPosterPath() %>');
             background-size: cover;
             background-position: center;
         }
@@ -665,7 +665,6 @@
                         console.log('보고싶어요 취소 완료');
                     } else {
                         console.log('보고싶어요 취소 실패');
-                        alert('보고싶어요 취소에 실패했습니다.');
                     }
                     $button.prop('disabled', false);
                 });
@@ -686,7 +685,6 @@
                         console.log('보고싶어요 추가 완료');
                     } else {
                         console.log('보고싶어요 추가 실패');
-                        alert('보고싶어요 추가에 실패했습니다.');
                     }
                     $button.prop('disabled', false);
                 });

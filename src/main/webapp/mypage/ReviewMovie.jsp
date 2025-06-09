@@ -238,8 +238,8 @@
   <tbody>
     <c:forEach var="review" items="${reviewList}">
       <tr>
-		<td><img src="/movie_prj/common/img/${review.posterPath}" alt="${review.movieName} 포스터" style="width:50px;"/></td>
-        <td><c:out value="${review.movieName}" /></td>
+		<td><img src="/movie_prj/common/img/${review.movieDTO.posterPath}"  style="width:50px;"/></td>
+        <td><c:out value="${review.movieDTO.movieName}" /></td>
         <td><c:out value="${review.rating}" /></td>
         <td><c:out value="${review.content}" /></td>
         <td><c:out value="${review.writeDate}" /></td>
