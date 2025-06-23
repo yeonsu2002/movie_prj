@@ -40,13 +40,36 @@ CGV 영화 예매 사이트를 벤치마킹하여 제작한 영화 예매 웹사
 <br/>
 
 ## 📸 프로젝트 미리보기
-|메인화면 1|메인화면 2|무비차트|
-|:---:|:---:|:---:|
-|<img src="https://github.com/user-attachments/assets/52f39828-840c-419f-b179-67df106be34e" width="600"/>|<img src="https://github.com/user-attachments/assets/31761679-ad35-4295-a500-97c23e5c52ff" width="600"/>|<img src="https://github.com/user-attachments/assets/d431d65e-48cc-46c2-bf61-9f35ac9d260f" width="600"/>|
-
-|무비차트 상세|상영스케줄|좌석선택|
-|:---:|:---:|:---:|
-|<img src="https://github.com/user-attachments/assets/4745bbd9-4faa-4dae-a715-b281683fe01c" width="600"/>|<img src="https://github.com/user-attachments/assets/05eeadaa-a99f-4279-a381-8c16a530ec3a" width="600"/>|<img src="https://github.com/user-attachments/assets/aed3afa5-00b3-4aec-bfe8-ffea2d2fdece" width="600"/>|
+<table align="center" border="0">
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/52f39828-840c-419f-b179-67df106be34e" width="280" alt="메인화면 1"/>
+      <br><br><b>메인화면 1</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/31761679-ad35-4295-a500-97c23e5c52ff" width="280" alt="메인화면 2"/>
+      <br><br><b>메인화면 2</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/d431d65e-48cc-46c2-bf61-9f35ac9d260f" width="280" alt="무비차트"/>
+      <br><b>무비차트</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/4745bbd9-4faa-4dae-a715-b281683fe01c" width="280" alt="무비차트 상세"/>
+      <br><br><b>무비차트 상세</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/05eeadaa-a99f-4279-a381-8c16a530ec3a" width="280" alt="상영스케줄"/>
+      <br><br><b>상영스케줄</b>
+    </td>
+    <td align="center">
+      <img src="https://github.com/user-attachments/assets/aed3afa5-00b3-4aec-bfe8-ffea2d2fdece" width="280" alt="좌석선택"/>
+      <br><b>좌석선택</b>
+    </td>
+  </tr>
+</table>
 
 </br>
 
