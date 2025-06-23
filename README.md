@@ -60,7 +60,10 @@ CGV 영화 예매 사이트를 벤치마킹하여 제작한 영화 예매 웹사
 </br>
 
 ## 🛠 기술 스택
-<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge개
+
+</br>
+
+## 💁‍♂️ 팀원
 - [주현석](https://github.com/githyunsuk) [PL]<br/>
   ✔ 사용자 : 상영스케줄, 영화 예매, 결제, 예매완료, 예매정보<br/>
   ✔ 관리자 : 상영관 관리, 상영스케줄 관리, 예매 관리<br/>
