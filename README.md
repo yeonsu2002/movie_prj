@@ -7,17 +7,38 @@ CGV 영화 예매 사이트를 벤치마킹하여 제작한 영화 예매 웹사
 관리자는 영화 및 상영 스케줄을 등록할 수 있으며, 사용자는 현재 상영 중인 영화 정보를 확인하고 원하는 상영 시간의 영화를 예매할 수 있습니다.
 또한, 결제 시스템과 좌석 선점 기능을 구현하여 실제 예매 흐름을 반영하였습니다
 
-- 프로젝트 소개
-- 프로젝트 미리보기
-- 시연 영상
-- 개발 기간
-- 기술 스택
-- 팀원
-- ERD
+## 📑 목차  
+- [📝 프로젝트 소개](#-프로젝트-소개)  
+- [✨ 주요 기능 소개](#-주요-기능)  
+- [📸 프로젝트 미리보기](#-프로젝트-미리보기)  
+- [🎬 시연영상](#-시연영상)  
+- [🕰 개발 기간](#-개발-기간)  
+- [🛠 기술 스택](#-기술-스택)  
+- [💁‍♂️ 팀원 소개](#-팀원-소개)  
+- [💾 ERD](#-erd)
+
 
 </br>
 
-### 📸 프로젝트 미리보기
+## ✨ 주요 기능
+### 👥 사용자 기능
+- 🎬 영화 조회 및 상세 정보 확인
+- 📅 상영 스케줄 조회
+- 🎫 실시간 좌석 선택 및 예매 + 좌석 선점 기능
+- 💳 다양한 결제 수단 지원
+- ⭐ 영화 리뷰 작성 및 평점
+
+### 👨‍💼 관리자 기능
+- 📊 관리자 대시보드
+- 👤 회원 및 관리 관리
+- 🎥 영화 정보 등록/수정/삭제
+- 🏢 상영관 및 스케줄 관리
+- 📱 예매 내역 관리
+- 📝 공지사항 및 문의 관리
+
+<br/>
+
+## 📸 프로젝트 미리보기
 |메인화면 1|메인화면 2|무비차트|
 |:---:|:---:|:---:|
 |<img src="https://github.com/user-attachments/assets/52f39828-840c-419f-b179-67df106be34e" width="600"/>|<img src="https://github.com/user-attachments/assets/31761679-ad35-4295-a500-97c23e5c52ff" width="600"/>|<img src="https://github.com/user-attachments/assets/d431d65e-48cc-46c2-bf61-9f35ac9d260f" width="600"/>|
@@ -28,7 +49,7 @@ CGV 영화 예매 사이트를 벤치마킹하여 제작한 영화 예매 웹사
 
 </br>
 
-### 🎬 시연영상
+## 🎬 시연영상
 [![Video Label](http://img.youtube.com/vi/tjNUuQWwKHk/0.jpg)](https://www.youtube.com/watch?v=tjNUuQWwKHk)
 
 </br>
@@ -39,12 +60,7 @@ CGV 영화 예매 사이트를 벤치마킹하여 제작한 영화 예매 웹사
 </br>
 
 ## 🛠 기술 스택
-<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/jquery-0769AD?style=for-the-badge&logo=jquery&logoColor=white"><br/>
-<img src="https://img.shields.io/badge/bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white"> <img src="https://img.shields.io/badge/apache tomcat-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=white"> <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white"> <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
-
-</br>
-
-## 💁‍♂️ 팀원
+<img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge개
 - [주현석](https://github.com/githyunsuk) [PL]<br/>
   ✔ 사용자 : 상영스케줄, 영화 예매, 결제, 예매완료, 예매정보<br/>
   ✔ 관리자 : 상영관 관리, 상영스케줄 관리, 예매 관리<br/>
